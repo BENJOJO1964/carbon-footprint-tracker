@@ -1,5 +1,6 @@
 // Vercel Serverless Function for sending feedback emails
-const nodemailer = require('nodemailer');
+// 使用Vercel專用的郵件服務
+const { Resend } = require('resend');
 
 // 確保在Vercel環境中正確載入nodemailer
 if (typeof nodemailer.createTransporter !== 'function') {
@@ -21,63 +22,30 @@ export default async function handler(req, res) {
             EMAIL_PASS: process.env.EMAIL_PASS ? '已設定' : '未設定'
         });
         
-        // 檢查環境變數
-        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-            console.error('環境變數未設定');
+        // 檢查Resend API Key
+        if (!process.env.RESEND_API_KEY) {
+            console.error('RESEND_API_KEY未設定');
             return res.status(500).json({
                 success: false,
                 error: '郵件服務配置錯誤'
             });
         }
         
-        console.log('環境變數詳細檢查:', {
-            EMAIL_USER: process.env.EMAIL_USER,
-            EMAIL_PASS: process.env.EMAIL_PASS ? '已設定' : '未設定',
-            EMAIL_PASS_LENGTH: process.env.EMAIL_PASS ? process.env.EMAIL_PASS.length : 0,
+        console.log('Resend API Key檢查:', {
+            RESEND_API_KEY: process.env.RESEND_API_KEY ? '已設定' : '未設定',
             NODE_ENV: process.env.NODE_ENV,
             VERCEL: process.env.VERCEL
         });
         
-        // 測試環境變數是否正確載入
-        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-            console.error('環境變數未正確載入');
-            return res.status(500).json({
-                success: false,
-                error: '環境變數未正確載入，請檢查Vercel設定'
-            });
-        }
+        // 使用Resend API發送郵件（Vercel專用）
+        const resend = new Resend(process.env.RESEND_API_KEY);
         
-        // 配置郵件發送器 - 使用更寬鬆的配置
-        const transporter = nodemailer.createTransporter({
-            host: 'smtp.gmail.com',
-            port: 587,
-            secure: false, // true for 465, false for other ports
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            },
-            tls: {
-                rejectUnauthorized: false
-            }
-        });
+        console.log('使用Resend API發送郵件...');
         
-        // 測試SMTP連接
-        console.log('測試SMTP連接...');
-        try {
-            await transporter.verify();
-            console.log('✅ SMTP連接成功');
-        } catch (verifyError) {
-            console.error('❌ SMTP連接失敗:', verifyError.message);
-            return res.status(500).json({
-                success: false,
-                error: 'SMTP連接失敗: ' + verifyError.message
-            });
-        }
-        
-        // 郵件內容
-        const mailOptions = {
-            from: process.env.EMAIL_USER,
-            to: 'rbben521@gmail.com',
+        // 發送郵件
+        const result = await resend.emails.send({
+            from: '減碳日記 <noreply@carbon-footprint-tracker.vercel.app>',
+            to: ['rbben521@gmail.com'],
             subject: '減碳日記 - 用戶意見反饋',
             html: `
                 <h2>減碳日記 - 用戶意見反饋</h2>
@@ -88,10 +56,7 @@ export default async function handler(req, res) {
                 </div>
                 <p><em>發送時間: ${new Date().toLocaleString('zh-TW')}</em></p>
             `
-        };
-        
-        // 發送郵件
-        const result = await transporter.sendMail(mailOptions);
+        });
         
         console.log('反饋郵件發送成功:', result.messageId);
         
