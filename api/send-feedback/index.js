@@ -1,6 +1,11 @@
 // Vercel Serverless Function for sending feedback emails
 const nodemailer = require('nodemailer');
 
+// 確保在Vercel環境中正確載入nodemailer
+if (typeof nodemailer.createTransporter !== 'function') {
+    console.error('nodemailer not properly loaded');
+}
+
 export default async function handler(req, res) {
     // 只允許POST請求
     if (req.method !== 'POST') {
@@ -51,20 +56,28 @@ export default async function handler(req, res) {
         };
         
         // 發送郵件
-        await transporter.sendMail(mailOptions);
+        const result = await transporter.sendMail(mailOptions);
         
-        console.log('反饋郵件發送成功');
+        console.log('反饋郵件發送成功:', result.messageId);
         
         res.status(200).json({
             success: true,
-            message: '反饋已成功發送'
+            message: '反饋已成功發送',
+            messageId: result.messageId
         });
         
     } catch (error) {
         console.error('反饋郵件發送失敗:', error);
+        console.error('錯誤詳情:', {
+            message: error.message,
+            code: error.code,
+            response: error.response
+        });
+        
         res.status(500).json({
             success: false,
-            error: '郵件發送失敗，請稍後再試'
+            error: '郵件發送失敗，請稍後再試',
+            details: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 }
