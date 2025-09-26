@@ -30,6 +30,12 @@ export default async function handler(req, res) {
             });
         }
         
+        console.log('環境變數詳細檢查:', {
+            EMAIL_USER: process.env.EMAIL_USER,
+            EMAIL_PASS: process.env.EMAIL_PASS ? '已設定' : '未設定',
+            EMAIL_PASS_LENGTH: process.env.EMAIL_PASS ? process.env.EMAIL_PASS.length : 0
+        });
+        
         // 配置郵件發送器 - 使用更寬鬆的配置
         const transporter = nodemailer.createTransporter({
             host: 'smtp.gmail.com',
@@ -71,18 +77,28 @@ export default async function handler(req, res) {
             messageId: result.messageId
         });
         
-    } catch (error) {
-        console.error('反饋郵件發送失敗:', error);
-        console.error('錯誤詳情:', {
-            message: error.message,
-            code: error.code,
-            response: error.response
-        });
-        
-        res.status(500).json({
-            success: false,
-            error: '郵件發送失敗，請稍後再試',
-            details: process.env.NODE_ENV === 'development' ? error.message : undefined
-        });
-    }
+            } catch (error) {
+                console.error('反饋郵件發送失敗:', error);
+                console.error('錯誤詳情:', {
+                    message: error.message,
+                    code: error.code,
+                    response: error.response,
+                    stack: error.stack
+                });
+                
+                // 檢查是否是認證錯誤
+                if (error.message.includes('Invalid login') || error.message.includes('authentication')) {
+                    console.error('Gmail認證失敗，請檢查應用程式密碼');
+                    return res.status(500).json({
+                        success: false,
+                        error: 'Gmail認證失敗，請檢查應用程式密碼設定'
+                    });
+                }
+                
+                res.status(500).json({
+                    success: false,
+                    error: '郵件發送失敗，請稍後再試',
+                    details: process.env.NODE_ENV === 'development' ? error.message : undefined
+                });
+            }
 }
