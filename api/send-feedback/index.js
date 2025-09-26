@@ -33,6 +33,8 @@ export default async function handler(req, res) {
         
         console.log('Resend API Key檢查:', {
             RESEND_API_KEY: process.env.RESEND_API_KEY ? '已設定' : '未設定',
+            RESEND_API_KEY_LENGTH: process.env.RESEND_API_KEY ? process.env.RESEND_API_KEY.length : 0,
+            RESEND_API_KEY_PREFIX: process.env.RESEND_API_KEY ? process.env.RESEND_API_KEY.substring(0, 10) + '...' : '未設定',
             NODE_ENV: process.env.NODE_ENV,
             VERCEL: process.env.VERCEL
         });
@@ -75,12 +77,20 @@ export default async function handler(req, res) {
                     stack: error.stack
                 });
                 
-                // 檢查是否是認證錯誤
-                if (error.message.includes('Invalid login') || error.message.includes('authentication')) {
-                    console.error('Gmail認證失敗，請檢查應用程式密碼');
+                // 檢查Resend API錯誤
+                if (error.message.includes('Invalid API key') || error.message.includes('Unauthorized')) {
+                    console.error('Resend API Key無效或過期');
                     return res.status(500).json({
                         success: false,
-                        error: 'Gmail認證失敗，請檢查應用程式密碼設定'
+                        error: 'Resend API Key無效或過期，請檢查設定'
+                    });
+                }
+                
+                if (error.message.includes('Rate limit')) {
+                    console.error('Resend API 速率限制');
+                    return res.status(500).json({
+                        success: false,
+                        error: '郵件發送頻率過高，請稍後再試'
                     });
                 }
                 
