@@ -33,8 +33,19 @@ export default async function handler(req, res) {
         console.log('環境變數詳細檢查:', {
             EMAIL_USER: process.env.EMAIL_USER,
             EMAIL_PASS: process.env.EMAIL_PASS ? '已設定' : '未設定',
-            EMAIL_PASS_LENGTH: process.env.EMAIL_PASS ? process.env.EMAIL_PASS.length : 0
+            EMAIL_PASS_LENGTH: process.env.EMAIL_PASS ? process.env.EMAIL_PASS.length : 0,
+            NODE_ENV: process.env.NODE_ENV,
+            VERCEL: process.env.VERCEL
         });
+        
+        // 測試環境變數是否正確載入
+        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+            console.error('環境變數未正確載入');
+            return res.status(500).json({
+                success: false,
+                error: '環境變數未正確載入，請檢查Vercel設定'
+            });
+        }
         
         // 配置郵件發送器 - 使用更寬鬆的配置
         const transporter = nodemailer.createTransporter({
@@ -49,6 +60,19 @@ export default async function handler(req, res) {
                 rejectUnauthorized: false
             }
         });
+        
+        // 測試SMTP連接
+        console.log('測試SMTP連接...');
+        try {
+            await transporter.verify();
+            console.log('✅ SMTP連接成功');
+        } catch (verifyError) {
+            console.error('❌ SMTP連接失敗:', verifyError.message);
+            return res.status(500).json({
+                success: false,
+                error: 'SMTP連接失敗: ' + verifyError.message
+            });
+        }
         
         // 郵件內容
         const mailOptions = {
