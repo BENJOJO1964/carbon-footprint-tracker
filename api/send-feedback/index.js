@@ -11,6 +11,19 @@ export default async function handler(req, res) {
         const { userEmail, feedbackContent } = req.body;
         
         console.log('收到反饋郵件請求:', { userEmail, feedbackContent });
+        console.log('環境變數檢查:', {
+            EMAIL_USER: process.env.EMAIL_USER ? '已設定' : '未設定',
+            EMAIL_PASS: process.env.EMAIL_PASS ? '已設定' : '未設定'
+        });
+        
+        // 檢查環境變數
+        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+            console.error('環境變數未設定');
+            return res.status(500).json({
+                success: false,
+                error: '郵件服務配置錯誤'
+            });
+        }
         
         // 配置郵件發送器
         const transporter = nodemailer.createTransporter({
