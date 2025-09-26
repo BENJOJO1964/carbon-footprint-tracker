@@ -46,7 +46,7 @@ export default async function handler(req, res) {
         
         // 發送郵件
         const result = await resend.emails.send({
-            from: '減碳日記 <noreply@carbon-footprint-tracker.vercel.app>',
+            from: '減碳日記 <onboarding@resend.dev>',
             to: ['rbben521@gmail.com'],
             subject: '減碳日記 - 用戶意見反饋',
             html: `
