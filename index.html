@@ -377,6 +377,12 @@
                     🕛 每日記錄
                 </button>
             </div>
+            
+            <div style="margin-top: 10px;">
+                <button class="btn" onclick="showFeedbackForm()" style="background: #9C27B0; color: white; font-size: 12px; padding: 8px; min-height: 36px; width: 100%; border: none; border-radius: 6px; cursor: pointer;">
+                    📝 意見反饋
+                </button>
+            </div>
         </div>
         
         <div class="menu-grid">
@@ -3612,6 +3618,93 @@
             return '';
         }
         
+        // 意見反饋系統
+        function showFeedbackForm() {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 500px; background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%); color: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                    <div style="padding: 20px;">
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <div style="font-size: 24px; margin-bottom: 10px;">📝</div>
+                            <h3 style="margin: 0 0 10px 0; font-size: 18px;">意見反饋</h3>
+                            <div style="font-size: 14px; opacity: 0.9;">您的意見讓我們變得更好</div>
+                        </div>
+                        
+                        <form id="feedbackForm" style="background: rgba(255,255,255,0.15); border-radius: 10px; padding: 15px;">
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">您的Email：</label>
+                                <input type="email" id="userEmail" placeholder="請輸入您的email" required 
+                                       style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; background: rgba(255,255,255,0.2); color: white; font-size: 14px;">
+                            </div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">意見內容：</label>
+                                <textarea id="feedbackContent" placeholder="請告訴我們您的想法、建議或遇到的問題..." required rows="4"
+                                          style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; background: rgba(255,255,255,0.2); color: white; font-size: 14px; resize: vertical;"></textarea>
+                            </div>
+                            
+                            <div style="display: flex; gap: 10px; justify-content: center;">
+                                <button type="button" onclick="submitFeedback()" style="background: rgba(255,255,255,0.3); color: white; border: 2px solid white; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-size: 14px; font-weight: bold;">
+                                    發送反饋
+                                </button>
+                                <button type="button" onclick="closeModal(this)" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid white; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-size: 14px; font-weight: bold;">
+                                    取消
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+        
+        function submitFeedback() {
+            const userEmail = document.getElementById('userEmail').value;
+            const feedbackContent = document.getElementById('feedbackContent').value;
+            
+            if (!userEmail || !feedbackContent) {
+                alert('請填寫完整信息');
+                return;
+            }
+            
+            // 使用EmailJS發送郵件到 rbben521@gmail.com
+            emailjs.send('service_id', 'template_id', {
+                to_email: 'rbben521@gmail.com',
+                from_email: userEmail,
+                subject: '減碳日記 - 用戶意見反饋',
+                message: feedbackContent
+            }).then(function(response) {
+                alert('感謝您的反饋！我們會盡快回覆您。');
+                closeModal(document.querySelector('.modal'));
+            }, function(error) {
+                // 如果EmailJS失敗，使用備用方案
+                console.log('EmailJS failed:', error);
+                
+                // 備用方案：複製到剪貼板
+                const feedbackText = `發送給: rbben521@gmail.com\n主題: 減碳日記 - 用戶意見反饋\n\n用戶Email: ${userEmail}\n\n意見內容:\n${feedbackContent}`;
+                
+                navigator.clipboard.writeText(feedbackText).then(function() {
+                    alert('已複製反饋內容到剪貼板，請手動發送郵件至 rbben521@gmail.com');
+                }, function() {
+                    alert('請手動發送郵件至 rbben521@gmail.com\n\n主題: 減碳日記 - 用戶意見反饋\n\n用戶Email: ' + userEmail + '\n\n意見內容:\n' + feedbackContent);
+                });
+                
+                closeModal(document.querySelector('.modal'));
+            });
+        }
+        
+    </script>
+    
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function(){
+            emailjs.init("YOUR_PUBLIC_KEY"); // 需要替換為實際的EmailJS公鑰
+        })();
     </script>
 </body>
 </html>
