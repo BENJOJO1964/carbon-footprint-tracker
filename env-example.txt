@@ -5,6 +5,11 @@
 INVOICE_APP_ID=YOUR_APP_ID_HERE
 INVOICE_API_KEY=YOUR_API_KEY_HERE
 
+# 郵件發送配置
+# 使用Gmail需要啟用「兩步驟驗證」並生成「應用程式密碼」
+EMAIL_USER=rbben521@gmail.com
+EMAIL_PASS=YOUR_APP_PASSWORD_HERE
+
 # 服務器配置
 PORT=3001
 NODE_ENV=development

@@ -3,12 +3,64 @@ require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
+const nodemailer = require('nodemailer');
 const app = express();
 const port = process.env.PORT || 3001;
 
 // 中間件
 app.use(cors());
 app.use(express.json());
+
+// 配置郵件發送器
+const transporter = nodemailer.createTransporter({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER || 'rbben521@gmail.com',
+        pass: process.env.EMAIL_PASS || 'your-app-password'
+    }
+});
+
+// 反饋郵件發送API
+app.post('/api/send-feedback', async (req, res) => {
+    try {
+        const { userEmail, feedbackContent } = req.body;
+        
+        console.log('收到反饋郵件請求:', { userEmail, feedbackContent });
+        
+        // 郵件內容
+        const mailOptions = {
+            from: process.env.EMAIL_USER || 'rbben521@gmail.com',
+            to: 'rbben521@gmail.com',
+            subject: '減碳日記 - 用戶意見反饋',
+            html: `
+                <h2>減碳日記 - 用戶意見反饋</h2>
+                <p><strong>用戶Email:</strong> ${userEmail}</p>
+                <p><strong>反饋內容:</strong></p>
+                <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                    ${feedbackContent.replace(/\n/g, '<br>')}
+                </div>
+                <p><em>發送時間: ${new Date().toLocaleString('zh-TW')}</em></p>
+            `
+        };
+        
+        // 發送郵件
+        await transporter.sendMail(mailOptions);
+        
+        console.log('反饋郵件發送成功');
+        
+        res.json({
+            success: true,
+            message: '反饋已成功發送'
+        });
+        
+    } catch (error) {
+        console.error('反饋郵件發送失敗:', error);
+        res.status(500).json({
+            success: false,
+            error: '郵件發送失敗，請稍後再試'
+        });
+    }
+});
 
 // 電子發票檢查API
 app.post('/api/invoice/check', async (req, res) => {
