@@ -30,12 +30,17 @@ export default async function handler(req, res) {
             });
         }
         
-        // 配置郵件發送器
+        // 配置郵件發送器 - 使用更寬鬆的配置
         const transporter = nodemailer.createTransporter({
-            service: 'gmail',
+            host: 'smtp.gmail.com',
+            port: 587,
+            secure: false, // true for 465, false for other ports
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS
+            },
+            tls: {
+                rejectUnauthorized: false
             }
         });
         
