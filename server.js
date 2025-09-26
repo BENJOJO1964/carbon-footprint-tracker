@@ -7,6 +7,12 @@ const nodemailer = require('nodemailer');
 const app = express();
 const port = process.env.PORT || 3001;
 
+// 環境變數檢查
+console.log('Environment variables loaded:', {
+    EMAIL_USER: process.env.EMAIL_USER ? 'Set' : 'Not set',
+    EMAIL_PASS: process.env.EMAIL_PASS ? 'Set' : 'Not set'
+});
+
 // 中間件
 app.use(cors());
 app.use(express.json());
