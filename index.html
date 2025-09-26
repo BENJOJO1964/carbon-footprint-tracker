@@ -3698,27 +3698,44 @@
             }).catch(error => {
                 console.error('發送反饋失敗:', error);
                 
-                // 備用方案：使用mailto鏈接
-                const subject = encodeURIComponent('減碳日記 - 用戶意見反饋');
-                const body = encodeURIComponent(`用戶Email: ${userEmail}\n\n意見內容:\n${feedbackContent}`);
-                const mailtoLink = `mailto:rbben521@gmail.com?subject=${subject}&body=${body}`;
-                
-                // 嘗試打開郵件客戶端
-                window.location.href = mailtoLink;
-                
-                // 同時複製到剪貼板作為備用
+                // 備用方案：直接複製到剪貼板並顯示詳細信息
                 const feedbackText = `發送給: rbben521@gmail.com\n主題: 減碳日記 - 用戶意見反饋\n\n用戶Email: ${userEmail}\n\n意見內容:\n${feedbackContent}`;
                 
-                if (navigator.clipboard) {
+                // 複製到剪貼板
+                if (navigator.clipboard && navigator.clipboard.writeText) {
                     navigator.clipboard.writeText(feedbackText).then(function() {
-                        alert('已打開郵件客戶端並複製內容到剪貼板，請發送郵件至 rbben521@gmail.com');
+                        alert('✅ 反饋內容已複製到剪貼板！\n\n請打開您的郵件應用程式，貼上內容並發送給：\nrbben521@gmail.com\n\n主題：減碳日記 - 用戶意見反饋');
+                    }).catch(function() {
+                        // 如果複製失敗，顯示完整信息
+                        showFallbackInstructions(userEmail, feedbackContent);
                     });
                 } else {
-                    alert('請手動發送郵件至 rbben521@gmail.com\n\n主題: 減碳日記 - 用戶意見反饋\n\n用戶Email: ' + userEmail + '\n\n意見內容:\n' + feedbackContent);
+                    // 如果瀏覽器不支援剪貼板API，顯示完整信息
+                    showFallbackInstructions(userEmail, feedbackContent);
                 }
                 
                 closeModal(document.querySelector('.modal'));
             });
+            
+            // 顯示備用方案的詳細說明
+            function showFallbackInstructions(userEmail, feedbackContent) {
+                const instructions = `📧 請手動發送郵件至：rbben521@gmail.com
+
+📝 郵件內容：
+────────────────────────
+收件人：rbben521@gmail.com
+主題：減碳日記 - 用戶意見反饋
+
+用戶Email：${userEmail}
+
+意見內容：
+${feedbackContent}
+────────────────────────
+
+請複製以上內容到您的郵件應用程式並發送。`;
+                
+                alert(instructions);
+            }
         }
         
     </script>
