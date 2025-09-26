@@ -3678,7 +3678,7 @@
             }
             
             // 直接使用後端API發送郵件
-            fetch('/api/send-feedback', {
+            fetch('https://carbon-footprint-tracker-alpha.vercel.app/api/send-feedback', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
