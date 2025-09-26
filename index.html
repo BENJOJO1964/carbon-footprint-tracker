@@ -3697,7 +3697,26 @@
                 }
             }).catch(error => {
                 console.error('發送反饋失敗:', error);
-                alert('發送失敗，請稍後再試或聯繫客服。');
+                
+                // 備用方案：使用mailto鏈接
+                const subject = encodeURIComponent('減碳日記 - 用戶意見反饋');
+                const body = encodeURIComponent(`用戶Email: ${userEmail}\n\n意見內容:\n${feedbackContent}`);
+                const mailtoLink = `mailto:rbben521@gmail.com?subject=${subject}&body=${body}`;
+                
+                // 嘗試打開郵件客戶端
+                window.location.href = mailtoLink;
+                
+                // 同時複製到剪貼板作為備用
+                const feedbackText = `發送給: rbben521@gmail.com\n主題: 減碳日記 - 用戶意見反饋\n\n用戶Email: ${userEmail}\n\n意見內容:\n${feedbackContent}`;
+                
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(feedbackText).then(function() {
+                        alert('已打開郵件客戶端並複製內容到剪貼板，請發送郵件至 rbben521@gmail.com');
+                    });
+                } else {
+                    alert('請手動發送郵件至 rbben521@gmail.com\n\n主題: 減碳日記 - 用戶意見反饋\n\n用戶Email: ' + userEmail + '\n\n意見內容:\n' + feedbackContent);
+                }
+                
                 closeModal(document.querySelector('.modal'));
             });
         }
