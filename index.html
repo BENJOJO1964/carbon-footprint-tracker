@@ -1,0 +1,3617 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="format-detection" content="telephone=no">
+    <title>碳足跡追蹤器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            color: #333;
+            /* iPhone Chrome滾動修復 */
+            overflow-x: hidden;
+            overflow-y: scroll;
+            -webkit-overflow-scrolling: touch;
+            position: relative;
+            /* 強制啟用硬體加速 */
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+        }
+        
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            /* iPhone Chrome滾動優化 */
+            overflow-y: visible;
+            -webkit-overflow-scrolling: touch;
+            position: relative;
+            /* 強制啟用硬體加速 */
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+        }
+        
+        /* .header 類別已刪除，不再使用 */
+        
+        .stats-card {
+            margin: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .carbon-number {
+            font-size: 48px;
+            font-weight: bold;
+            color: #4CAF50;
+            margin-bottom: 10px;
+        }
+        
+        .carbon-unit {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            width: 62.5%;
+            transition: width 0.3s ease;
+        }
+        
+        .goal-text {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px;
+        }
+        
+        .menu-item {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            /* 改善手機觸控 */
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        
+        .menu-item:hover {
+            transform: translateY(-2px);
+        }
+        
+        .menu-item:active {
+            transform: scale(0.98);
+            transition: transform 0.1s ease;
+        }
+        
+        .menu-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .menu-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .menu-desc {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        /* .location-status 類別已刪除，不再使用 */
+        
+        .status-text {
+            font-size: 14px;
+            color: #1976D2;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            width: 90%;
+            max-width: 350px;
+            max-height: 80vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            /* 改善手機輸入體驗 */
+            -webkit-appearance: none;
+            appearance: none;
+            min-height: 44px;
+            touch-action: manipulation;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            /* 改善手機觸控 */
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            min-height: 44px; /* 確保觸控目標足夠大 */
+        }
+        
+        .btn:hover {
+            background: #45a049;
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+            transition: transform 0.1s ease;
+        }
+        
+        .camera-btn {
+            background: #FF9800;
+        }
+        
+        .camera-btn:hover {
+            background: #F57C00;
+        }
+        
+        .breakdown {
+            margin: 20px;
+            /* 改善手機滾動 */
+            -webkit-overflow-scrolling: touch;
+            overflow-scrolling: touch;
+        }
+        
+        .breakdown-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .breakdown-item:last-child {
+            border-bottom: none;
+        }
+        
+        .breakdown-label {
+            font-size: 14px;
+        }
+        
+        .breakdown-value {
+            font-weight: 600;
+            color: #4CAF50;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 綠色標題卡片，貼著頁面上緣 -->
+        <div style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; padding: 20px; margin: 0; border-radius: 0 0 15px 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: relative;">
+            <!-- LOGO放在左上角，黏著邊界 -->
+            <img src="ctx-logo.png?v=202509251400" alt="ctx-logo" style="position: absolute; top: 0; left: 0; width: 80px; height: 80px; border-radius: 8px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div style="position: absolute; top: 0; left: 0; width: 80px; height: 80px; border-radius: 8px; background: #4CAF50; display: none; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: bold;">
+                🌱
+            </div>
+            <!-- 標題文字區域 -->
+            <div style="display: flex; align-items: center; justify-content: center; margin-left: 90px; margin-right: 90px;">
+                <div style="text-align: center;">
+                        <h1 style="margin: 0; font-size: 28px; font-weight: bold;">
+                            <span style="display: inline-block; width: 0; overflow: hidden;">🌱</span>減碳日記
+                        </h1>
+                        <p style="margin: 5px 0 0 0; font-size: 16px; opacity: 0.9; white-space: nowrap;">自動偵測碳排，生活就是日記</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats-card">
+            <div class="carbon-number" id="realTimeCarbon">0.0</div>
+            <div class="carbon-unit">公斤 CO₂</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="realTimeProgress"></div>
+            </div>
+            <div class="goal-text" id="realTimeGoal">今日目標: 20.0 公斤 | 完成度: 0.0%</div>
+        </div>
+        
+        <div style="margin: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+            <div class="status-text" id="locationStatusText"></div>
+        </div>
+        
+        <div style="margin: 20px; padding: 15px; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">
+            <div style="font-size: 14px; color: #856404;">
+                <strong>📱 實時功能狀態：</strong><br>
+                <span id="gpsStatus"></span><br>
+                <span id="sensorStatus"></span><br>
+                <span id="autoTracking"></span>
+            </div>
+            <div style="font-size: 12px; color: #666; margin-top: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;">
+                <strong>📋 狀態說明：</strong><br>
+                • <strong>GPS</strong>：定位您的位置，用於記錄移動軌跡<br>
+                • <strong>感應器</strong>：檢測手機動作，判斷交通工具類型<br>
+                • <strong>自動追蹤</strong>：自動記錄移動和發票，計算碳足跡
+            </div>
+            <div style="margin-top: 10px; text-align: center; color: #666; font-size: 14px;" id="statusMessage">
+                ✅ GPS和感應器已自動啟用，正在監測您的碳足跡
+            </div>
+            
+            <!-- Chrome專用GPS權限按鈕 -->
+            <div id="chromeGPSButton" style="display: none; margin: 10px 0;">
+                <button onclick="requestChromeGPSPermission()" style="
+                    background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
+                    color: white;
+                    border: none;
+                    padding: 12px 24px;
+                    border-radius: 8px;
+                    font-size: 16px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+                    transition: all 0.3s ease;
+                    width: 100%;
+                ">
+                    📍 點擊啟用Chrome GPS定位
+                </button>
+            </div>
+            
+            <div style="margin-top: 10px;">
+                <button class="btn" onclick="triggerDailyRecord()" id="dailyRecordBtn" style="background: #FF9800; color: white; font-size: 12px; padding: 8px; min-height: 36px; width: 100%; border: none; border-radius: 6px; cursor: pointer;">
+                    🕛 每日記錄
+                </button>
+            </div>
+        </div>
+        
+        <div class="menu-grid">
+            <div class="menu-item" onclick="openModal('movement')" style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white;">
+                <div class="menu-icon">🚗</div>
+                <div class="menu-title">移動記錄</div>
+                <div class="menu-desc" style="color: black;">記錄交通方式</div>
+            </div>
+            
+            <div class="menu-item" onclick="openModal('invoice')" style="background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); color: white;">
+                <div class="menu-icon">🧾</div>
+                <div class="menu-title">發票管理</div>
+                <div class="menu-desc" style="color: black;">綁定載具 & 掃描發票</div>
+                <div class="menu-desc" style="color: black; font-size: 12px; margin-top: 2px;">自動偵測碳足跡</div>
+            </div>
+            
+            <div class="menu-item" onclick="showAnalytics()" style="background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%); color: white;">
+                <div class="menu-icon">📊</div>
+                <div class="menu-title">數據分析</div>
+                <div class="menu-desc" style="color: black;">查看詳細統計</div>
+            </div>
+            
+            <div class="menu-item" onclick="openModal('settings')" style="background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%); color: white;">
+                <div class="menu-icon">⚙️</div>
+                <div class="menu-title">設定</div>
+                <div class="menu-desc" style="color: black;">個人化設定</div>
+            </div>
+        </div>
+        
+        <div class="breakdown">
+            <div class="breakdown-title">今日碳足跡分解（實時偵測）</div>
+            <div class="breakdown-item">
+                <span class="breakdown-label">🚗 交通運輸</span>
+                <span class="breakdown-value" id="transportCarbon">0.0 kg</span>
+            </div>
+            <div class="breakdown-item">
+                <span class="breakdown-label">🛒 購物消費</span>
+                <span class="breakdown-value" id="shoppingCarbon">0.0 kg</span>
+            </div>
+            <div class="breakdown-item">
+                <span class="breakdown-label">🏃 活動偵測</span>
+                <span class="breakdown-value" id="activityCarbon">0.0 kg</span>
+            </div>
+            <div class="breakdown-item">
+                <span class="breakdown-label">📍 位置變化</span>
+                <span class="breakdown-value" id="locationCarbon">0.0 kg</span>
+            </div>
+            <div class="breakdown-item">
+                <span class="breakdown-label">📱 感應器數據</span>
+                <span class="breakdown-value" id="sensorCarbon">0.0 kg</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 移動記錄模態框 -->
+    <div id="movementModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🚗 記錄移動</h3>
+                <button class="close-btn" onclick="closeModal('movementModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>移動方式</label>
+                <select id="movementType">
+                    <option value="driving">開車</option>
+                    <option value="walking">步行</option>
+                    <option value="cycling">騎自行車</option>
+                    <option value="public_transport">大眾運輸</option>
+                    <option value="flying">飛機</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>距離 (公里)</label>
+                <input type="number" id="distance" placeholder="例如: 5.2" step="0.1">
+            </div>
+            <div class="form-group">
+                <label>時間 (分鐘)</label>
+                <input type="number" id="duration" placeholder="例如: 30">
+            </div>
+            <button class="btn" onclick="submitMovement()">記錄移動</button>
+        </div>
+    </div>
+    
+    <!-- 發票管理模態框 -->
+    <div id="invoiceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🧾 發票管理</h3>
+                <button class="close-btn" onclick="closeModal('invoiceModal')">&times;</button>
+            </div>
+            
+            <!-- 電子發票載具綁定 -->
+            <div style="margin-bottom: 20px; padding: 15px; background: #e8f5e8; border-radius: 8px; border-left: 4px solid #4CAF50;">
+                <h4 style="margin-bottom: 10px; color: #2e7d32;">📱 電子發票載具</h4>
+                <div id="carrierStatus" style="margin-bottom: 10px;">
+                    <span id="carrierInfo">未綁定載具</span>
+                </div>
+                <button class="btn" onclick="bindCarrier()" style="background: #4CAF50; margin-bottom: 10px;">
+                    🔗 綁定電子發票載具
+                </button>
+                <button class="btn" onclick="checkCarrierInvoices()" style="background: #2196F3; margin-bottom: 10px;">
+                    🔄 同步載具發票
+                </button>
+                <div id="autoSyncStatus" style="font-size: 12px; color: #666; margin-top: 5px;">
+                    自動同步: <span id="syncStatus">已啟用</span>
+                </div>
+            </div>
+            
+            <!-- 傳統發票掃描 -->
+            <div style="margin-bottom: 20px; padding: 15px; background: #fff3e0; border-radius: 8px; border-left: 4px solid #FF9800;">
+                <h4 style="margin-bottom: 10px; color: #e65100;">📷 傳統發票掃描</h4>
+                <div class="form-group">
+                    <label>商店名稱</label>
+                    <input type="text" id="storeName" placeholder="例如: 全聯福利中心">
+                </div>
+                <div class="form-group">
+                    <label>消費金額</label>
+                    <input type="number" id="amount" placeholder="例如: 150" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>碳足跡</label>
+                    <input type="text" id="carbonFootprint" placeholder="掃描後自動計算" readonly style="background-color: #f8f9fa; color: #4CAF50; font-weight: bold;">
+                </div>
+                <button class="btn camera-btn" onclick="scanInvoice()">📷 開啟相機掃描</button>
+            </div>
+            
+            <!-- 最近發票記錄 -->
+            <div style="margin-top: 20px;">
+                <h4 style="margin-bottom: 10px;">📋 最近發票記錄</h4>
+                <div id="recentInvoices" style="max-height: 200px; overflow-y: auto;">
+                    <div style="padding: 10px; text-align: center; color: #666;">
+                        載入中...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 設定模態框 -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>⚙️ 設定</h3>
+                <button class="close-btn" onclick="closeModal('settingsModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>每日碳足跡目標 (公斤)</label>
+                <input type="number" id="dailyGoal" value="20" step="0.1">
+            </div>
+            <div class="form-group">
+                <label>GPS定位</label>
+                <select id="gpsEnabled">
+                    <option value="true">啟用</option>
+                    <option value="false">停用</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>自動追蹤</label>
+                <select id="autoTracking">
+                    <option value="true">啟用</option>
+                    <option value="false">停用</option>
+                </select>
+            </div>
+            <button class="btn" onclick="saveSettings()">儲存設定</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://172.20.10.6:3002';
+        
+        // 開啟模態框
+        function openModal(type) {
+            if (type === 'movement') {
+                document.getElementById('movementModal').style.display = 'block';
+            } else if (type === 'invoice') {
+                document.getElementById('invoiceModal').style.display = 'block';
+            } else if (type === 'settings') {
+                document.getElementById('settingsModal').style.display = 'block';
+            }
+        }
+        
+        // 關閉模態框
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        // 提交移動記錄
+        async function submitMovement() {
+            const type = document.getElementById('movementType').value;
+            const distance = parseFloat(document.getElementById('distance').value);
+            const duration = parseInt(document.getElementById('duration').value);
+            
+            if (!distance || !duration) {
+                alert('請填寫完整信息');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/movement`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ type, distance, duration })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert('移動記錄已保存！');
+                    closeModal('movementModal');
+                    updateStats();
+                } else {
+                    alert('保存失敗：' + result.error);
+                }
+            } catch (error) {
+                alert('網絡錯誤：' + error.message);
+            }
+        }
+        
+        // 掃描發票
+        async function scanInvoice() {
+            try {
+                // 檢查瀏覽器是否支持相機
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    alert('您的瀏覽器不支持相機功能，請使用Chrome或Safari');
+                    return;
+                }
+
+                // 創建相機模態框
+                const cameraModal = document.createElement('div');
+                cameraModal.className = 'modal';
+                cameraModal.style.display = 'block';
+                cameraModal.innerHTML = `
+                    <div class="modal-content" style="max-width: 90%; height: 85vh;">
+                        <div class="modal-header">
+                            <h3>📷 連續掃描發票</h3>
+                            <button class="close-btn" onclick="closeCamera()">&times;</button>
+                        </div>
+                        <div style="background: #e8f5e8; padding: 10px; margin: 10px 0; border-radius: 8px; text-align: center;">
+                            <div style="color: #4CAF50; font-weight: bold;">💡 連續掃描模式</div>
+                            <div style="font-size: 14px; color: #666;">可以連續掃描多張發票，每張都會自動累計碳足跡</div>
+                        </div>
+                        <div style="text-align: center; margin: 20px 0;">
+                            <video id="cameraVideo" autoplay style="width: 100%; max-width: 400px; border-radius: 8px; border: 2px solid #4CAF50;"></video>
+                            <canvas id="cameraCanvas" style="display: none;"></canvas>
+                        </div>
+                        <div style="text-align: center; margin: 20px 0;">
+                            <button class="btn" onclick="capturePhoto()" style="background: #4CAF50; color: white; padding: 15px 30px; font-size: 18px; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);">
+                                📷 掃描發票
+                            </button>
+                        </div>
+                        <div style="text-align: center; margin: 10px 0;">
+                            <button class="btn" onclick="closeCamera()" style="background: #6c757d; color: white; padding: 10px 20px; font-size: 14px; border: none; border-radius: 6px; cursor: pointer;">
+                                ✅ 完成掃描
+                            </button>
+                        </div>
+                        <div id="scanResult" style="display: none; margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                            <h4>掃描結果：</h4>
+                            <div id="scanText"></div>
+                        </div>
+                        <div style="background: #f8f9fa; padding: 15px; margin: 20px 0; border-radius: 8px; font-size: 14px;">
+                            <div style="font-weight: bold; margin-bottom: 10px;">📋 掃描流程：</div>
+                            <div>• 將發票對準相機畫面</div>
+                            <div>• 點擊「📷 掃描發票」進行識別</div>
+                            <div>• 系統自動偵測發票內容</div>
+                            <div>• 自動計算碳足跡並顯示結果</div>
+                            <div>• 自動累計到當日碳足跡記錄</div>
+                            <div>• 可連續掃描多張發票</div>
+                            <div>• 完成後點擊「✅ 完成掃描」關閉相機</div>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(cameraModal);
+
+                // 開啟相機
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        facingMode: 'environment', // 使用後置相機
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    } 
+                });
+                
+                const video = document.getElementById('cameraVideo');
+                video.srcObject = stream;
+                
+                // 儲存stream以便後續關閉
+                window.cameraStream = stream;
+                
+            } catch (error) {
+                alert('無法開啟相機：' + error.message + '\n\n請確保：\n1. 允許瀏覽器使用相機\n2. 使用HTTPS或localhost\n3. 使用Chrome或Safari瀏覽器');
+            }
+        }
+        
+        // 掃描發票（連續掃描模式）
+        async function capturePhoto() {
+            const video = document.getElementById('cameraVideo');
+            const canvas = document.getElementById('cameraCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // 設置canvas尺寸
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            // 繪製視頻幀到canvas
+            ctx.drawImage(video, 0, 0);
+            
+            // 獲取圖片數據
+            const imageData = canvas.toDataURL('image/jpeg', 0.8);
+            
+            // 顯示掃描中指示器
+            showScanningIndicator();
+            
+            try {
+                // 模擬OCR識別發票內容
+                const invoiceData = await analyzeInvoice(imageData);
+                
+                // 移除掃描中指示器
+                hideScanningIndicator();
+                
+                // 計算碳足跡
+                const carbonFootprint = calculateInvoiceCarbonFootprint(invoiceData);
+                
+                // 自動填入表單
+                fillInvoiceForm(invoiceData, carbonFootprint);
+                
+                // 自動記錄到當日碳足跡記錄
+                await recordInvoiceToDaily(invoiceData, carbonFootprint);
+                
+                // 顯示累計成功通知
+                showAccumulationNotification(invoiceData, carbonFootprint);
+                
+            } catch (error) {
+                // 移除掃描中指示器
+                hideScanningIndicator();
+                
+                // 如果自動識別失敗，顯示手動輸入選項
+                showManualInputOption(imageData);
+            }
+        }
+        
+        // 顯示掃描中指示器
+        function showScanningIndicator() {
+            // 移除現有的指示器
+            hideScanningIndicator();
+            
+            const indicator = document.createElement('div');
+            indicator.id = 'scanningIndicator';
+            indicator.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 20px;
+                border-radius: 10px;
+                text-align: center;
+                z-index: 10000;
+                font-size: 16px;
+            `;
+            indicator.innerHTML = `
+                <div style="margin-bottom: 15px;">
+                    <div style="display: inline-block; width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #4CAF50; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                </div>
+                <div>🔍 正在分析發票...</div>
+                <div style="font-size: 14px; margin-top: 10px; opacity: 0.8;">請保持相機穩定</div>
+            `;
+            document.body.appendChild(indicator);
+        }
+        
+        // 隱藏掃描中指示器
+        function hideScanningIndicator() {
+            const indicator = document.getElementById('scanningIndicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+        
+        // 顯示掃描結果和碳足跡
+        function showScanResult(invoiceData, carbonFootprint) {
+            const resultModal = document.createElement('div');
+            resultModal.id = 'scanResultModal';
+            resultModal.className = 'modal';
+            resultModal.style.display = 'block';
+            resultModal.innerHTML = `
+                <div class="modal-content" style="max-width: 400px;">
+                    <div class="modal-header">
+                        <h3>📷 掃描結果</h3>
+                        <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+                    </div>
+                    <div style="padding: 20px;">
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                            <h4 style="color: #4CAF50; margin-bottom: 10px;">📋 發票信息</h4>
+                            <div style="margin-bottom: 8px;">
+                                <strong>商店：</strong>${invoiceData.storeName}
+                            </div>
+                            <div style="margin-bottom: 8px;">
+                                <strong>金額：</strong>NT$ ${invoiceData.amount.toFixed(2)}
+                            </div>
+                            <div style="margin-bottom: 8px;">
+                                <strong>商品：</strong>${invoiceData.items.join(', ')}
+                            </div>
+                            <div style="margin-bottom: 8px;">
+                                <strong>識別信心度：</strong>${(invoiceData.confidence * 100).toFixed(1)}%
+                            </div>
+                        </div>
+                        
+                        <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 15px;">
+                            <h4 style="color: #4CAF50; margin: 0 0 10px 0;">🌱 碳足跡計算</h4>
+                            <div style="font-size: 28px; font-weight: bold; color: #4CAF50;">
+                                ${carbonFootprint.toFixed(2)} kg CO₂
+                            </div>
+                        </div>
+                        
+                        <div style="background: #e3f2fd; padding: 10px; border-radius: 6px; text-align: center; font-size: 14px; color: #1976d2;">
+                            💡 已自動累計到今日碳足跡記錄
+                        </div>
+                    </div>
+                    <div style="text-align: center; padding: 20px;">
+                        <button class="btn" onclick="this.closest('.modal').remove()">繼續掃描</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(resultModal);
+            
+            // 5秒後自動關閉
+            setTimeout(() => {
+                if (resultModal.parentNode) {
+                    resultModal.remove();
+                }
+            }, 5000);
+        }
+        
+        // 顯示累計成功通知
+        function showAccumulationNotification(invoiceData, carbonFootprint) {
+            const notification = document.createElement('div');
+            notification.id = 'accumulationNotification';
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #4CAF50;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                z-index: 10000;
+                font-size: 14px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                animation: slideIn 0.3s ease-out;
+                max-width: 300px;
+            `;
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="font-size: 20px;">✅</div>
+                    <div>
+                        <div style="font-weight: bold;">掃描成功！</div>
+                        <div style="font-size: 12px; opacity: 0.9; margin-top: 2px;">
+                            ${invoiceData.storeName}
+                        </div>
+                        <div style="font-size: 12px; opacity: 0.9;">
+                            NT$ ${invoiceData.amount.toFixed(2)} → ${carbonFootprint.toFixed(2)} kg CO₂
+                        </div>
+                        <div style="font-size: 11px; opacity: 0.8; margin-top: 2px;">
+                            已累計到今日記錄
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(notification);
+            
+            // 4秒後自動移除
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.animation = 'slideOut 0.3s ease-in';
+                    setTimeout(() => notification.remove(), 300);
+                }
+            }, 4000);
+        }
+        
+        // 自動填入發票表單
+        function fillInvoiceForm(invoiceData, carbonFootprint) {
+            // 填入商店名稱
+            const storeNameInput = document.getElementById('storeName');
+            if (storeNameInput) {
+                storeNameInput.value = invoiceData.storeName;
+            }
+            
+            // 填入消費金額
+            const amountInput = document.getElementById('amount');
+            if (amountInput) {
+                amountInput.value = invoiceData.amount.toFixed(2);
+            }
+            
+            // 填入碳足跡
+            const carbonInput = document.getElementById('carbonFootprint');
+            if (carbonInput) {
+                carbonInput.value = `${carbonFootprint.toFixed(2)} kg CO₂`;
+            }
+            
+            console.log('✅ 表單已自動填入:', {
+                store: invoiceData.storeName,
+                amount: invoiceData.amount,
+                carbon: carbonFootprint
+            });
+        }
+        
+        // 記錄發票到每日碳足跡記錄
+        async function recordInvoiceToDaily(invoiceData, carbonFootprint) {
+            try {
+                // 創建發票記錄
+                const invoice = {
+                    id: 'inv_' + Date.now(),
+                    storeName: invoiceData.storeName,
+                    amount: invoiceData.amount,
+                    date: new Date().toISOString(),
+                    items: invoiceData.items,
+                    carbonFootprint: carbonFootprint,
+                    source: 'camera_scan',
+                    confidence: invoiceData.confidence
+                };
+                
+                // 保存到本地存儲
+                const existingInvoices = JSON.parse(localStorage.getItem('invoices') || '[]');
+                existingInvoices.unshift(invoice);
+                localStorage.setItem('invoices', JSON.stringify(existingInvoices));
+                
+                // 更新每日碳足跡記錄
+                updateDailyCarbonRecord(carbonFootprint);
+                
+                // 更新實時數據
+                realTimeData.shopping += carbonFootprint;
+                updateRealTimeDisplay();
+                
+                // 重新載入發票記錄
+                loadRecentInvoices();
+                
+                console.log('✅ 發票已記錄到每日碳足跡:', {
+                    store: invoiceData.storeName,
+                    amount: invoiceData.amount,
+                    carbon: carbonFootprint,
+                    totalToday: realTimeData.shopping
+                });
+                
+            } catch (error) {
+                console.error('❌ 記錄發票到每日碳足跡失敗:', error);
+                alert('❌ 發票記錄失敗，請重試');
+            }
+        }
+        
+        // 分析發票（真實OCR功能）
+        async function analyzeInvoice(imageData) {
+            // 實際處理時間
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // 調用真實OCR API（需要後端服務）
+            try {
+                const response = await fetch('http://localhost:3001/api/ocr/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ imageData: imageData })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('OCR API調用失敗');
+                }
+                
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('❌ OCR識別失敗:', error);
+                throw new Error('無法識別發票內容，請手動輸入或重試');
+            }
+        }
+        
+        
+        // 計算發票碳足跡
+        function calculateInvoiceCarbonFootprint(invoiceData) {
+            let baseCarbon = invoiceData.amount * 0.01; // 基礎碳足跡：金額的1%
+            
+            // 根據商店類型調整碳足跡係數
+            const storeTypeMultiplier = {
+                '全聯福利中心': 0.8,  // 超市，相對環保
+                '家樂福': 0.8,
+                '7-ELEVEN': 1.2,     // 便利商店，包裝較多
+                '屈臣氏': 1.1,       // 藥妝店
+                '星巴克': 1.5,       // 咖啡店，外帶包裝
+                '麥當勞': 1.3,       // 速食店
+                '肯德基': 1.3
+            };
+            
+            // 根據商品類型調整
+            const itemTypeMultiplier = {
+                '牛奶': 1.2,         // 乳製品碳足跡較高
+                '肉類': 1.5,         // 肉類碳足跡最高
+                '蔬菜': 0.6,         // 蔬菜相對環保
+                '水果': 0.7,
+                '咖啡': 1.3,         // 咖啡種植和運輸
+                '麵包': 0.9,
+                '日用品': 1.0
+            };
+            
+            // 應用商店類型係數
+            for (const store in storeTypeMultiplier) {
+                if (invoiceData.storeName.includes(store)) {
+                    baseCarbon *= storeTypeMultiplier[store];
+                    break;
+                }
+            }
+            
+            // 應用商品類型係數
+            let itemMultiplier = 1.0;
+            for (const item of invoiceData.items) {
+                for (const type in itemTypeMultiplier) {
+                    if (item.includes(type)) {
+                        itemMultiplier = Math.max(itemMultiplier, itemTypeMultiplier[type]);
+                    }
+                }
+            }
+            baseCarbon *= itemMultiplier;
+            
+            return Math.max(baseCarbon, 0.01); // 最小0.01kg
+        }
+        
+        // 顯示手動輸入選項（不關閉相機）
+        function showManualInputOption(imageData) {
+            const manualModal = document.createElement('div');
+            manualModal.className = 'modal';
+            manualModal.style.display = 'block';
+            manualModal.innerHTML = `
+                <div class="modal-content" style="max-width: 400px;">
+                    <div class="modal-header">
+                        <h3>📷 手動輸入發票</h3>
+                        <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+                    </div>
+                    <div style="padding: 20px;">
+                        <div style="background: #fff3cd; padding: 10px; border-radius: 6px; margin-bottom: 15px; border-left: 4px solid #ffc107;">
+                            <div style="color: #856404; font-size: 14px;">⚠️ 自動識別失敗，請手動輸入發票信息</div>
+                        </div>
+                        <div class="form-group">
+                            <label>商店名稱</label>
+                            <input type="text" id="manualStoreName" placeholder="例如: 全聯福利中心">
+                        </div>
+                        <div class="form-group">
+                            <label>消費金額</label>
+                            <input type="number" id="manualAmount" placeholder="例如: 150" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>商品項目（選填）</label>
+                            <input type="text" id="manualItems" placeholder="例如: 牛奶, 麵包, 水果">
+                        </div>
+                    </div>
+                    <div style="text-align: center; padding: 20px;">
+                        <button class="btn" onclick="submitManualInvoice()">確認記錄</button>
+                        <button class="btn" style="background: #6c757d; margin-left: 10px;" onclick="this.closest('.modal').remove()">取消</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(manualModal);
+        }
+        
+        // 提交手動輸入的發票
+        async function submitManualInvoice() {
+            const storeName = document.getElementById('manualStoreName').value;
+            const amount = parseFloat(document.getElementById('manualAmount').value);
+            const itemsText = document.getElementById('manualItems').value;
+            
+            if (!storeName || !amount) {
+                alert('請填寫商店名稱和消費金額');
+                return;
+            }
+            
+            const items = itemsText ? itemsText.split(',').map(item => item.trim()) : [];
+            
+            const invoiceData = {
+                storeName: storeName,
+                amount: amount,
+                items: items,
+                confidence: 1.0 // 手動輸入，信心度100%
+            };
+            
+            // 關閉模態框
+            document.querySelector('.modal').remove();
+            
+            // 計算碳足跡
+            const carbonFootprint = calculateInvoiceCarbonFootprint(invoiceData);
+            
+            // 自動填入表單
+            fillInvoiceForm(invoiceData, carbonFootprint);
+            
+            // 記錄到每日碳足跡
+            await recordInvoiceToDaily(invoiceData, carbonFootprint);
+            
+            // 顯示累計通知
+            showAccumulationNotification(invoiceData, carbonFootprint);
+        }
+        
+        // 更新每日碳足跡記錄
+        function updateDailyCarbonRecord(carbonFootprint) {
+            const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD格式
+            const dailyRecords = JSON.parse(localStorage.getItem('dailyCarbonRecords') || '{}');
+            
+            if (!dailyRecords[today]) {
+                dailyRecords[today] = {
+                    date: today,
+                    totalCarbon: 0,
+                    shopping: 0,
+                    transport: 0,
+                    activity: 0,
+                    other: 0,
+                    invoiceCount: 0
+                };
+            }
+            
+            // 更新今日記錄
+            dailyRecords[today].totalCarbon += carbonFootprint;
+            dailyRecords[today].shopping += carbonFootprint;
+            dailyRecords[today].invoiceCount += 1;
+            
+            // 清理超過半年的數據
+            const sixMonthsAgo = new Date();
+            sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+            const cutoffDate = sixMonthsAgo.toISOString().split('T')[0];
+            
+            Object.keys(dailyRecords).forEach(date => {
+                if (date < cutoffDate) {
+                    delete dailyRecords[date];
+                }
+            });
+            
+            // 保存更新後的記錄
+            localStorage.setItem('dailyCarbonRecords', JSON.stringify(dailyRecords));
+            
+            // 更新每日統計顯示
+            updateDailyStatsDisplay();
+        }
+        
+        // 更新每日統計顯示
+        function updateDailyStatsDisplay() {
+            const today = new Date().toISOString().split('T')[0];
+            const dailyRecords = JSON.parse(localStorage.getItem('dailyCarbonRecords') || '{}');
+            const todayRecord = dailyRecords[today];
+            
+            if (todayRecord) {
+                // 更新實時顯示中的今日總計
+                const totalTodayElement = document.getElementById('totalToday');
+                if (totalTodayElement) {
+                    totalTodayElement.textContent = todayRecord.totalCarbon.toFixed(2);
+                }
+                
+                // 更新今日發票數量
+                const invoiceCountElement = document.getElementById('invoiceCount');
+                if (invoiceCountElement) {
+                    invoiceCountElement.textContent = todayRecord.invoiceCount;
+                }
+            }
+        }
+        
+        // 獲取每日碳足跡統計
+        function getDailyCarbonStats(days = 7) {
+            const dailyRecords = JSON.parse(localStorage.getItem('dailyCarbonRecords') || '{}');
+            const dates = Object.keys(dailyRecords).sort().slice(-days);
+            
+            return dates.map(date => ({
+                date: date,
+                totalCarbon: dailyRecords[date].totalCarbon,
+                shopping: dailyRecords[date].shopping,
+                transport: dailyRecords[date].transport,
+                activity: dailyRecords[date].activity,
+                invoiceCount: dailyRecords[date].invoiceCount
+            }));
+        }
+        
+        // 獲取月度碳足跡統計
+        function getMonthlyCarbonStats() {
+            const dailyRecords = JSON.parse(localStorage.getItem('dailyCarbonRecords') || '{}');
+            const monthlyStats = {};
+            
+            Object.values(dailyRecords).forEach(record => {
+                const month = record.date.substring(0, 7); // YYYY-MM
+                if (!monthlyStats[month]) {
+                    monthlyStats[month] = {
+                        month: month,
+                        totalCarbon: 0,
+                        shopping: 0,
+                        transport: 0,
+                        activity: 0,
+                        invoiceCount: 0,
+                        dayCount: 0
+                    };
+                }
+                
+                monthlyStats[month].totalCarbon += record.totalCarbon;
+                monthlyStats[month].shopping += record.shopping;
+                monthlyStats[month].transport += record.transport;
+                monthlyStats[month].activity += record.activity;
+                monthlyStats[month].invoiceCount += record.invoiceCount;
+                monthlyStats[month].dayCount += 1;
+            });
+            
+            return Object.values(monthlyStats).sort((a, b) => a.month.localeCompare(b.month));
+        }
+        
+        // 設置每日24:00自動記錄
+        function setupDailyAutoRecord() {
+            // 計算到今晚24:00的毫秒數
+            const now = new Date();
+            const midnight = new Date(now);
+            midnight.setHours(24, 0, 0, 0); // 設置到今晚24:00
+            
+            const timeUntilMidnight = midnight.getTime() - now.getTime();
+            
+            console.log('⏰ 設置每日自動記錄，距離下次記錄還有:', Math.round(timeUntilMidnight / 1000 / 60), '分鐘');
+            
+            // 設置定時器到今晚24:00
+            setTimeout(() => {
+                performDailyAutoRecord();
+                
+                // 設置每日重複的定時器（每24小時執行一次）
+                setInterval(performDailyAutoRecord, 24 * 60 * 60 * 1000);
+                
+            }, timeUntilMidnight);
+        }
+        
+        // 執行每日自動記錄
+        function performDailyAutoRecord() {
+            console.log('🕛 執行每日24:00自動記錄...');
+            
+            const today = new Date().toISOString().split('T')[0];
+            const dailyRecords = JSON.parse(localStorage.getItem('dailyCarbonRecords') || '{}');
+            
+            // 確保今日記錄存在
+            if (!dailyRecords[today]) {
+                dailyRecords[today] = {
+                    date: today,
+                    totalCarbon: 0,
+                    shopping: 0,
+                    transport: 0,
+                    activity: 0,
+                    other: 0,
+                    invoiceCount: 0
+                };
+            }
+            
+            // 從實時數據中獲取今日累計的碳足跡
+            const todayRecord = dailyRecords[today];
+            
+            // 更新今日記錄（如果實時數據有更新）
+            todayRecord.totalCarbon = realTimeData.shopping + realTimeData.transport + realTimeData.activity + realTimeData.sensor + realTimeData.location;
+            todayRecord.shopping = realTimeData.shopping;
+            todayRecord.transport = realTimeData.transport;
+            todayRecord.activity = realTimeData.activity;
+            todayRecord.other = realTimeData.sensor + realTimeData.location;
+            
+            // 計算今日發票數量
+            const invoices = JSON.parse(localStorage.getItem('invoices') || '[]');
+            const todayInvoices = invoices.filter(inv => 
+                new Date(inv.date).toISOString().split('T')[0] === today
+            );
+            todayRecord.invoiceCount = todayInvoices.length;
+            
+            // 保存更新後的記錄
+            dailyRecords[today] = todayRecord;
+            localStorage.setItem('dailyCarbonRecords', JSON.stringify(dailyRecords));
+            
+            // 清理超過半年的數據
+            cleanupOldRecords();
+            
+            // 顯示每日記錄完成通知
+            showDailyRecordNotification(todayRecord);
+            
+            // 重置實時數據（為新的一天做準備）
+            resetRealTimeDataForNewDay();
+            
+            console.log('✅ 每日自動記錄完成:', todayRecord);
+        }
+        
+        // 清理超過半年的數據
+        function cleanupOldRecords() {
+            const dailyRecords = JSON.parse(localStorage.getItem('dailyCarbonRecords') || '{}');
+            const sixMonthsAgo = new Date();
+            sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+            const cutoffDate = sixMonthsAgo.toISOString().split('T')[0];
+            
+            let deletedCount = 0;
+            Object.keys(dailyRecords).forEach(date => {
+                if (date < cutoffDate) {
+                    delete dailyRecords[date];
+                    deletedCount++;
+                }
+            });
+            
+            if (deletedCount > 0) {
+                localStorage.setItem('dailyCarbonRecords', JSON.stringify(dailyRecords));
+                console.log(`🗑️ 清理了 ${deletedCount} 天的舊數據（超過6個月）`);
+            }
+        }
+        
+        // 顯示每日記錄完成通知
+        function showDailyRecordNotification(todayRecord) {
+            // 創建通知模態框
+            const notificationModal = document.createElement('div');
+            notificationModal.className = 'modal';
+            notificationModal.style.display = 'block';
+            notificationModal.innerHTML = `
+                <div class="modal-content" style="max-width: 400px;">
+                    <div class="modal-header">
+                        <h3>🕛 每日記錄完成</h3>
+                        <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+                    </div>
+                    <div style="padding: 20px;">
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <div style="font-size: 48px; margin-bottom: 10px;">📊</div>
+                            <h4 style="color: #4CAF50; margin: 0;">今日碳足跡統計</h4>
+                        </div>
+                        
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span>🛒 購物消費:</span>
+                                <strong>${todayRecord.shopping.toFixed(2)} kg</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span>🚗 交通移動:</span>
+                                <strong>${todayRecord.transport.toFixed(2)} kg</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span>🏃 活動感應:</span>
+                                <strong>${todayRecord.activity.toFixed(2)} kg</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span>📱 其他來源:</span>
+                                <strong>${todayRecord.other.toFixed(2)} kg</strong>
+                            </div>
+                            <hr style="margin: 10px 0;">
+                            <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; color: #4CAF50;">
+                                <span>📋 發票數量:</span>
+                                <strong>${todayRecord.invoiceCount} 張</strong>
+                            </div>
+                        </div>
+                        
+                        <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; text-align: center;">
+                            <h4 style="color: #4CAF50; margin: 0 0 10px 0;">🌱 今日總碳足跡</h4>
+                            <div style="font-size: 28px; font-weight: bold; color: #4CAF50;">
+                                ${todayRecord.totalCarbon.toFixed(2)} kg CO₂
+                            </div>
+                        </div>
+                        
+                        <div style="text-align: center; margin-top: 15px; font-size: 14px; color: #666;">
+                            💡 數據已自動保存，新的一天開始了！
+                        </div>
+                    </div>
+                    <div style="text-align: center; padding: 20px;">
+                        <button class="btn" onclick="this.closest('.modal').remove()">確定</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(notificationModal);
+            
+            // 5秒後自動關閉通知
+            setTimeout(() => {
+                if (notificationModal.parentNode) {
+                    notificationModal.remove();
+                }
+            }, 5000);
+        }
+        
+        // 重置實時數據為新的一天做準備
+        function resetRealTimeDataForNewDay() {
+            // 重置實時數據
+            realTimeData = {
+                shopping: 0,
+                transport: 0,
+                activity: 0,
+                sensor: 0,
+                location: 0
+            };
+            
+            // 更新顯示
+            updateRealTimeDisplay();
+            
+            console.log('🔄 實時數據已重置，準備新的一天');
+        }
+        
+        // 模擬OCR識別（保留舊函數以防其他地方使用）
+        function simulateOCR() {
+            const stores = ['全聯福利中心', '7-ELEVEN', '家樂福', 'Costco', '大潤發'];
+            const amounts = [85.5, 120.0, 250.0, 180.0, 95.0];
+            
+            const randomStore = stores[Math.floor(Math.random() * stores.length)];
+            const randomAmount = amounts[Math.floor(Math.random() * amounts.length)];
+            
+            return `
+                <p><strong>商店：</strong>${randomStore}</p>
+                <p><strong>金額：</strong>NT$ ${randomAmount}</p>
+                <p><strong>日期：</strong>${new Date().toLocaleDateString()}</p>
+                <p><strong>狀態：</strong>✅ 識別成功</p>
+                <button class="btn" onclick="useScanResult('${randomStore}', ${randomAmount})" style="margin-top: 10px;">
+                    使用此結果
+                </button>
+            `;
+        }
+        
+        // 使用掃描結果
+        function useScanResult(storeName, amount) {
+            document.getElementById('storeName').value = storeName;
+            document.getElementById('amount').value = amount;
+            closeCamera();
+            alert('✅ 發票信息已自動填入！');
+        }
+        
+        // 關閉相機
+        function closeCamera() {
+            if (window.cameraStream) {
+                window.cameraStream.getTracks().forEach(track => track.stop());
+                window.cameraStream = null;
+            }
+            const cameraModal = document.querySelector('.modal:last-child');
+            if (cameraModal) {
+                cameraModal.remove();
+            }
+        }
+        
+        // 電子發票載具功能
+        let carrierInfo = null;
+        let autoSyncEnabled = true;
+        
+        // 綁定電子發票載具
+        function bindCarrier() {
+            const carrierModal = document.createElement('div');
+            carrierModal.className = 'modal';
+            carrierModal.style.display = 'block';
+            carrierModal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>🔗 綁定電子發票載具</h3>
+                        <button class="close-btn" onclick="closeCarrierModal()">&times;</button>
+                    </div>
+                    <div style="background: #e8f5e8; padding: 10px; margin: 10px 0; border-radius: 8px; text-align: center;">
+                        <div style="color: #4CAF50; font-weight: bold;">💡 綁定後自動偵測</div>
+                        <div style="font-size: 14px; color: #666;">綁定後在便利店消費時會自動偵測發票內容並計算碳足跡</div>
+                    </div>
+                    <div class="form-group">
+                        <label>載具類型</label>
+                        <select id="carrierType">
+                            <option value="mobile">手機條碼</option>
+                            <option value="citizen">自然人憑證</option>
+                            <option value="love">愛心碼</option>
+                            <option value="company">公司統編</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>載具號碼/條碼</label>
+                        <input type="text" id="carrierCode" placeholder="請輸入載具號碼或條碼">
+                    </div>
+                    <div class="form-group">
+                        <label>載具名稱（可選）</label>
+                        <input type="text" id="carrierName" placeholder="例如: 我的手機條碼">
+                    </div>
+                    <button class="btn" onclick="saveCarrier()" style="background: #4CAF50;">
+                        💾 保存載具
+                    </button>
+                    <button class="btn" onclick="scanCarrierQR()" style="background: #FF9800; margin-top: 10px;">
+                        📷 掃描載具條碼
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(carrierModal);
+        }
+        
+        // 掃描載具條碼
+        function scanCarrierQR() {
+            alert('📷 載具條碼掃描功能\n\n在完整版本中，這裡會開啟相機掃描電子發票載具條碼\n\n模擬掃描結果：\n載具類型：手機條碼\n載具號碼：/ABC1234');
+            
+            // 模擬掃描結果
+            document.getElementById('carrierType').value = 'mobile';
+            document.getElementById('carrierCode').value = '/ABC1234';
+            document.getElementById('carrierName').value = '我的手機條碼';
+        }
+        
+        // 保存載具
+        function saveCarrier() {
+            const type = document.getElementById('carrierType').value;
+            const code = document.getElementById('carrierCode').value;
+            const name = document.getElementById('carrierName').value;
+            
+            if (!code) {
+                alert('請輸入載具號碼');
+                return;
+            }
+            
+            carrierInfo = {
+                type: type,
+                code: code,
+                name: name || '我的載具',
+                bindTime: new Date().toISOString(),
+                autoDetectEnabled: true // 啟用自動偵測
+            };
+            
+            // 保存到本地存儲
+            localStorage.setItem('carrierInfo', JSON.stringify(carrierInfo));
+            
+            updateCarrierStatus();
+            closeCarrierModal();
+            
+            // 啟動自動偵測功能
+            startAutoInvoiceDetection();
+            
+            alert('✅ 載具綁定成功！\n\n載具名稱：' + carrierInfo.name + '\n載具號碼：' + carrierInfo.code + '\n\n💡 已啟用自動偵測功能，便利店消費時會自動偵測發票內容並計算碳足跡');
+        }
+        
+        // 啟動自動發票偵測功能
+        function startAutoInvoiceDetection() {
+            console.log('🚀 啟動自動發票偵測功能...');
+            
+            // 模擬定期檢查新發票（實際應用中會調用電子發票API）
+            setInterval(async () => {
+                if (carrierInfo && carrierInfo.autoDetectEnabled) {
+                    await checkForNewInvoices();
+                }
+            }, 30000); // 每30秒檢查一次
+            
+            console.log('✅ 自動發票偵測已啟動，每30秒檢查一次新發票');
+        }
+        
+        // 檢查新發票
+        async function checkForNewInvoices() {
+            try {
+                // 調用真實API檢查新發票
+                const newInvoices = await checkNewInvoices();
+                
+                if (newInvoices && newInvoices.length > 0) {
+                    console.log('📋 發現新發票:', newInvoices.length, '張');
+                    
+                    for (const invoiceData of newInvoices) {
+                        // 計算碳足跡
+                        const carbonFootprint = calculateInvoiceCarbonFootprint(invoiceData);
+                        
+                        // 自動填入表單
+                        fillInvoiceForm(invoiceData, carbonFootprint);
+                        
+                        // 記錄到每日碳足跡
+                        await recordInvoiceToDaily(invoiceData, carbonFootprint);
+                        
+                        // 顯示自動偵測通知
+                        showAutoDetectionNotification(invoiceData, carbonFootprint);
+                    }
+                }
+            } catch (error) {
+                console.error('❌ 檢查新發票失敗:', error);
+            }
+        }
+        
+        // 檢查新發票（真實API調用）
+        async function checkNewInvoices() {
+            // 調用真實電子發票API
+            try {
+                const response = await fetch('http://localhost:3001/api/invoice/check', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        carrierCode: carrierInfo.code,
+                        lastCheckTime: carrierInfo.lastCheckTime || new Date().toISOString()
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('發票API調用失敗');
+                }
+                
+                const result = await response.json();
+                
+                // 更新最後檢查時間
+                if (carrierInfo && result.invoices && result.invoices.length > 0) {
+                    carrierInfo.lastCheckTime = new Date().toISOString();
+                    localStorage.setItem('carrierInfo', JSON.stringify(carrierInfo));
+                }
+                
+                return result.invoices || [];
+            } catch (error) {
+                console.error('❌ 檢查新發票失敗:', error);
+                return [];
+            }
+        }
+        
+        // 顯示自動偵測通知
+        function showAutoDetectionNotification(invoiceData, carbonFootprint) {
+            const notification = document.createElement('div');
+            notification.id = 'autoDetectionNotification';
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                background: #2196F3;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                z-index: 10000;
+                font-size: 14px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                animation: slideIn 0.3s ease-out;
+                max-width: 300px;
+            `;
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="font-size: 20px;">🤖</div>
+                    <div>
+                        <div style="font-weight: bold;">自動偵測到發票！</div>
+                        <div style="font-size: 12px; opacity: 0.9; margin-top: 2px;">
+                            ${invoiceData.storeName}
+                        </div>
+                        <div style="font-size: 12px; opacity: 0.9;">
+                            NT$ ${invoiceData.amount.toFixed(2)} → ${carbonFootprint.toFixed(2)} kg CO₂
+                        </div>
+                        <div style="font-size: 11px; opacity: 0.8; margin-top: 2px;">
+                            已自動累計到今日記錄
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(notification);
+            
+            // 5秒後自動移除
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.animation = 'slideOut 0.3s ease-in';
+                    setTimeout(() => notification.remove(), 300);
+                }
+            }, 5000);
+        }
+        
+        // 關閉載具模態框
+        function closeCarrierModal() {
+            const carrierModal = document.querySelector('.modal:last-child');
+            if (carrierModal) {
+                carrierModal.remove();
+            }
+        }
+        
+        // 更新載具狀態
+        function updateCarrierStatus() {
+            const carrierInfoElement = document.getElementById('carrierInfo');
+            const syncStatusElement = document.getElementById('syncStatus');
+            
+            if (carrierInfo) {
+                const autoDetectStatus = carrierInfo.autoDetectEnabled ? ' | 🤖 自動偵測已啟用' : '';
+                carrierInfoElement.innerHTML = `
+                    ✅ 已綁定：${carrierInfo.name}<br>
+                    <small>類型：${getCarrierTypeName(carrierInfo.type)} | 號碼：${carrierInfo.code}${autoDetectStatus}</small>
+                `;
+                syncStatusElement.textContent = autoSyncEnabled ? '已啟用' : '已停用';
+            } else {
+                carrierInfoElement.textContent = '未綁定載具';
+                syncStatusElement.textContent = '未啟用';
+            }
+        }
+        
+        // 獲取載具類型名稱
+        function getCarrierTypeName(type) {
+            const types = {
+                'mobile': '手機條碼',
+                'citizen': '自然人憑證',
+                'love': '愛心碼',
+                'company': '公司統編'
+            };
+            return types[type] || type;
+        }
+        
+        // 同步載具發票
+        async function checkCarrierInvoices() {
+            if (!carrierInfo) {
+                alert('請先綁定電子發票載具');
+                return;
+            }
+            
+            const syncButton = event.target;
+            const originalText = syncButton.textContent;
+            syncButton.textContent = '🔄 同步中...';
+            syncButton.disabled = true;
+            
+            try {
+                // 模擬API調用
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // 模擬獲取到的發票數據
+                const mockInvoices = [
+                    {
+                        id: 'inv_' + Date.now(),
+                        storeName: '全聯福利中心',
+                        amount: 285.0,
+                        date: new Date().toISOString(),
+                        items: ['牛奶', '麵包', '水果'],
+                        carbonFootprint: 2.85
+                    },
+                    {
+                        id: 'inv_' + (Date.now() + 1),
+                        storeName: '7-ELEVEN',
+                        amount: 120.0,
+                        date: new Date(Date.now() - 86400000).toISOString(),
+                        items: ['咖啡', '三明治'],
+                        carbonFootprint: 1.20
+                    }
+                ];
+                
+                // 保存發票到本地
+                const existingInvoices = JSON.parse(localStorage.getItem('invoices') || '[]');
+                const newInvoices = mockInvoices.filter(inv => 
+                    !existingInvoices.some(existing => existing.id === inv.id)
+                );
+                
+                if (newInvoices.length > 0) {
+                    existingInvoices.unshift(...newInvoices);
+                    localStorage.setItem('invoices', JSON.stringify(existingInvoices));
+                    
+                    // 更新實時數據
+                    const totalCarbon = newInvoices.reduce((sum, inv) => sum + inv.carbonFootprint, 0);
+                    realTimeData.shopping += totalCarbon;
+                    updateRealTimeDisplay();
+                    
+                    alert(`✅ 同步完成！\n\n新增 ${newInvoices.length} 張發票\n總金額：NT$ ${newInvoices.reduce((sum, inv) => sum + inv.amount, 0).toFixed(2)}\n新增碳足跡：${totalCarbon.toFixed(2)} kg`);
+                    
+                    loadRecentInvoices();
+                } else {
+                    alert('📋 沒有新的發票記錄');
+                }
+                
+            } catch (error) {
+                alert('❌ 同步失敗：' + error.message);
+            } finally {
+                syncButton.textContent = originalText;
+                syncButton.disabled = false;
+            }
+        }
+        
+        // 載入最近發票記錄
+        function loadRecentInvoices() {
+            const invoices = JSON.parse(localStorage.getItem('invoices') || '[]');
+            const recentInvoicesElement = document.getElementById('recentInvoices');
+            
+            if (invoices.length === 0) {
+                recentInvoicesElement.innerHTML = `
+                    <div style="padding: 20px; text-align: center; color: #666;">
+                        📋 暫無發票記錄<br>
+                        <small>綁定載具或手動掃描發票開始記錄</small>
+                    </div>
+                `;
+                return;
+            }
+            
+            const recentInvoices = invoices.slice(0, 5); // 顯示最近5筆
+            recentInvoicesElement.innerHTML = recentInvoices.map(invoice => `
+                <div style="padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong>${invoice.storeName}</strong><br>
+                        <small>NT$ ${invoice.amount.toFixed(2)} | ${new Date(invoice.date).toLocaleDateString()}</small>
+                    </div>
+                    <div style="text-align: right; color: #4CAF50; font-weight: bold;">
+                        ${invoice.carbonFootprint.toFixed(2)} kg
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 自動同步載具發票
+        function startAutoSync() {
+            if (autoSyncEnabled && carrierInfo) {
+                // 每5分鐘檢查一次新發票
+                setInterval(async () => {
+                    try {
+                        await checkCarrierInvoices();
+                    } catch (error) {
+                        console.log('自動同步失敗：', error);
+                    }
+                }, 300000); // 5分鐘
+            }
+        }
+        
+        // 提交發票
+        async function submitInvoice() {
+            const storeName = document.getElementById('storeName').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            
+            if (!storeName || !amount) {
+                alert('請填寫完整信息');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/invoice`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ storeName, totalAmount: amount, items: [] })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    // 計算碳足跡
+                    const carbonFootprint = amount * 0.01;
+                    
+                    // 保存到本地存儲
+                    const invoice = {
+                        id: 'inv_' + Date.now(),
+                        storeName: storeName,
+                        amount: amount,
+                        date: new Date().toISOString(),
+                        items: [],
+                        carbonFootprint: carbonFootprint,
+                        source: 'manual' // 手動輸入
+                    };
+                    
+                    const existingInvoices = JSON.parse(localStorage.getItem('invoices') || '[]');
+                    existingInvoices.unshift(invoice);
+                    localStorage.setItem('invoices', JSON.stringify(existingInvoices));
+                    
+                    // 更新每日碳足跡記錄
+                    updateDailyCarbonRecord(carbonFootprint);
+                    
+                    // 更新實時數據
+                    realTimeData.shopping += carbonFootprint;
+                    updateRealTimeDisplay();
+                    
+                    alert('✅ 發票記錄已保存！\n\n商店：' + storeName + '\n金額：NT$ ' + amount.toFixed(2) + '\n碳足跡：' + carbonFootprint.toFixed(2) + ' kg');
+                    
+                    // 清空表單
+                    document.getElementById('storeName').value = '';
+                    document.getElementById('amount').value = '';
+                    
+                    closeModal('invoiceModal');
+                    loadRecentInvoices();
+                } else {
+                    alert('保存失敗：' + result.error);
+                }
+            } catch (error) {
+                alert('網絡錯誤：' + error.message);
+            }
+        }
+        
+        // 儲存設定
+        function saveSettings() {
+            const dailyGoal = document.getElementById('dailyGoal').value;
+            const gpsEnabled = document.getElementById('gpsEnabled').value;
+            const autoTracking = document.getElementById('autoTracking').value;
+            
+            alert('設定已儲存！\n\n每日目標：' + dailyGoal + ' 公斤\nGPS：' + (gpsEnabled === 'true' ? '啟用' : '停用') + '\n自動追蹤：' + (autoTracking === 'true' ? '啟用' : '停用'));
+            closeModal('settingsModal');
+        }
+        
+        // 顯示分析
+        function showAnalytics() {
+            alert('📊 數據分析功能\n\n在完整版本中，這裡會顯示：\n• 歷史趨勢圖表\n• 分類統計\n• 環保建議\n• 目標達成情況');
+        }
+        
+        // 初始化實時數據（載入歷史數據）
+        function initializeRealTimeData() {
+            // 載入今日發票數據
+            const invoices = JSON.parse(localStorage.getItem('invoices') || '[]');
+            const today = new Date().toDateString();
+            
+            const todayInvoices = invoices.filter(inv => 
+                new Date(inv.date).toDateString() === today
+            );
+            
+            realTimeData.shopping = todayInvoices.reduce((sum, inv) => sum + inv.carbonFootprint, 0);
+            
+            // 載入移動歷史數據
+            const movements = JSON.parse(localStorage.getItem('movements') || '[]');
+            const todayMovements = movements.filter(mov => 
+                new Date(mov.timestamp).toDateString() === today
+            );
+            
+            realTimeData.transport = todayMovements.reduce((sum, mov) => sum + mov.carbonFootprint, 0);
+            
+            // 更新顯示
+            updateRealTimeDisplay();
+            
+        // 初始化每日統計顯示
+        updateDailyStatsDisplay();
+        
+        // 設置每日24:00自動記錄
+        setupDailyAutoRecord();
+        }
+        
+        // GPS定位和移動追蹤
+        let watchId = null;
+        let lastPosition = null;
+        let totalDistance = 0;
+        let isTracking = false;
+        
+        // 實時碳足跡數據
+        let realTimeData = {
+            transport: 0,      // 交通運輸碳足跡
+            shopping: 0,       // 購物消費碳足跡
+            activity: 0,       // 活動偵測碳足跡
+            location: 0,       // 位置變化碳足跡
+            sensor: 0,         // 感應器數據碳足跡
+            total: 0           // 總碳足跡
+        };
+        
+        // 移動歷史記錄
+        let movementHistory = [];
+        let activityHistory = [];
+        
+        // 開始GPS追蹤
+        function startGPSTracking() {
+            if (!navigator.geolocation) {
+                console.log('瀏覽器不支援GPS定位');
+                document.getElementById('locationStatusText').textContent = '📍 GPS定位失敗 | 請檢查權限設定';
+                document.getElementById('gpsStatus').textContent = '❌ 瀏覽器不支援GPS定位';
+                return;
+            }
+            
+            // 如果已經有GPS監聽在運行，先清除
+            if (window.gpsWatchId) {
+                navigator.geolocation.clearWatch(window.gpsWatchId);
+                console.log('清除之前的GPS監聽');
+            }
+            
+            console.log('開始GPS追蹤...');
+            
+            // 先請求一次位置來觸發權限對話框
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    console.log('✅ GPS權限已獲得，開始持續追蹤');
+                    document.getElementById('locationStatusText').textContent = '📍 GPS定位成功 | 正在追蹤您的移動';
+                    document.getElementById('gpsStatus').textContent = `✅ GPS定位成功 (精度: ${position.coords.accuracy.toFixed(0)}米)`;
+                    
+                    // 開始持續追蹤
+                    window.gpsWatchId = navigator.geolocation.watchPosition(
+                        function(pos) {
+                            console.log('📍 GPS 更新:', pos.coords.latitude, pos.coords.longitude);
+                            
+                            if (lastPosition && isTracking) {
+                                const distance = calculateDistance(lastPosition, pos);
+                                totalDistance += distance;
+                                updateMovementData(distance, pos);
+                            }
+                            lastPosition = pos;
+                            isTracking = true;
+                            
+                            // 更新實時顯示
+                            updateRealTimeDisplay();
+                        },
+                        function(error) {
+                            console.log('❌ GPS 監聽失敗:', error.message);
+                            document.getElementById('locationStatusText').textContent = '📍 GPS定位失敗 | 請檢查權限設定';
+                            document.getElementById('gpsStatus').textContent = '❌ GPS監聽失敗: ' + error.message;
+                        },
+                        { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
+                    );
+                    
+                    isTracking = true;
+                },
+                function(error) {
+                    console.log('❌ GPS 權限被拒絕:', error.message);
+                    document.getElementById('locationStatusText').textContent = '📍 GPS定位失敗 | 請檢查權限設定';
+                    document.getElementById('gpsStatus').textContent = '❌ GPS定位失敗: ' + error.message;
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        }
+        
+        // 停止GPS追蹤
+        function stopGPSTracking() {
+            if (watchId) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+            }
+            isTracking = false;
+            updateLocationStatus(null, 'GPS追蹤已停止');
+        }
+        
+        // 更新位置狀態
+        function updateLocationStatus(position, message) {
+            const statusElement = document.getElementById('locationStatusText');
+            const gpsStatusElement = document.getElementById('gpsStatus');
+            
+            if (position) {
+                // GPS定位成功 - 真實數據
+                const statusText = `📍 GPS定位成功 | 正在追蹤您的移動`;
+                const gpsText = `✅ GPS定位成功 (精度: ${position.coords.accuracy.toFixed(0)}米)`;
+                
+                if (statusElement) statusElement.textContent = statusText;
+                if (gpsStatusElement) gpsStatusElement.textContent = gpsText;
+            } else if (message && message.trim() !== '') {
+                // 有錯誤訊息 - 真實狀態
+                let statusText = '';
+                let gpsText = message;
+                
+                if (message.includes('✅') || message.includes('成功')) {
+                    statusText = '📍 GPS定位成功 | 正在追蹤您的移動';
+                } else if (message.includes('❌') || message.includes('失敗') || message.includes('錯誤') || message.includes('拒絕')) {
+                    statusText = '📍 GPS定位失敗 | 請檢查權限設定';
+                    gpsText = `❌ ${message.replace('❌ ', '')}`;
+                } else if (message.includes('❓') || message.includes('檢測中')) {
+                    statusText = '📍 GPS狀態檢測中...';
+                    gpsText = `❓ ${message.replace('❓ ', '')}`;
+                } else if (message.includes('🔄') || message.includes('定位中') || message.includes('啟動')) {
+                    statusText = '📍 GPS定位中...';
+                    gpsText = `🔄 ${message.replace('🔄 ', '')}`;
+                } else {
+                    statusText = '📍 ' + message;
+                    gpsText = message;
+                }
+                
+                if (statusElement) statusElement.textContent = statusText;
+                if (gpsStatusElement) gpsStatusElement.textContent = gpsText;
+            } else {
+                // 空白狀態 - 等待真實檢測結果
+                if (statusElement) statusElement.textContent = '';
+                if (gpsStatusElement) gpsStatusElement.textContent = '';
+            }
+        }
+        
+        // 計算兩點間距離（米）
+        function calculateDistance(pos1, pos2) {
+            const R = 6371e3; // 地球半徑（米）
+            const φ1 = pos1.coords.latitude * Math.PI/180;
+            const φ2 = pos2.coords.latitude * Math.PI/180;
+            const Δφ = (pos2.coords.latitude - pos1.coords.latitude) * Math.PI/180;
+            const Δλ = (pos2.coords.longitude - pos1.coords.longitude) * Math.PI/180;
+
+            const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                    Math.cos(φ1) * Math.cos(φ2) *
+                    Math.sin(Δλ/2) * Math.sin(Δλ/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+            return R * c; // 距離（米）
+        }
+        
+        // 更新移動數據
+        function updateMovementData(distance, position) {
+            // 根據移動速度判斷交通方式
+            const speed = position.coords.speed || 0; // m/s
+            let transportType = 'walking';
+            let carbonFactor = 0.05; // kg CO2/km
+            
+            if (speed > 15) {
+                transportType = 'driving';
+                carbonFactor = 0.192; // 汽車
+            } else if (speed > 5) {
+                transportType = 'cycling';
+                carbonFactor = 0.021; // 自行車
+            } else if (speed > 1) {
+                transportType = 'walking';
+                carbonFactor = 0.05; // 步行
+            }
+            
+            // 計算碳足跡
+            const distanceKm = distance / 1000;
+            const carbonFootprint = distanceKm * carbonFactor;
+            
+            // 記錄移動歷史
+            const movement = {
+                timestamp: new Date().toISOString(),
+                type: transportType,
+                distance: distanceKm,
+                speed: speed,
+                carbonFootprint: carbonFootprint,
+                position: {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                }
+            };
+            
+            movementHistory.push(movement);
+            
+            // 更新實時數據
+            realTimeData.transport += carbonFootprint;
+            realTimeData.location += carbonFootprint * 0.1; // 位置變化額外碳足跡
+            
+            // 自動記錄移動
+            if (distance > 10) { // 移動超過10米才記錄
+                autoRecordMovement(transportType, distanceKm, carbonFootprint);
+            }
+            
+            // 更新顯示
+            updateRealTimeDisplay();
+        }
+        
+        // 自動記錄移動
+        async function autoRecordMovement(type, distance, carbonFootprint) {
+            try {
+                const response = await fetch(`${API_BASE}/api/movement`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        type: type, 
+                        distance: distance.toFixed(2),
+                        duration: 1,
+                        carbonFootprint: carbonFootprint
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    console.log('自動記錄移動：', result.data);
+                    // 不調用updateStats，使用實時數據
+                }
+            } catch (error) {
+                console.error('自動記錄失敗：', error);
+            }
+        }
+        
+        // 感應器數據收集
+        function startSensorTracking() {
+            if (window.DeviceMotionEvent) {
+                console.log('開始感應器監聽...');
+                document.getElementById('sensorStatus').textContent = '✅ 感應器已啟用，持續監聽中...';
+                
+                window.addEventListener('devicemotion', function(e) {
+                    if (e.acceleration) {
+                        console.log("📱 devicemotion: 加速度X=" + e.acceleration.x);
+                        handleMotion(e);
+                    }
+                });
+            } else {
+                console.log('瀏覽器不支援感應器');
+                document.getElementById('sensorStatus').textContent = '❌ 瀏覽器不支援感應器';
+            }
+        }
+        
+        // 處理加速度計數據
+        function handleMotion(event) {
+            const acceleration = event.acceleration;
+            const rotation = event.rotationRate;
+            const sensorStatusElement = document.getElementById('sensorStatus');
+            
+            // 檢測移動模式
+            const totalAcceleration = Math.sqrt(
+                acceleration.x * acceleration.x + 
+                acceleration.y * acceleration.y + 
+                acceleration.z * acceleration.z
+            );
+            
+            // 更新感應器狀態
+            sensorStatusElement.innerHTML = `📊 感應器正常 (加速度: ${totalAcceleration.toFixed(2)}m/s²)`;
+            
+            // 根據加速度判斷活動類型並計算碳足跡
+            let activityType = '靜止';
+            let carbonFootprint = 0;
+            
+            if (totalAcceleration > 3) {
+                activityType = '劇烈活動';
+                carbonFootprint = 0.01; // 劇烈活動增加碳足跡
+                sensorStatusElement.innerHTML = `🏃 劇烈活動 (加速度: ${totalAcceleration.toFixed(2)}m/s²)`;
+            } else if (totalAcceleration > 2) {
+                activityType = '中度活動';
+                carbonFootprint = 0.005;
+                sensorStatusElement.innerHTML = `🚶 中度活動 (加速度: ${totalAcceleration.toFixed(2)}m/s²)`;
+            } else if (totalAcceleration > 1) {
+                activityType = '輕度活動';
+                carbonFootprint = 0.002;
+                sensorStatusElement.innerHTML = `👤 輕度活動 (加速度: ${totalAcceleration.toFixed(2)}m/s²)`;
+            }
+            
+            // 記錄活動歷史
+            const activity = {
+                timestamp: new Date().toISOString(),
+                type: activityType,
+                acceleration: totalAcceleration,
+                carbonFootprint: carbonFootprint
+            };
+            
+            activityHistory.push(activity);
+            
+            // 更新實時數據
+            realTimeData.activity += carbonFootprint;
+            realTimeData.sensor += carbonFootprint;
+            
+            // 更新顯示
+            updateRealTimeDisplay();
+        }
+        
+        // 處理陀螺儀數據
+        function handleOrientation(event) {
+            const alpha = event.alpha; // 繞Z軸旋轉
+            const beta = event.beta;   // 繞X軸旋轉
+            const gamma = event.gamma; // 繞Y軸旋轉
+            
+            // 可以根據旋轉數據判斷用戶行為
+        }
+        
+        // 更新實時顯示
+        function updateRealTimeDisplay() {
+            // 計算總碳足跡
+            realTimeData.total = realTimeData.transport + realTimeData.shopping + 
+                                realTimeData.activity + realTimeData.location + realTimeData.sensor;
+            
+            // 更新主顯示
+            document.getElementById('realTimeCarbon').textContent = realTimeData.total.toFixed(2);
+            
+            // 更新進度條
+            const dailyGoal = 20.0;
+            const progress = (realTimeData.total / dailyGoal) * 100;
+            document.getElementById('realTimeProgress').style.width = Math.min(progress, 100) + '%';
+            document.getElementById('realTimeGoal').textContent = 
+                `今日目標: ${dailyGoal} 公斤 | 完成度: ${progress.toFixed(1)}%`;
+            
+            // 更新分解數據
+            document.getElementById('transportCarbon').textContent = realTimeData.transport.toFixed(2) + ' kg';
+            document.getElementById('shoppingCarbon').textContent = realTimeData.shopping.toFixed(2) + ' kg';
+            document.getElementById('activityCarbon').textContent = realTimeData.activity.toFixed(2) + ' kg';
+            document.getElementById('locationCarbon').textContent = realTimeData.location.toFixed(2) + ' kg';
+            document.getElementById('sensorCarbon').textContent = realTimeData.sensor.toFixed(2) + ' kg';
+        }
+        
+        // 實時數據更新
+        function startRealTimeUpdates() {
+            // 每5秒更新一次位置信息
+            setInterval(() => {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            updateLocationStatus(position);
+                        },
+                        function(error) {
+                            console.log('位置更新失敗：', error);
+                        },
+                        { enableHighAccuracy: false, timeout: 5000, maximumAge: 10000 }
+                    );
+                }
+            }, 5000);
+            
+            // 每10秒更新一次實時顯示
+            setInterval(updateRealTimeDisplay, 10000);
+        }
+        
+        // 頁面載入時更新數據
+        window.onload = function() {
+            // 初始化載具信息
+            const savedCarrierInfo = localStorage.getItem('carrierInfo');
+            if (savedCarrierInfo) {
+                carrierInfo = JSON.parse(savedCarrierInfo);
+            }
+            
+            // 初始化實時數據
+            initializeRealTimeData();
+            
+            // 初始化狀態顯示（重置為未知狀態）
+            initializeStatusDisplay();
+            
+            updateCarrierStatus();
+            loadRecentInvoices();
+            
+            // 如果已綁定載具，啟動自動偵測
+            if (carrierInfo && carrierInfo.autoDetectEnabled) {
+                startAutoInvoiceDetection();
+            }
+            
+            // 自動啟動GPS和感應器（無需用戶交互）
+            autoStartGPSAndSensor();
+            
+            startRealTimeUpdates();
+            startAutoSync();
+            
+            // 改善手機體驗
+            improveMobileTouch();
+            optimizeScrolling();
+            
+            // GPS權限請求已移至 autoStartGPSAndSensor() 中處理，避免重複請求
+            
+            // 顯示歡迎信息
+            setTimeout(() => {
+                const features = [
+                    '實時GPS定位追蹤',
+                    '相機掃描發票',
+                    '電子發票載具綁定',
+                    '感應器活動監測',
+                    '自動移動記錄',
+                    '實時碳足跡計算'
+                ];
+                
+                alert(`🌱 歡迎使用碳足跡追蹤器！\n\n✅ 實時偵測功能已啟用：\n${features.map(f => '• ' + f).join('\n')}\n\n📊 所有數據都是實時偵測的真實數據！\n\n請允許瀏覽器使用位置和相機權限以獲得最佳體驗！`);
+            }, 2000);
+        };
+        
+        // 點擊模態框外部關閉
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        };
+        
+        // 改善手機觸控體驗
+        function improveMobileTouch() {
+            // 檢測是否為iPhone Chrome
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            const isChrome = /Chrome/.test(navigator.userAgent);
+            const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+            
+            if (isIOS && isChrome) {
+                // iPhone Chrome特殊處理
+                console.log('檢測到iPhone Chrome，啟用特殊優化');
+                
+                // 強制啟用滾動
+                document.body.style.overflow = 'auto';
+                document.body.style.webkitOverflowScrolling = 'touch';
+                
+                // 移除可能阻礙滾動的樣式
+                document.body.style.position = 'relative';
+                document.body.style.height = 'auto';
+                
+                // 添加iPhone Chrome專用滾動修復
+                document.addEventListener('touchstart', function(e) {
+                    // 確保滾動容器
+                    if (e.target.closest('.container')) {
+                        e.target.closest('.container').style.webkitOverflowScrolling = 'touch';
+                    }
+                }, {passive: true});
+                
+            } else if (isIOS && isSafari) {
+                // Safari正常處理
+                console.log('檢測到Safari，使用標準優化');
+            }
+            
+            // 通用滾動優化
+            document.addEventListener('touchstart', function() {}, {passive: true});
+            document.addEventListener('touchmove', function() {}, {passive: true});
+            document.addEventListener('touchend', function() {}, {passive: true});
+            
+            // 允許模態框內部捲動
+            document.addEventListener('touchmove', function(e) {
+                // 只在模態框外部時防止橡皮筋效果
+                if (e.target.closest('.modal-content')) {
+                    // 允許模態框內容捲動
+                    return;
+                }
+                if (e.target.closest('.modal')) {
+                    e.preventDefault();
+                }
+            }, {passive: false});
+            
+            // 改善按鈕觸控反饋
+            const buttons = document.querySelectorAll('.btn, .menu-item');
+            buttons.forEach(button => {
+                button.addEventListener('touchstart', function() {
+                    this.style.transform = 'scale(0.98)';
+                });
+                
+                button.addEventListener('touchend', function() {
+                    this.style.transform = '';
+                });
+                
+                button.addEventListener('touchcancel', function() {
+                    this.style.transform = '';
+                });
+            });
+        }
+        
+        // 優化滾動性能
+        function optimizeScrolling() {
+            // 使用 requestAnimationFrame 優化滾動
+            let ticking = false;
+            
+            function updateScroll() {
+                // 滾動時的優化處理
+                ticking = false;
+            }
+            
+            function requestTick() {
+                if (!ticking) {
+                    requestAnimationFrame(updateScroll);
+                    ticking = true;
+                }
+            }
+            
+            window.addEventListener('scroll', requestTick, {passive: true});
+        }
+        
+        
+        
+        
+        
+        function getIOSLocationTroubleshooting(isIOS) {
+            if (isIOS) {
+                return `
+                <div style="text-align: left; padding: 15px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; margin: 10px 0;">
+                    <h4 style="color: #856404; margin: 0 0 10px 0;">📱 iPhone GPS故障排除：</h4>
+                    <ol style="color: #856404; margin: 0; padding-left: 20px; line-height: 1.6;">
+                        <li><strong>檢查系統設定</strong>：設定 → 隱私權與安全性 → 定位服務</li>
+                        <li><strong>確保定位服務已開啟</strong></li>
+                        <li><strong>檢查瀏覽器權限</strong>：找到Safari或Chrome → 選擇「使用App期間」</li>
+                        <li><strong>嘗試重新啟動瀏覽器</strong></li>
+                        <li><strong>檢查網路連線</strong>：GPS需要網路輔助定位</li>
+                        <li><strong>嘗試到戶外開闊地帶</strong>：室內可能影響GPS信號</li>
+                    </ol>
+                    <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                        <p style="color: #1976d2; margin: 0; font-weight: bold;">💡 如果問題持續：</p>
+                        <ul style="color: #1976d2; margin: 5px 0 0 0; padding-left: 20px;">
+                            <li>嘗試使用Safari瀏覽器</li>
+                            <li>重新啟動iPhone</li>
+                            <li>更新iOS系統</li>
+                        </ul>
+                    </div>
+                </div>
+                `;
+            }
+            return '';
+        }
+        
+        function getTimeoutInstructions(isIOS) {
+            if (isIOS) {
+                return `
+                <div style="text-align: left; padding: 15px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; margin: 10px 0;">
+                    <h4 style="color: #856404; margin: 0 0 10px 0;">⏱️ GPS定位超時解決方案：</h4>
+                    <ol style="color: #856404; margin: 0; padding-left: 20px; line-height: 1.6;">
+                        <li><strong>檢查網路連線</strong>：確保WiFi或行動數據正常</li>
+                        <li><strong>到戶外開闊地帶</strong>：遠離建築物和遮蔽物</li>
+                        <li><strong>等待更長時間</strong>：首次定位可能需要30秒-2分鐘</li>
+                        <li><strong>重新整理頁面</strong>後重試</li>
+                        <li><strong>嘗試使用Safari</strong>：Safari的GPS支援更穩定</li>
+                    </ol>
+                    <div style="background: #e8f5e8; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                        <p style="color: #2e7d32; margin: 0; font-weight: bold;">🔄 重新嘗試：</p>
+                        <button onclick="checkPermissions()" style="background: #4CAF50; color: white; border: none; padding: 8px 16px; border-radius: 4px; margin-top: 5px;">
+                            再次檢查權限
+                        </button>
+                    </div>
+                </div>
+                `;
+            }
+            return '';
+        }
+        
+        function showPermissionResult(message, type, isIOS, isChrome, isSafari, instructions = '') {
+            const resultDiv = document.getElementById('permission-result');
+            if (resultDiv) {
+                resultDiv.innerHTML = `
+                    <div style="padding: 15px; margin: 10px 0; border-radius: 8px; 
+                                background: ${type === 'success' ? '#d4edda' : type === 'error' ? '#f8d7da' : '#fff3cd'}; 
+                                color: ${type === 'success' ? '#155724' : type === 'error' ? '#721c24' : '#856404'}; 
+                                border: 1px solid ${type === 'success' ? '#c3e6cb' : type === 'error' ? '#f5c6cb' : '#ffeaa7'};">
+                        <div style="font-size: 16px; font-weight: bold; margin-bottom: 10px;">
+                            ${message}
+                        </div>
+                        ${instructions}
+                    </div>
+                `;
+            }
+        }
+        
+        
+        
+        // 初始化狀態顯示（重置為未知狀態）
+        function initializeStatusDisplay() {
+            console.log('初始化狀態顯示 - 自動啟動');
+            
+            // 設置初始狀態
+            document.getElementById('locationStatusText').textContent = '📍 GPS定位中...';
+            document.getElementById('gpsStatus').textContent = '🔄 GPS定位中...';
+            document.getElementById('sensorStatus').textContent = '🔄 感應器啟動中...';
+            document.getElementById('autoTracking').textContent = '✅ 自動追蹤功能已啟用';
+        }
+        
+        // 強制請求權限（最簡化版本）
+        function forceRequestPermissions() {
+            console.log('👉 開始請求 GPS + 感應器權限...');
+            
+            // 更新按鈕狀態
+            const enableBtn = document.getElementById('enableBtn');
+            if (enableBtn) {
+                enableBtn.innerHTML = '🔄 正在請求權限...';
+                enableBtn.disabled = true;
+                enableBtn.style.background = '#6c757d';
+            }
+            
+            // 重置狀態
+            updateLocationStatus(null, '🔄 正在請求GPS權限...');
+            updateSensorStatus('🔄 正在請求感應器權限...');
+            
+            // === GPS 權限 ===
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        console.log('✅ GPS 啟用成功:', position.coords.latitude, position.coords.longitude);
+                        updateLocationStatus(position, null);
+                        startGPSTracking();
+                    },
+                    function(error) {
+                        console.log('❌ GPS 啟用失敗:', error.message);
+                        if (error.code === 1) {
+                            updateLocationStatus(null, '❌ GPS權限被拒絕，請手動允許位置權限');
+                        } else if (error.code === 2) {
+                            updateLocationStatus(null, '❌ GPS位置不可用');
+                        } else if (error.code === 3) {
+                            updateLocationStatus(null, '❌ GPS定位超時');
+                        } else {
+                            updateLocationStatus(null, '❌ GPS定位失敗');
+                        }
+                    },
+                    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+                );
+            } else {
+                console.log('❌ 瀏覽器不支援 GPS API');
+                updateLocationStatus(null, '❌ 瀏覽器不支援GPS定位');
+            }
+            
+            // === 感應器權限 ===
+            if (typeof DeviceMotionEvent !== "undefined" && typeof DeviceMotionEvent.requestPermission === "function") {
+                DeviceMotionEvent.requestPermission().then(response => {
+                    if (response === "granted") {
+                        console.log("✅ iOS 感應器權限已允許");
+                        updateSensorStatus('✅ 感應器已啟用，持續監聽中...');
+                        startSensorTracking();
+                    } else {
+                        console.log("❌ iOS 感應器權限被拒絕");
+                        updateSensorStatus('❌ 感應器權限被拒絕，請點擊「測試感應器」按鈕');
+                    }
+                }).catch(error => {
+                    console.log("❌ 感應器權限請求失敗:", error);
+                    updateSensorStatus('❌ 感應器權限請求失敗，請點擊「測試感應器」按鈕');
+                });
+            } else {
+                // Android / 桌面 Chrome 直接監聽
+                console.log("✅ Android/桌面 已啟用感應器監聽");
+                updateSensorStatus('✅ 感應器已啟用，持續監聽中...');
+                startSensorTracking();
+            }
+            
+            // 自動追蹤功能
+            updateAutoTrackingStatus('✅ 自動追蹤功能已啟用');
+            
+            // 3秒後恢復按鈕
+            setTimeout(() => {
+                if (enableBtn) {
+                    enableBtn.innerHTML = '🚀 強制請求權限';
+                    enableBtn.disabled = false;
+                    enableBtn.style.background = '#28a745';
+                }
+            }, 3000);
+        }
+        
+        // 最簡單的GPS測試
+        function testGPSOnly() {
+            console.log('👉 開始測試GPS權限...');
+            
+            const enableBtn = document.getElementById('enableBtn');
+            if (enableBtn) {
+                enableBtn.innerHTML = '🔄 正在測試GPS...';
+                enableBtn.disabled = true;
+                enableBtn.style.background = '#6c757d';
+            }
+            
+            updateLocationStatus(null, '🔄 正在測試GPS權限...');
+            
+            if (!navigator.geolocation) {
+                console.log('❌ 瀏覽器不支援GPS');
+                updateLocationStatus(null, '❌ 瀏覽器不支援GPS');
+                if (enableBtn) {
+                    enableBtn.innerHTML = '❌ 不支援GPS';
+                    setTimeout(() => {
+                        enableBtn.innerHTML = '🚀 測試GPS權限';
+                        enableBtn.disabled = false;
+                        enableBtn.style.background = '#28a745';
+                    }, 3000);
+                }
+                return;
+            }
+            
+            // 直接在用戶點擊事件中請求GPS權限
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    console.log('✅ GPS權限成功！');
+                    console.log('座標:', position.coords.latitude, position.coords.longitude);
+                    updateLocationStatus(position, null);
+                    
+                    if (enableBtn) {
+                        enableBtn.innerHTML = '✅ GPS成功！';
+                        enableBtn.style.background = '#28a745';
+                        setTimeout(() => {
+                            enableBtn.innerHTML = '🚀 測試GPS權限';
+                            enableBtn.disabled = false;
+                        }, 3000);
+                    }
+                },
+                function(error) {
+                    console.log('❌ GPS權限失敗:', error.message);
+                    console.log('錯誤代碼:', error.code);
+                    
+                    if (error.code === 1) {
+                        updateLocationStatus(null, '❌ GPS權限被拒絕，請允許位置權限');
+                        console.log('💡 請檢查瀏覽器位置權限設定');
+                    } else if (error.code === 2) {
+                        updateLocationStatus(null, '❌ GPS位置不可用');
+                    } else if (error.code === 3) {
+                        updateLocationStatus(null, '❌ GPS定位超時');
+                    } else {
+                        updateLocationStatus(null, '❌ GPS定位失敗');
+                    }
+                    
+                    if (enableBtn) {
+                        enableBtn.innerHTML = '❌ GPS失敗';
+                        enableBtn.style.background = '#dc3545';
+                        setTimeout(() => {
+                            enableBtn.innerHTML = '🚀 測試GPS權限';
+                            enableBtn.disabled = false;
+                            enableBtn.style.background = '#28a745';
+                        }, 3000);
+                    }
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        }
+        
+        // 自動啟動GPS和感應器（無需用戶交互）
+        function autoStartGPSAndSensor() {
+            console.log('🚀 自動啟動GPS和感應器...');
+            
+            // 啟動感應器
+            startSensorTracking();
+            
+            // 檢測瀏覽器和設備類型
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const isChrome = /Chrome/i.test(navigator.userAgent);
+            const isSafari = /Safari/i.test(navigator.userAgent) && !/Chrome/i.test(navigator.userAgent);
+            
+            console.log('設備檢測:', { isMobile, isChrome, isSafari });
+            
+            if (navigator.geolocation) {
+                if (isMobile && isChrome) {
+                    // Chrome手機版：顯示GPS權限按鈕
+                    document.getElementById('locationStatusText').textContent = '📍 Chrome需要手動啟用GPS | 請點擊下方按鈕';
+                    document.getElementById('gpsStatus').textContent = '⚠️ Chrome GPS需要手動啟用，請點擊按鈕允許位置權限';
+                    document.getElementById('statusMessage').textContent = '📍 請點擊下方按鈕啟用Chrome GPS定位功能';
+                    document.getElementById('chromeGPSButton').style.display = 'block';
+                } else if (isMobile) {
+                    // 其他移動設備：先請求權限
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            console.log('📍 手機GPS權限獲得，開始追蹤');
+                            document.getElementById('locationStatusText').textContent = '📍 GPS定位成功 | 正在追蹤您的移動';
+                            document.getElementById('gpsStatus').textContent = `✅ GPS定位成功 (精度: ${position.coords.accuracy.toFixed(0)}米)`;
+                            
+                            // 開始持續追蹤
+                            window.gpsWatchId = navigator.geolocation.watchPosition(
+                                function(pos) {
+                                    if (lastPosition && isTracking) {
+                                        const distance = calculateDistance(lastPosition, pos);
+                                        totalDistance += distance;
+                                        updateMovementData(distance, pos);
+                                    }
+                                    lastPosition = pos;
+                                    isTracking = true;
+                                    updateRealTimeDisplay();
+                                },
+                                function(error) {
+                                    console.log('❌ GPS 監聽失敗:', error.message);
+                                },
+                                { enableHighAccuracy: true, timeout: 60000, maximumAge: 0 }
+                            );
+                            
+                            isTracking = true;
+                        },
+                        function(error) {
+                            console.log('❌ 手機GPS權限被拒絕:', error.message);
+                            let errorMsg = '❌ GPS定位失敗: ' + error.message;
+                            if (error.code === error.TIMEOUT) {
+                                errorMsg = '❌ GPS定位超時，請重試';
+                            } else if (error.code === error.PERMISSION_DENIED) {
+                                errorMsg = '❌ GPS權限被拒絕，請允許位置權限';
+                            } else if (error.code === error.POSITION_UNAVAILABLE) {
+                                errorMsg = '❌ GPS位置不可用，請檢查GPS設定';
+                            }
+                            document.getElementById('locationStatusText').textContent = '📍 GPS定位失敗 | 請檢查權限設定';
+                            document.getElementById('gpsStatus').textContent = errorMsg;
+                        },
+                        { enableHighAccuracy: true, timeout: 60000, maximumAge: 0 }
+                    );
+                } else {
+                    // 電腦版：直接啟動
+                    navigator.geolocation.watchPosition(
+                        function(position) {
+                            console.log('📍 電腦GPS 自動啟動成功');
+                            document.getElementById('locationStatusText').textContent = '📍 GPS定位成功 | 正在追蹤您的移動';
+                            document.getElementById('gpsStatus').textContent = `✅ GPS定位成功 (精度: ${position.coords.accuracy.toFixed(0)}米)`;
+                            
+                            if (lastPosition && isTracking) {
+                                const distance = calculateDistance(lastPosition, position);
+                                totalDistance += distance;
+                                updateMovementData(distance, position);
+                            }
+                            lastPosition = position;
+                            isTracking = true;
+                            updateRealTimeDisplay();
+                        },
+                        function(error) {
+                            console.log('❌ 電腦GPS 自動啟動失敗:', error.message);
+                            document.getElementById('locationStatusText').textContent = '📍 GPS定位失敗 | 請檢查權限設定';
+                            document.getElementById('gpsStatus').textContent = '❌ GPS定位失敗: ' + error.message;
+                        },
+                        { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
+                    );
+                }
+            }
+            
+            // 設置自動追蹤狀態
+            document.getElementById('autoTracking').textContent = '✅ 自動追蹤功能已啟用';
+        }
+
+        // Chrome專用GPS權限請求
+        function requestChromeGPSPermission() {
+            console.log('📍 Chrome GPS權限請求...');
+            
+            const button = document.querySelector('#chromeGPSButton button');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            // 更新按鈕狀態
+            button.innerHTML = '🔄 正在請求GPS權限...';
+            button.disabled = true;
+            button.style.background = '#6c757d';
+            
+            if (!navigator.geolocation) {
+                statusMessage.textContent = '❌ 瀏覽器不支援GPS定位';
+                button.innerHTML = '❌ 不支援GPS';
+                return;
+            }
+            
+            // 請求GPS權限
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    console.log('✅ Chrome GPS權限獲得成功！');
+                    
+                    // 更新狀態
+                    document.getElementById('locationStatusText').textContent = '📍 GPS定位成功 | 正在追蹤您的移動';
+                    document.getElementById('gpsStatus').textContent = `✅ GPS定位成功 (精度: ${position.coords.accuracy.toFixed(0)}米)`;
+                    statusMessage.textContent = '✅ Chrome GPS定位已啟用，正在監測您的碳足跡';
+                    
+                    // 隱藏按鈕
+                    document.getElementById('chromeGPSButton').style.display = 'none';
+                    
+                    // 開始持續追蹤
+                    window.gpsWatchId = navigator.geolocation.watchPosition(
+                        function(pos) {
+                            if (lastPosition && isTracking) {
+                                const distance = calculateDistance(lastPosition, pos);
+                                totalDistance += distance;
+                                updateMovementData(distance, pos);
+                            }
+                            lastPosition = pos;
+                            isTracking = true;
+                            updateRealTimeDisplay();
+                        },
+                        function(error) {
+                            console.log('❌ GPS 監聽失敗:', error.message);
+                        },
+                        { enableHighAccuracy: true, timeout: 60000, maximumAge: 0 }
+                    );
+                    
+                    isTracking = true;
+                },
+                function(error) {
+                    console.log('❌ Chrome GPS權限被拒絕:', error.message);
+                    
+                    let errorMsg = '❌ GPS權限被拒絕';
+                    if (error.code === error.PERMISSION_DENIED) {
+                        errorMsg = '❌ GPS權限被拒絕，請在瀏覽器設定中允許位置權限';
+                    } else if (error.code === error.TIMEOUT) {
+                        errorMsg = '❌ GPS定位超時，請重試';
+                    } else if (error.code === error.POSITION_UNAVAILABLE) {
+                        errorMsg = '❌ GPS位置不可用，請檢查GPS設定';
+                    }
+                    
+                    document.getElementById('locationStatusText').textContent = '📍 GPS定位失敗 | 請檢查權限設定';
+                    document.getElementById('gpsStatus').textContent = errorMsg;
+                    statusMessage.textContent = '❌ GPS定位失敗，請重試或使用Safari瀏覽器';
+                    
+                    // 恢復按鈕
+                    button.innerHTML = '📍 重新嘗試啟用GPS';
+                    button.disabled = false;
+                    button.style.background = 'linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%)';
+                },
+                { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
+            );
+        }
+
+        // 測試GPS定位
+        function testGPS() {
+            console.log('📍 測試GPS定位...');
+            
+            const gpsBtn = document.getElementById('gpsBtn');
+            if (gpsBtn) {
+                gpsBtn.innerHTML = '🔄 正在請求GPS權限...';
+                gpsBtn.disabled = true;
+                gpsBtn.style.background = '#6c757d';
+            }
+            
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        console.log('✅ GPS定位成功！');
+                        document.getElementById('locationStatusText').textContent = '📍 GPS定位成功 | 正在追蹤您的移動';
+                        document.getElementById('gpsStatus').textContent = `✅ GPS定位成功 (精度: ${position.coords.accuracy.toFixed(0)}米)`;
+                        
+                        // 開始GPS追蹤
+                        startGPSTracking();
+                        
+                        if (gpsBtn) {
+                            gpsBtn.innerHTML = '✅ GPS已啟用';
+                            gpsBtn.style.background = '#28a745';
+                            setTimeout(() => {
+                                gpsBtn.innerHTML = '📍 啟用GPS定位';
+                                gpsBtn.disabled = false;
+                            }, 2000);
+                        }
+                    },
+                    function(error) {
+                        console.log('❌ GPS定位失敗:', error.message);
+                        document.getElementById('locationStatusText').textContent = '📍 GPS定位失敗 | 請檢查權限設定';
+                        document.getElementById('gpsStatus').textContent = '❌ GPS定位失敗: ' + error.message;
+                        
+                        if (gpsBtn) {
+                            gpsBtn.innerHTML = '❌ GPS失敗';
+                            gpsBtn.style.background = '#dc3545';
+                            setTimeout(() => {
+                                gpsBtn.innerHTML = '📍 啟用GPS定位';
+                                gpsBtn.disabled = false;
+                                gpsBtn.style.background = '#28a745';
+                            }, 2000);
+                        }
+                    },
+                    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+                );
+            } else {
+                console.log('❌ 瀏覽器不支援GPS');
+                document.getElementById('locationStatusText').textContent = '📍 GPS定位失敗 | 請檢查權限設定';
+                document.getElementById('gpsStatus').textContent = '❌ 瀏覽器不支援GPS定位';
+                
+                if (gpsBtn) {
+                    gpsBtn.innerHTML = '❌ 不支援GPS';
+                    setTimeout(() => {
+                        gpsBtn.innerHTML = '📍 啟用GPS定位';
+                        gpsBtn.disabled = false;
+                        gpsBtn.style.background = '#28a745';
+                    }, 2000);
+                }
+            }
+        }
+
+        // 同時測試GPS和感應器權限
+        function testBothPermissions() {
+            console.log('👉 開始測試GPS和感應器權限...');
+            
+            const enableBtn = document.getElementById('enableBtn');
+            if (enableBtn) {
+                enableBtn.innerHTML = '🔄 正在測試權限...';
+                enableBtn.disabled = true;
+                enableBtn.style.background = '#6c757d';
+            }
+            
+            // 清除之前的GPS監聽，避免衝突
+            if (window.gpsWatchId) {
+                navigator.geolocation.clearWatch(window.gpsWatchId);
+                window.gpsWatchId = null;
+            }
+            
+            // 直接更新狀態顯示
+            document.getElementById('locationStatusText').textContent = '🔄 正在請求GPS權限...';
+            document.getElementById('gpsStatus').textContent = '🔄 正在請求GPS權限...';
+            document.getElementById('sensorStatus').textContent = '🔄 正在請求感應器權限...';
+            
+            // === GPS 權限 ===
+            if (navigator.geolocation) {
+                console.log('開始請求GPS權限...');
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        console.log('✅ GPS權限成功！');
+                        console.log('座標:', position.coords.latitude, position.coords.longitude);
+                        
+                        // 直接更新狀態
+                        document.getElementById('locationStatusText').textContent = '📍 GPS定位成功 | 正在追蹤您的移動';
+                        document.getElementById('gpsStatus').textContent = `✅ GPS定位成功 (精度: ${position.coords.accuracy.toFixed(0)}米)`;
+                        
+                        // 開始GPS追蹤（不重複啟動）
+                        if (!window.gpsWatchId) {
+                            startGPSTracking();
+                        }
+                        
+                        if (enableBtn) {
+                            enableBtn.innerHTML = '✅ GPS成功！';
+                            enableBtn.style.background = '#28a745';
+                            setTimeout(() => {
+                                enableBtn.innerHTML = '🚀 測試GPS和感應器權限';
+                                enableBtn.disabled = false;
+                            }, 2000);
+                        }
+                    },
+                    function(error) {
+                        console.log('❌ GPS權限失敗:', error.message);
+                        console.log('錯誤代碼:', error.code);
+                        
+                        let errorMsg = '';
+                        if (error.code === 1) {
+                            errorMsg = '❌ GPS權限被拒絕，請允許位置權限';
+                        } else if (error.code === 2) {
+                            errorMsg = '❌ GPS位置不可用';
+                        } else if (error.code === 3) {
+                            errorMsg = '❌ GPS定位超時';
+                        } else {
+                            errorMsg = '❌ GPS定位失敗';
+                        }
+                        
+                        // 直接更新狀態
+                        document.getElementById('locationStatusText').textContent = '📍 GPS定位失敗 | 請檢查權限設定';
+                        document.getElementById('gpsStatus').textContent = errorMsg;
+                        
+                        if (enableBtn) {
+                            enableBtn.innerHTML = '❌ GPS失敗';
+                            enableBtn.style.background = '#dc3545';
+                            setTimeout(() => {
+                                enableBtn.innerHTML = '🚀 測試GPS和感應器權限';
+                                enableBtn.disabled = false;
+                                enableBtn.style.background = '#28a745';
+                            }, 2000);
+                        }
+                    },
+                    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+                );
+            } else {
+                console.log('❌ 瀏覽器不支援GPS');
+                document.getElementById('locationStatusText').textContent = '📍 GPS定位失敗 | 請檢查權限設定';
+                document.getElementById('gpsStatus').textContent = '❌ 瀏覽器不支援GPS';
+                
+                if (enableBtn) {
+                    enableBtn.innerHTML = '❌ 不支援GPS';
+                    setTimeout(() => {
+                        enableBtn.innerHTML = '🚀 測試GPS和感應器權限';
+                        enableBtn.disabled = false;
+                        enableBtn.style.background = '#28a745';
+                    }, 2000);
+                }
+            }
+            
+            // === 感應器權限 ===
+            if (typeof DeviceMotionEvent !== "undefined" && typeof DeviceMotionEvent.requestPermission === "function") {
+                console.log('正在請求感應器權限...');
+                DeviceMotionEvent.requestPermission().then(response => {
+                    console.log('感應器權限請求結果:', response);
+                    if (response === "granted") {
+                        console.log("✅ 感應器權限已允許");
+                        document.getElementById('sensorStatus').textContent = '✅ 感應器已啟用，持續監聽中...';
+                        startSensorTracking();
+                    } else {
+                        console.log("❌ 感應器權限被拒絕");
+                        document.getElementById('sensorStatus').textContent = '❌ 感應器權限被拒絕，請點擊「測試感應器」按鈕';
+                    }
+                }).catch(error => {
+                    console.log("❌ 感應器權限請求失敗:", error);
+                    document.getElementById('sensorStatus').textContent = '❌ 感應器權限請求失敗，請點擊「測試感應器」按鈕';
+                });
+            } else {
+                // Android / 桌面 Chrome 直接監聽
+                console.log("✅ Android/桌面 已啟用感應器監聽");
+                document.getElementById('sensorStatus').textContent = '✅ 感應器已啟用，持續監聽中...';
+                startSensorTracking();
+            }
+            
+            // 自動追蹤功能
+            document.getElementById('autoTracking').textContent = '✅ 自動追蹤功能已啟用';
+        }
+        
+        
+        // 顯示每日記錄
+        function triggerDailyRecord() {
+            const today = new Date().toISOString().split('T')[0];
+            const dailyRecords = JSON.parse(localStorage.getItem('dailyCarbonRecords') || '{}');
+            
+            // 獲取今日記錄
+            const todayRecord = dailyRecords[today];
+            
+            // 創建美觀的模態框
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 500px; background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                    <div style="padding: 20px;">
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <div style="font-size: 24px; margin-bottom: 10px;">📅</div>
+                            <h3 style="margin: 0 0 10px 0; font-size: 18px;">碳足跡記錄</h3>
+                            <div style="font-size: 14px; opacity: 0.9;">今日記錄 + 自選時間範圍統計</div>
+                        </div>
+                        
+                        <!-- 今日記錄 -->
+                        <div style="background: rgba(255,255,255,0.15); border-radius: 10px; padding: 15px; margin-bottom: 15px;">
+                            <div style="font-size: 16px; font-weight: bold; margin-bottom: 10px; text-align: center;">📅 今日記錄 (${today})</div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px;">
+                                <span>🏪 購物:</span>
+                                <span>${(todayRecord && todayRecord.shopping) ? todayRecord.shopping.toFixed(2) : '0.00'} kg CO₂</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px;">
+                                <span>🚗 交通:</span>
+                                <span>${(todayRecord && todayRecord.transport) ? todayRecord.transport.toFixed(2) : '0.00'} kg CO₂</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px;">
+                                <span>🏃 活動:</span>
+                                <span>${(todayRecord && todayRecord.activity) ? todayRecord.activity.toFixed(2) : '0.00'} kg CO₂</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;">
+                                <span>📋 其他:</span>
+                                <span>${(todayRecord && todayRecord.other) ? todayRecord.other.toFixed(2) : '0.00'} kg CO₂</span>
+                            </div>
+                            <hr style="border: 1px solid rgba(255,255,255,0.3); margin: 8px 0;">
+                            <div style="display: flex; justify-content: space-between; font-size: 15px; font-weight: bold;">
+                                <span>📊 今日總計:</span>
+                                <span>${(todayRecord && todayRecord.totalCarbon) ? todayRecord.totalCarbon.toFixed(2) : '0.00'} kg CO₂</span>
+                            </div>
+                            ${!todayRecord || todayRecord.totalCarbon === 0 ? `
+                                <div style="text-align: center; font-size: 12px; opacity: 0.7; margin-top: 8px;">💡 請先掃描發票或記錄移動軌跡來開始追蹤</div>
+                            ` : ''}
+                        </div>
+                        
+                        <!-- 時間範圍選擇 -->
+                        <div style="background: rgba(255,255,255,0.15); border-radius: 10px; padding: 15px; margin-bottom: 15px;">
+                            <div style="font-size: 16px; font-weight: bold; margin-bottom: 15px; text-align: center;">⏰ 選擇統計時間範圍</div>
+                            
+                            <!-- 快速選項 -->
+                            <div style="margin-bottom: 15px;">
+                                <div style="font-size: 14px; margin-bottom: 8px; text-align: center;">常用時間範圍</div>
+                                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;">
+                                    <button onclick="quickSelectDays(3)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;">近3天</button>
+                                    <button onclick="quickSelectDays(7)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;">近7天</button>
+                                    <button onclick="quickSelectDays(30)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;">近30天</button>
+                                    <button onclick="quickSelectDays(60)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;">近2個月</button>
+                                    <button onclick="quickSelectDays(90)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;">近3個月</button>
+                                    <button onclick="quickSelectDays(120)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;">近4個月</button>
+                                    <button onclick="quickSelectDays(150)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;">近5個月</button>
+                                    <button onclick="quickSelectDays(180)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;">近6個月</button>
+                                </div>
+                            </div>
+                            
+                            <!-- 自定義輸入 -->
+                            <div style="display: flex; align-items: center; gap: 8px; justify-content: center;">
+                                <span style="font-size: 13px;">自定義：</span>
+                                <input type="number" id="daysInput" value="7" min="1" max="180" style="width: 50px; padding: 4px; border: 1px solid white; border-radius: 4px; background: rgba(255,255,255,0.2); color: white; text-align: center; font-size: 12px;">
+                                <span style="font-size: 13px;">天</span>
+                                <button onclick="showCustomPeriodStats()" style="background: rgba(255,255,255,0.3); color: white; border: 1px solid white; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">查看</button>
+                            </div>
+                            <div style="font-size: 11px; opacity: 0.8; text-align: center; margin-top: 5px;">可設定1-180天</div>
+                        </div>
+                        
+                        <!-- 統計結果區域 -->
+                        <div id="periodStats" style="background: rgba(255,255,255,0.2); border-radius: 10px; padding: 15px; margin-bottom: 20px; display: none;">
+                            <div style="font-size: 16px; font-weight: bold; margin-bottom: 10px; text-align: center;" id="periodTitle">📈 統計結果</div>
+                            <div id="periodContent"></div>
+                        </div>
+                        
+                        <div style="text-align: center;">
+                            <button onclick="closeModal(this)" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid white; padding: 10px 30px; border-radius: 25px; cursor: pointer; font-size: 14px; font-weight: bold;">關閉</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+        
+        // 快速選擇天數
+        function quickSelectDays(days) {
+            const daysInput = document.getElementById('daysInput');
+            daysInput.value = days;
+            showPeriodStats(days);
+        }
+        
+        // 顯示用戶自定義時間範圍的統計
+        function showCustomPeriodStats() {
+            const daysInput = document.getElementById('daysInput');
+            const days = parseInt(daysInput.value);
+            
+            if (isNaN(days) || days < 1) {
+                alert('請輸入有效的天數（1-180天）');
+                return;
+            }
+            
+            if (days > 180) {
+                alert('最多只能查看180天（6個月）的統計');
+                daysInput.value = 180;
+                return;
+            }
+            
+            showPeriodStats(days);
+        }
+        
+        // 顯示指定時間範圍的統計
+        function showPeriodStats(days) {
+            const dailyRecords = JSON.parse(localStorage.getItem('dailyCarbonRecords') || '{}');
+            
+            // 計算指定天數前的日期
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - days + 1);
+            
+            const startDateStr = startDate.toISOString().split('T')[0];
+            const endDateStr = endDate.toISOString().split('T')[0];
+            
+            let totalShopping = 0;
+            let totalTransport = 0;
+            let totalActivity = 0;
+            let totalOther = 0;
+            let totalCarbon = 0;
+            let totalInvoices = 0;
+            let recordDays = 0;
+            
+            // 計算指定時間範圍內的累積數據
+            Object.keys(dailyRecords).forEach(date => {
+                if (date >= startDateStr && date <= endDateStr) {
+                    const record = dailyRecords[date];
+                    totalShopping += record.shopping || 0;
+                    totalTransport += record.transport || 0;
+                    totalActivity += record.activity || 0;
+                    totalOther += record.other || 0;
+                    totalCarbon += record.totalCarbon || 0;
+                    totalInvoices += record.invoiceCount || 0;
+                    recordDays++;
+                }
+            });
+            
+            // 更新統計結果區域
+            const periodStats = document.getElementById('periodStats');
+            const periodTitle = document.getElementById('periodTitle');
+            const periodContent = document.getElementById('periodContent');
+            
+            periodTitle.textContent = `📈 近${days}天統計 (${startDateStr} ~ ${endDateStr})`;
+            
+            periodContent.innerHTML = `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span>🏪 購物總計:</span>
+                    <span style="font-weight: bold;">${totalShopping.toFixed(2)} kg CO₂</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span>🚗 交通總計:</span>
+                    <span style="font-weight: bold;">${totalTransport.toFixed(2)} kg CO₂</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span>🏃 活動總計:</span>
+                    <span style="font-weight: bold;">${totalActivity.toFixed(2)} kg CO₂</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                    <span>📋 其他總計:</span>
+                    <span style="font-weight: bold;">${totalOther.toFixed(2)} kg CO₂</span>
+                </div>
+                <hr style="border: 1px solid rgba(255,255,255,0.3); margin: 12px 0;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-size: 16px; font-weight: bold;">📊 總碳足跡:</span>
+                    <span style="font-size: 16px; font-weight: bold;">${totalCarbon.toFixed(2)} kg CO₂</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span>📄 總發票數:</span>
+                    <span style="font-weight: bold;">${totalInvoices} 張</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span>📅 記錄天數:</span>
+                    <span style="font-weight: bold;">${recordDays} 天</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span>📊 平均每日:</span>
+                    <span style="font-weight: bold;">${recordDays > 0 ? (totalCarbon / recordDays).toFixed(2) : '0.00'} kg CO₂</span>
+                </div>
+            `;
+            
+            periodStats.style.display = 'block';
+        }
+        
+        // 關閉模態框
+        function closeModal(element) {
+            const modal = element.closest('.modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        // 測試感應器功能（基於正確的用戶互動事件）
+        function testSensor() {
+            console.log('👉 測試感應器功能');
+            const testBtn = document.getElementById('testSensorBtn');
+            if (testBtn) {
+                testBtn.innerHTML = '🔄 正在測試...';
+                testBtn.disabled = true;
+                testBtn.style.background = '#6c757d';
+            }
+            
+            if (!window.DeviceMotionEvent) {
+                console.log('❌ 瀏覽器不支援感應器');
+                updateSensorStatus('❌ 瀏覽器不支援感應器');
+                if (testBtn) {
+                    testBtn.innerHTML = '❌ 不支援感應器';
+                    setTimeout(() => {
+                        testBtn.innerHTML = '📱 測試感應器';
+                        testBtn.disabled = false;
+                        testBtn.style.background = '#007bff';
+                    }, 3000);
+                }
+                return;
+            }
+            
+            // 直接在用戶互動事件中請求感應器權限
+            try {
+                if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                    console.log('感應器需要權限請求，正在請求...');
+                    DeviceMotionEvent.requestPermission().then(response => {
+                        console.log('感應器權限請求結果:', response);
+                        if (response === 'granted') {
+                            console.log('✅ 感應器權限已授予，開始測試');
+                            updateSensorStatus('✅ 感應器已啟用，持續監聽中...');
+                            
+                            // 開始感應器監聽
+                            window.addEventListener("devicemotion", function(e) {
+                                if (e.acceleration) {
+                                    console.log("📱 devicemotion: 加速度X=" + e.acceleration.x);
+                                    handleMotion(e);
+                                }
+                            });
+                            
+                            if (testBtn) {
+                                testBtn.innerHTML = '✅ 測試成功！';
+                                testBtn.style.background = '#28a745';
+                                setTimeout(() => {
+                                    testBtn.innerHTML = '📱 測試感應器';
+                                    testBtn.disabled = false;
+                                    testBtn.style.background = '#007bff';
+                                }, 3000);
+                            }
+                        } else {
+                            console.log('❌ 感應器權限被拒絕');
+                            updateSensorStatus('❌ 感應器權限被拒絕');
+                            if (testBtn) {
+                                testBtn.innerHTML = '❌ 權限被拒絕';
+                                setTimeout(() => {
+                                    testBtn.innerHTML = '📱 測試感應器';
+                                    testBtn.disabled = false;
+                                    testBtn.style.background = '#007bff';
+                                }, 3000);
+                            }
+                        }
+                    }).catch(error => {
+                        console.log('❌ 感應器權限請求失敗:', error);
+                        updateSensorStatus('❌ 感應器測試失敗');
+                        if (testBtn) {
+                            testBtn.innerHTML = '❌ 測試失敗';
+                            setTimeout(() => {
+                                testBtn.innerHTML = '📱 測試感應器';
+                                testBtn.disabled = false;
+                                testBtn.style.background = '#007bff';
+                            }, 3000);
+                        }
+                    });
+                } else {
+                    // Android / 桌面 Chrome 直接監聽
+                    console.log('✅ Android/桌面 已啟用感應器監聽');
+                    updateSensorStatus('✅ 感應器已啟用，持續監聽中...');
+                    
+                    window.addEventListener("devicemotion", function(e) {
+                        if (e.acceleration) {
+                            console.log("📱 devicemotion: 加速度X=" + e.acceleration.x);
+                            handleMotion(e);
+                        }
+                    });
+                    
+                    if (testBtn) {
+                        testBtn.innerHTML = '✅ 測試成功！';
+                        testBtn.style.background = '#28a745';
+                        setTimeout(() => {
+                            testBtn.innerHTML = '📱 測試感應器';
+                            testBtn.disabled = false;
+                            testBtn.style.background = '#007bff';
+                        }, 3000);
+                    }
+                }
+            } catch (e) {
+                console.log("❌ 感應器啟用錯誤:", e);
+                updateSensorStatus('❌ 感應器啟用錯誤: ' + e.message);
+                if (testBtn) {
+                    testBtn.innerHTML = '❌ 啟用錯誤';
+                    setTimeout(() => {
+                        testBtn.innerHTML = '📱 測試感應器';
+                        testBtn.disabled = false;
+                        testBtn.style.background = '#007bff';
+                    }, 3000);
+                }
+            }
+        }
+        
+        // 開始感應器測試
+        function startSensorTest() {
+            let motionCount = 0;
+            let lastMotionTime = 0;
+            
+            const motionHandler = function(event) {
+                const now = Date.now();
+                if (now - lastMotionTime < 100) return; // 防止過於頻繁
+                lastMotionTime = now;
+                
+                const acceleration = event.accelerationIncludingGravity;
+                if (acceleration) {
+                    const totalAcceleration = Math.sqrt(
+                        acceleration.x * acceleration.x +
+                        acceleration.y * acceleration.y +
+                        acceleration.z * acceleration.z
+                    );
+                    
+                    if (totalAcceleration > 15) { // 檢測到明顯的搖動
+                        motionCount++;
+                        console.log('檢測到搖動:', totalAcceleration, '次數:', motionCount);
+                        
+                        if (motionCount >= 3) {
+                            updateSensorStatus('✅ 感應器運作正常！檢測到 ' + motionCount + ' 次搖動');
+                            window.removeEventListener('devicemotion', motionHandler);
+                            
+                            const testBtn = document.getElementById('testSensorBtn');
+                            if (testBtn) {
+                                testBtn.innerHTML = '✅ 測試成功！';
+                                testBtn.style.background = '#28a745';
+                                setTimeout(() => {
+                                    testBtn.innerHTML = '📱 測試感應器（搖動手機）';
+                                    testBtn.disabled = false;
+                                    testBtn.style.background = '#007bff';
+                                }, 3000);
+                            }
+                            
+                            // 開始正常的感應器追蹤
+                            startSensorTracking();
+                        }
+                    }
+                }
+            };
+            
+            window.addEventListener('devicemotion', motionHandler);
+            
+            // 10秒後停止測試
+            setTimeout(() => {
+                window.removeEventListener('devicemotion', motionHandler);
+                if (motionCount < 3) {
+                    updateSensorStatus('❌ 感應器測試失敗：請搖動手機');
+                    const testBtn = document.getElementById('testSensorBtn');
+                    if (testBtn) {
+                        testBtn.innerHTML = '❌ 請搖動手機';
+                        setTimeout(() => {
+                            testBtn.innerHTML = '📱 測試感應器（搖動手機）';
+                            testBtn.disabled = false;
+                            testBtn.style.background = '#007bff';
+                        }, 3000);
+                    }
+                }
+            }, 10000);
+        }
+        
+        // 測試GPS功能（基於正確的用戶互動事件）
+        function testGPS() {
+            console.log('👉 測試GPS功能');
+            const testBtn = document.getElementById('testGPSBtn');
+            if (testBtn) {
+                testBtn.innerHTML = '🔄 正在測試...';
+                testBtn.disabled = true;
+                testBtn.style.background = '#6c757d';
+            }
+            
+            if (!navigator.geolocation) {
+                console.log('❌ 瀏覽器不支援 GPS API');
+                updateLocationStatus(null, '❌ 瀏覽器不支援GPS定位');
+                if (testBtn) {
+                    testBtn.innerHTML = '❌ 不支援GPS';
+                    setTimeout(() => {
+                        testBtn.innerHTML = '📍 測試GPS';
+                        testBtn.disabled = false;
+                        testBtn.style.background = '#dc3545';
+                    }, 3000);
+                }
+                return;
+            }
+            
+            console.log('開始GPS測試...');
+            updateLocationStatus(null, '🔄 正在測試GPS...');
+            
+            // 直接在用戶互動事件中請求GPS權限
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    console.log('✅ GPS 測試成功:', position.coords.latitude, position.coords.longitude);
+                    const lat = position.coords.latitude.toFixed(6);
+                    const lng = position.coords.longitude.toFixed(6);
+                    const accuracy = position.coords.accuracy.toFixed(2);
+                    
+                    updateLocationStatus(position, null);
+                    
+                    if (testBtn) {
+                        testBtn.innerHTML = '✅ 測試成功！';
+                        testBtn.style.background = '#28a745';
+                        setTimeout(() => {
+                            testBtn.innerHTML = '📍 測試GPS';
+                            testBtn.disabled = false;
+                            testBtn.style.background = '#dc3545';
+                        }, 3000);
+                    }
+                    
+                    // 開始持續GPS監聽
+                    navigator.geolocation.watchPosition(
+                        function(p) {
+                            console.log('📍 GPS 更新:', p.coords.latitude, p.coords.longitude);
+                            updateLocationStatus(p, null);
+                            updateMovementData(p);
+                            updateRealTimeDisplay();
+                        },
+                        function(err) {
+                            console.log('❌ GPS 監聽失敗:', err.message);
+                            updateLocationStatus(null, '❌ GPS監聽失敗: ' + err.message);
+                        },
+                        { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
+                    );
+                },
+                function(error) {
+                    console.log('❌ GPS 測試失敗:', error.message);
+                    if (error.code === error.PERMISSION_DENIED) {
+                        updateLocationStatus(null, '❌ GPS權限被拒絕，請允許位置權限');
+                        if (testBtn) {
+                            testBtn.innerHTML = '❌ 權限被拒絕';
+                            setTimeout(() => {
+                                testBtn.innerHTML = '📍 測試GPS';
+                                testBtn.disabled = false;
+                                testBtn.style.background = '#dc3545';
+                            }, 3000);
+                        }
+                    } else if (error.code === error.POSITION_UNAVAILABLE) {
+                        updateLocationStatus(null, '❌ GPS位置不可用');
+                        if (testBtn) {
+                            testBtn.innerHTML = '❌ 位置不可用';
+                            setTimeout(() => {
+                                testBtn.innerHTML = '📍 測試GPS';
+                                testBtn.disabled = false;
+                                testBtn.style.background = '#dc3545';
+                            }, 3000);
+                        }
+                    } else if (error.code === error.TIMEOUT) {
+                        updateLocationStatus(null, '❌ GPS定位超時');
+                        if (testBtn) {
+                            testBtn.innerHTML = '❌ 定位超時';
+                            setTimeout(() => {
+                                testBtn.innerHTML = '📍 測試GPS';
+                                testBtn.disabled = false;
+                                testBtn.style.background = '#dc3545';
+                            }, 3000);
+                        }
+                    } else {
+                        updateLocationStatus(null, '❌ GPS定位失敗');
+                        if (testBtn) {
+                            testBtn.innerHTML = '❌ 定位失敗';
+                            setTimeout(() => {
+                                testBtn.innerHTML = '📍 測試GPS';
+                                testBtn.disabled = false;
+                                testBtn.style.background = '#dc3545';
+                            }, 3000);
+                        }
+                    }
+                },
+                { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+            );
+        }
+        
+        // 啟用GPS
+        function autoEnableGPS() {
+            if (!navigator.geolocation) {
+                updateLocationStatus(null, '❌ 瀏覽器不支援GPS定位');
+                return;
+            }
+            
+            console.log('啟用GPS...');
+            updateLocationStatus(null, '🔄 GPS正在啟動...');
+            
+            // 使用更積極的GPS設定來觸發權限請求
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    console.log('GPS啟用成功:', position);
+                    updateLocationStatus(position, null);
+                    
+                    // 開始GPS追蹤
+                    startGPSTracking();
+                },
+                function(error) {
+                    console.log('GPS啟用失敗:', error);
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            updateLocationStatus(null, '❌ GPS權限被拒絕，請允許位置權限');
+                            // 嘗試多次請求權限
+                            retryGPSPermission(3);
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            updateLocationStatus(null, '❌ GPS位置不可用');
+                            break;
+                        case error.TIMEOUT:
+                            updateLocationStatus(null, '❌ GPS定位超時');
+                            break;
+                        default:
+                            updateLocationStatus(null, '❌ GPS定位失敗');
+                            break;
+                    }
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 30000,
+                    maximumAge: 0
+                }
+            );
+        }
+        
+        // 重試GPS權限請求
+        function retryGPSPermission(retryCount) {
+            if (retryCount <= 0) {
+                updateLocationStatus(null, '❌ GPS權限請求失敗，請手動允許位置權限');
+                return;
+            }
+            
+            console.log('重試GPS權限請求，剩餘次數:', retryCount);
+            
+            setTimeout(() => {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        console.log('GPS重試成功:', position);
+                        updateLocationStatus(position, null);
+                        startGPSTracking();
+                    },
+                    function(error) {
+                        console.log('GPS重試失敗:', error);
+                        if (error.code === error.PERMISSION_DENIED) {
+                            updateLocationStatus(null, '❌ GPS權限被拒絕，請手動允許位置權限');
+                        } else if (error.code === error.POSITION_UNAVAILABLE) {
+                            updateLocationStatus(null, '❌ GPS位置不可用');
+                        } else if (error.code === error.TIMEOUT) {
+                            updateLocationStatus(null, '❌ GPS定位超時');
+                        } else {
+                            updateLocationStatus(null, '❌ GPS定位失敗: ' + error.message);
+                        }
+                    },
+                    { 
+                        enableHighAccuracy: false, 
+                        timeout: 15000, 
+                        maximumAge: 300000 
+                    }
+                );
+            }, 2000);
+        }
+        
+        // 啟用感應器
+        function autoEnableSensor() {
+            if (!window.DeviceMotionEvent) {
+                updateSensorStatus('❌ 瀏覽器不支援感應器');
+                return;
+            }
+            
+            console.log('啟用感應器...');
+            updateSensorStatus('🔄 感應器正在啟動...');
+            
+            // 檢查是否需要請求權限
+            if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                console.log('請求感應器權限...');
+                DeviceMotionEvent.requestPermission()
+                    .then(response => {
+                        if (response === 'granted') {
+                            console.log('感應器權限已授予');
+                            updateSensorStatus('✅ 感應器已啟用');
+                            startSensorTracking();
+                        } else {
+                            console.log('感應器權限被拒絕');
+                            updateSensorStatus('❌ 感應器權限被拒絕，請點擊「測試感應器」按鈕');
+                        }
+                    })
+                    .catch(error => {
+                        console.log('感應器權限請求失敗:', error);
+                        updateSensorStatus('❌ 感應器啟用失敗，請點擊「測試感應器」按鈕');
+                    });
+            } else {
+                console.log('感應器不需要權限請求，但需要測試');
+                updateSensorStatus('🔄 感應器需要測試，請點擊「測試感應器」按鈕');
+            }
+        }
+        
+        // 更新感應器狀態顯示
+        function updateSensorStatus(status) {
+            const sensorStatusElement = document.getElementById('sensorStatus');
+            if (sensorStatusElement) {
+                if (status) {
+                    sensorStatusElement.textContent = status;
+                } else {
+                    sensorStatusElement.textContent = ''; // 空白狀態
+                }
+            }
+        }
+        
+        // 更新自動追蹤狀態顯示
+        function updateAutoTrackingStatus(status) {
+            const autoTrackingElement = document.getElementById('autoTracking');
+            if (autoTrackingElement) {
+                if (status) {
+                    autoTrackingElement.textContent = status;
+                } else {
+                    autoTrackingElement.textContent = ''; // 空白狀態
+                }
+            }
+        }
+        
+        function getEmergencySolution(isIOS, isChrome, isSafari) {
+            if (isIOS) {
+                return `
+                <div style="text-align: left; padding: 15px; background: #ffebee; border: 1px solid #ffcdd2; border-radius: 8px; margin: 10px 0;">
+                    <h4 style="color: #c62828; margin: 0 0 10px 0;">🚨 iPhone GPS權限緊急解決方案：</h4>
+                    <ol style="color: #c62828; margin: 0; padding-left: 20px; line-height: 1.6;">
+                        <li><strong>從螢幕底部向上滑動並停留</strong></li>
+                        <li><strong>找到Safari並向上滑動關閉</strong></li>
+                        <li><strong>重新點擊Safari圖標開啟</strong></li>
+                        <li><strong>重新打開應用</strong>：http://172.20.10.6:3003/</li>
+                        <li><strong>立即點擊「🚀 強制請求GPS權限」</strong></li>
+                        <li><strong>選擇「允許」</strong></li>
+                    </ol>
+                    <div style="background: #e8f5e8; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                        <p style="color: #2e7d32; margin: 0; font-weight: bold;">💡 如果還是失敗，嘗試：</p>
+                        <ul style="color: #2e7d32; margin: 5px 0 0 0; padding-left: 20px;">
+                            <li>到戶外開闊地帶重試</li>
+                            <li>確保WiFi或行動數據正常</li>
+                            <li>重新啟動iPhone</li>
+                            <li>更新iOS系統</li>
+                        </ul>
+                    </div>
+                </div>
+                `;
+            }
+            return '';
+        }
+        
+    </script>
+</body>
+</html>

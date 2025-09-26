@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  # MongoDB 資料庫
+  mongodb:
+    image: mongo:7.0
+    container_name: carbon-mongodb-dev
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: carbon-tracker
+    ports:
+      - "0.0.0.0:27018:27017"  # 使用27018避免衝突
+    volumes:
+      - mongodb_data:/data/db
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    networks:
+      - carbon-network
+
+  # Redis 快取
+  redis:
+    image: redis:7.2-alpine
+    container_name: carbon-redis-dev
+    restart: unless-stopped
+    ports:
+      - "0.0.0.0:6380:6379"  # 使用6380避免衝突
+    volumes:
+      - redis_data:/data
+    networks:
+      - carbon-network
+
+  # Node.js 後端 API
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: carbon-backend-dev
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 3001  # 使用3001避免與現有服務衝突
+      MONGODB_URI: mongodb://admin:password123@mongodb:27017/carbon-tracker?authSource=admin
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: your-super-secret-jwt-key-here
+      JWT_EXPIRE: 7d
+      FRONTEND_URL: http://172.20.10.6:8081
+    ports:
+      - "0.0.0.0:3001:3001"  # 使用3001端口
+    depends_on:
+      - mongodb
+      - redis
+    volumes:
+      - backend_uploads:/app/uploads
+      - backend_logs:/app/logs
+      - ../backend:/app
+    networks:
+      - carbon-network
+    command: npm run dev
+
+  # Python AI 服務
+  ai-service:
+    build:
+      context: ../ai-service
+      dockerfile: Dockerfile
+    container_name: carbon-ai-service-dev
+    restart: unless-stopped
+    environment:
+      FLASK_ENV: development
+      PORT: 5001  # 使用5001避免衝突
+      REDIS_URL: redis://redis:6379
+      GOOGLE_API_KEY: your-google-api-key-here
+    ports:
+      - "0.0.0.0:5001:5001"  # 使用5001端口
+    depends_on:
+      - redis
+    volumes:
+      - ai_service_models:/app/models
+      - ai_service_logs:/app/logs
+      - ../ai-service:/app
+    networks:
+      - carbon-network
+
+volumes:
+  mongodb_data:
+  redis_data:
+  backend_uploads:
+  backend_logs:
+  ai_service_models:
+  ai_service_logs:
+
+networks:
+  carbon-network:
+    driver: bridge

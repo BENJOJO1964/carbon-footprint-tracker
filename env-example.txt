@@ -1,0 +1,10 @@
+# 財政部電子發票API配置
+# 申請完成後，將此文件複製為 .env 並填入真實的API金鑰
+
+# 財政部電子發票API金鑰
+INVOICE_APP_ID=YOUR_APP_ID_HERE
+INVOICE_API_KEY=YOUR_API_KEY_HERE
+
+# 服務器配置
+PORT=3001
+NODE_ENV=development

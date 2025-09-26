@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPS測試</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        button { padding: 15px; font-size: 16px; margin: 10px; border: none; border-radius: 8px; cursor: pointer; }
+        .gps-btn { background: #28a745; color: white; }
+        .sensor-btn { background: #007bff; color: white; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>🔍 GPS和感應器測試</h1>
+    
+    <button class="gps-btn" onclick="testGPS()">📍 測試GPS</button>
+    <button class="sensor-btn" onclick="testSensor()">📱 測試感應器</button>
+    
+    <div id="result"></div>
+
+    <script>
+        function showResult(message, isSuccess) {
+            const element = document.getElementById('result');
+            element.textContent = message;
+            element.className = `result ${isSuccess ? 'success' : 'error'}`;
+        }
+        
+        function testGPS() {
+            console.log('開始GPS測試...');
+            showResult('正在測試GPS...', true);
+            
+            if (!navigator.geolocation) {
+                showResult('❌ 瀏覽器不支援GPS', false);
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    console.log('GPS成功:', position);
+                    const msg = `✅ GPS成功！\n緯度: ${position.coords.latitude}\n經度: ${position.coords.longitude}\n精度: ${position.coords.accuracy}米`;
+                    showResult(msg, true);
+                },
+                function(error) {
+                    console.log('GPS失敗:', error);
+                    let msg = '❌ GPS失敗: ';
+                    if (error.code === 1) {
+                        msg += '權限被拒絕';
+                    } else if (error.code === 2) {
+                        msg += '位置不可用';
+                    } else if (error.code === 3) {
+                        msg += '定位超時';
+                    } else {
+                        msg += error.message;
+                    }
+                    showResult(msg, false);
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        }
+        
+        function testSensor() {
+            console.log('開始感應器測試...');
+            showResult('正在測試感應器...', true);
+            
+            if (typeof DeviceMotionEvent !== "undefined" && typeof DeviceMotionEvent.requestPermission === "function") {
+                console.log('需要請求感應器權限...');
+                DeviceMotionEvent.requestPermission().then(response => {
+                    console.log('感應器權限結果:', response);
+                    if (response === "granted") {
+                        showResult('✅ 感應器權限已允許', true);
+                        startSensorListen();
+                    } else {
+                        showResult('❌ 感應器權限被拒絕', false);
+                    }
+                }).catch(error => {
+                    console.log('感應器權限錯誤:', error);
+                    showResult('❌ 感應器權限請求失敗: ' + error.message, false);
+                });
+            } else {
+                console.log('直接啟用感應器...');
+                showResult('✅ 感應器已啟用（無需權限）', true);
+                startSensorListen();
+            }
+        }
+        
+        function startSensorListen() {
+            let count = 0;
+            window.addEventListener('devicemotion', function(e) {
+                count++;
+                if (count === 1) {
+                    showResult('✅ 感應器正常工作！檢測到動作數據', true);
+                }
+                console.log('感應器數據:', e.acceleration);
+            });
+        }
+    </script>
+</body>
+</html>

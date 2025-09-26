@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTPS測試</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>HTTPS連接測試</h1>
+    
+    <div id="httpsStatus" class="status info">檢查HTTPS狀態中...</div>
+    <div id="gpsStatus" class="status info">檢查GPS狀態中...</div>
+    
+    <button onclick="testGPS()" style="padding: 10px 20px; font-size: 16px; margin: 10px 0;">測試GPS</button>
+    
+    <script>
+        // 檢查HTTPS狀態
+        function checkHTTPS() {
+            const isHTTPS = location.protocol === 'https:';
+            const statusDiv = document.getElementById('httpsStatus');
+            
+            if (isHTTPS) {
+                statusDiv.className = 'status success';
+                statusDiv.textContent = '✅ HTTPS連接正常';
+            } else {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '❌ 使用HTTP連接，請訪問 https://172.20.10.6:3003/test-https.html';
+            }
+        }
+        
+        // 測試GPS
+        function testGPS() {
+            console.log('開始測試GPS...');
+            const statusDiv = document.getElementById('gpsStatus');
+            statusDiv.className = 'status info';
+            statusDiv.textContent = '🔄 測試GPS中...';
+            
+            if (!navigator.geolocation) {
+                console.log('瀏覽器不支援GPS');
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '❌ 瀏覽器不支援GPS';
+                return;
+            }
+            
+            console.log('開始請求GPS位置...');
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    console.log('GPS成功:', position);
+                    statusDiv.className = 'status success';
+                    statusDiv.textContent = `✅ GPS成功！緯度: ${position.coords.latitude.toFixed(6)}, 經度: ${position.coords.longitude.toFixed(6)}, 精度: ${position.coords.accuracy.toFixed(0)}米`;
+                },
+                function(error) {
+                    console.log('GPS失敗:', error);
+                    statusDiv.className = 'status error';
+                    let errorMsg = '❌ GPS失敗: ';
+                    if (error.code === error.PERMISSION_DENIED) {
+                        errorMsg += '權限被拒絕';
+                    } else if (error.code === error.POSITION_UNAVAILABLE) {
+                        errorMsg += '位置不可用';
+                    } else if (error.code === error.TIMEOUT) {
+                        errorMsg += '超時';
+                    } else {
+                        errorMsg += error.message;
+                    }
+                    statusDiv.textContent = errorMsg;
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        }
+        
+        // 頁面載入時檢查
+        window.onload = function() {
+            checkHTTPS();
+        };
+    </script>
+</body>
+</html>

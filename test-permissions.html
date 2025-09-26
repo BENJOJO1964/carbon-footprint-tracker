@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>權限測試 - 最簡版本</title>
+  <style>
+    body { 
+      font-family: sans-serif; 
+      padding: 20px; 
+      background: #f5f5f5;
+    }
+    button { 
+      padding: 15px 30px; 
+      font-size: 18px; 
+      cursor: pointer; 
+      margin: 10px;
+      border: none;
+      border-radius: 8px;
+      color: white;
+    }
+    #gpsBtn { background: #dc3545; }
+    #sensorBtn { background: #007bff; }
+    #bothBtn { background: #28a745; }
+    #log { 
+      margin-top: 20px; 
+      white-space: pre-wrap; 
+      background: white; 
+      padding: 15px; 
+      border: 1px solid #ddd; 
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 14px;
+    }
+    .success { color: #28a745; }
+    .error { color: #dc3545; }
+    .info { color: #007bff; }
+  </style>
+</head>
+<body>
+  <h1>🔧 權限測試 - 最簡版本</h1>
+  <p>請依序測試每個按鈕，觀察瀏覽器是否彈出權限請求對話框</p>
+  
+  <button id="gpsBtn">📍 測試GPS權限</button>
+  <button id="sensorBtn">📱 測試感應器權限</button>
+  <button id="bothBtn">🚀 同時測試兩者</button>
+  
+  <div id="log">👉 請點擊按鈕開始測試...</div>
+
+  <script>
+    const logBox = document.getElementById("log");
+    const log = (msg, type = 'info') => {
+      const timestamp = new Date().toLocaleTimeString();
+      const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+      const logMsg = `[${timestamp}] ${msg}`;
+      console.log(logMsg);
+      logBox.innerHTML += `<span class="${className}">${logMsg}</span>\n`;
+      logBox.scrollTop = logBox.scrollHeight;
+    };
+
+    // GPS 測試
+    document.getElementById("gpsBtn").addEventListener("click", () => {
+      log("📍 開始測試GPS權限...");
+      
+      if (!navigator.geolocation) {
+        log("❌ 瀏覽器不支援GPS API", 'error');
+        return;
+      }
+      
+      log("🔄 正在請求GPS權限...");
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          log(`✅ GPS權限成功！座標: ${position.coords.latitude}, ${position.coords.longitude}`, 'success');
+          log(`📍 精度: ${position.coords.accuracy} 公尺`, 'info');
+        },
+        (error) => {
+          log(`❌ GPS權限失敗: ${error.message}`, 'error');
+          log(`❌ 錯誤代碼: ${error.code}`, 'error');
+          if (error.code === 1) {
+            log("💡 提示: 請檢查瀏覽器位置權限設定", 'info');
+          }
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    });
+
+    // 感應器測試
+    document.getElementById("sensorBtn").addEventListener("click", () => {
+      log("📱 開始測試感應器權限...");
+      
+      if (!window.DeviceMotionEvent) {
+        log("❌ 瀏覽器不支援感應器API", 'error');
+        return;
+      }
+      
+      if (typeof DeviceMotionEvent.requestPermission === 'function') {
+        log("🔄 正在請求感應器權限 (iOS)...");
+        DeviceMotionEvent.requestPermission()
+          .then(response => {
+            if (response === 'granted') {
+              log("✅ 感應器權限成功！", 'success');
+              log("📱 開始監聽感應器數據...", 'info');
+              
+              let count = 0;
+              const listener = (e) => {
+                if (e.acceleration && count < 3) {
+                  count++;
+                  log(`📱 感應器數據 ${count}: X=${e.acceleration.x?.toFixed(2)}, Y=${e.acceleration.y?.toFixed(2)}, Z=${e.acceleration.z?.toFixed(2)}`, 'info');
+                  if (count >= 3) {
+                    window.removeEventListener('devicemotion', listener);
+                    log("✅ 感應器測試完成！", 'success');
+                  }
+                }
+              };
+              window.addEventListener('devicemotion', listener);
+              
+              // 5秒後停止監聽
+              setTimeout(() => {
+                window.removeEventListener('devicemotion', listener);
+              }, 5000);
+            } else {
+              log("❌ 感應器權限被拒絕", 'error');
+            }
+          })
+          .catch(error => {
+            log(`❌ 感應器權限請求失敗: ${error.message}`, 'error');
+          });
+      } else {
+        log("✅ Android/桌面瀏覽器，直接測試感應器...", 'info');
+        log("📱 開始監聽感應器數據...", 'info');
+        
+        let count = 0;
+        const listener = (e) => {
+          if (e.acceleration && count < 3) {
+            count++;
+            log(`📱 感應器數據 ${count}: X=${e.acceleration.x?.toFixed(2)}, Y=${e.acceleration.y?.toFixed(2)}, Z=${e.acceleration.z?.toFixed(2)}`, 'info');
+            if (count >= 3) {
+              window.removeEventListener('devicemotion', listener);
+              log("✅ 感應器測試完成！", 'success');
+            }
+          }
+        };
+        window.addEventListener('devicemotion', listener);
+        
+        // 5秒後停止監聽
+        setTimeout(() => {
+          window.removeEventListener('devicemotion', listener);
+        }, 5000);
+      }
+    });
+
+    // 同時測試兩者
+    document.getElementById("bothBtn").addEventListener("click", () => {
+      log("🚀 開始同時測試GPS和感應器權限...");
+      
+      // 測試GPS
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            log(`✅ GPS成功: ${position.coords.latitude}, ${position.coords.longitude}`, 'success');
+          },
+          (error) => {
+            log(`❌ GPS失敗: ${error.message}`, 'error');
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+      }
+      
+      // 測試感應器
+      if (window.DeviceMotionEvent) {
+        if (typeof DeviceMotionEvent.requestPermission === 'function') {
+          DeviceMotionEvent.requestPermission()
+            .then(response => {
+              if (response === 'granted') {
+                log("✅ 感應器權限成功！", 'success');
+              } else {
+                log("❌ 感應器權限被拒絕", 'error');
+              }
+            })
+            .catch(error => {
+              log(`❌ 感應器失敗: ${error.message}`, 'error');
+            });
+        } else {
+          log("✅ 感應器直接可用 (Android/桌面)", 'success');
+        }
+      }
+    });
+
+    // 頁面載入時顯示設備信息
+    window.addEventListener('load', () => {
+      log("🔍 設備信息:", 'info');
+      log(`📱 User Agent: ${navigator.userAgent}`, 'info');
+      log(`🌐 協議: ${location.protocol}`, 'info');
+      log(`📍 GPS支援: ${!!navigator.geolocation}`, 'info');
+      log(`📱 感應器支援: ${!!window.DeviceMotionEvent}`, 'info');
+      log(`🔐 感應器需要權限: ${typeof DeviceMotionEvent.requestPermission === 'function'}`, 'info');
+    });
+  </script>
+</body>
+</html>

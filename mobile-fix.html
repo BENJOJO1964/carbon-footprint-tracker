@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>手機版GPS修復</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            padding: 20px; 
+            background: #f5f5f5; 
+            margin: 0;
+        }
+        .container { max-width: 400px; margin: 0 auto; }
+        .card { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 12px; 
+            margin: 15px 0; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header { 
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); 
+            color: white; 
+            padding: 20px; 
+            border-radius: 12px; 
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        button { 
+            width: 100%;
+            padding: 15px; 
+            font-size: 16px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .gps-btn { 
+            background: #28a745; 
+            color: white; 
+        }
+        .sensor-btn { 
+            background: #007bff; 
+            color: white; 
+        }
+        .both-btn { 
+            background: #dc3545; 
+            color: white; 
+            font-size: 18px;
+            padding: 18px;
+        }
+        .result { 
+            margin: 15px 0; 
+            padding: 15px; 
+            border-radius: 8px; 
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .success { 
+            background: #d4edda; 
+            color: #155724; 
+            border-left: 4px solid #28a745; 
+        }
+        .error { 
+            background: #f8d7da; 
+            color: #721c24; 
+            border-left: 4px solid #dc3545; 
+        }
+        .info { 
+            background: #d1ecf1; 
+            color: #0c5460; 
+            border-left: 4px solid #17a2b8; 
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+        .step {
+            background: #f8f9fa;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border-left: 3px solid #6c757d;
+        }
+        .coords {
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 4px;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 手機版GPS修復</h1>
+            <p>專門修復iPhone/Android權限問題</p>
+        </div>
+        
+        <div class="card">
+            <h2>🚀 一鍵修復（推薦）</h2>
+            <button class="both-btn" onclick="fixBoth()">修復GPS + 感應器</button>
+            <div id="both-result" class="result" style="display: none;"></div>
+        </div>
+        
+        <div class="card">
+            <h2>📍 單獨測試GPS</h2>
+            <button class="gps-btn" onclick="fixGPS()">修復GPS權限</button>
+            <div id="gps-result" class="result" style="display: none;"></div>
+        </div>
+        
+        <div class="card">
+            <h2>📱 單獨測試感應器</h2>
+            <button class="sensor-btn" onclick="fixSensor()">修復感應器權限</button>
+            <div id="sensor-result" class="result" style="display: none;"></div>
+        </div>
+        
+        <div class="card">
+            <h2>📋 操作步驟</h2>
+            <div class="step">
+                <strong>步驟1：</strong>點擊上方「修復GPS + 感應器」按鈕
+            </div>
+            <div class="step">
+                <strong>步驟2：</strong>當瀏覽器彈出「允許位置權限」時，點擊「允許」
+            </div>
+            <div class="step">
+                <strong>步驟3：</strong>當瀏覽器彈出「允許動作與方向」時，點擊「允許」
+            </div>
+            <div class="step">
+                <strong>步驟4：</strong>查看結果，如果成功會顯示座標數據
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>🔍 設備信息</h2>
+            <div id="device-info" class="info"></div>
+        </div>
+    </div>
+
+    <script>
+        function showResult(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.textContent = message;
+            element.className = `result ${type}`;
+        }
+        
+        function fixBoth() {
+            console.log('開始修復GPS和感應器...');
+            showResult('both-result', '正在修復GPS和感應器權限...', 'info');
+            
+            let gpsSuccess = false;
+            let sensorSuccess = false;
+            
+            // 修復GPS
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        console.log('GPS修復成功:', position);
+                        gpsSuccess = true;
+                        
+                        const coords = `
+緯度: ${position.coords.latitude.toFixed(6)}
+經度: ${position.coords.longitude.toFixed(6)}
+精度: ${position.coords.accuracy.toFixed(0)}米`;
+                        
+                        if (sensorSuccess) {
+                            showResult('both-result', `✅ 修復完成！\n\n📍 GPS: ${coords}\n📱 感應器: 正常工作`, 'success');
+                        } else {
+                            showResult('both-result', `✅ GPS修復成功！\n\n📍 GPS: ${coords}\n📱 感應器: 待修復`, 'success');
+                        }
+                        
+                        // 開始GPS追蹤
+                        startGPSTracking();
+                    },
+                    function(error) {
+                        console.log('GPS修復失敗:', error);
+                        let msg = '❌ GPS修復失敗: ';
+                        if (error.code === 1) {
+                            msg += '權限被拒絕\n\n解決方案：\n1. 點擊瀏覽器地址欄左側的鎖頭圖標\n2. 選擇「位置」→「允許」\n3. 重新點擊修復按鈕';
+                        } else if (error.code === 2) {
+                            msg += '位置不可用\n\n解決方案：\n1. 檢查手機GPS設定\n2. 確保在戶外或有窗戶的室內';
+                        } else if (error.code === 3) {
+                            msg += '定位超時\n\n解決方案：\n1. 確保網路連線正常\n2. 重新點擊修復按鈕';
+                        } else {
+                            msg += error.message;
+                        }
+                        showResult('both-result', msg, 'error');
+                    },
+                    { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+                );
+            } else {
+                showResult('both-result', '❌ 瀏覽器不支援GPS', 'error');
+            }
+            
+            // 修復感應器
+            if (typeof DeviceMotionEvent !== "undefined" && typeof DeviceMotionEvent.requestPermission === "function") {
+                DeviceMotionEvent.requestPermission().then(response => {
+                    if (response === "granted") {
+                        console.log('感應器修復成功');
+                        sensorSuccess = true;
+                        startSensorTracking();
+                        
+                        if (gpsSuccess) {
+                            showResult('both-result', '✅ 修復完成！GPS和感應器都正常工作', 'success');
+                        } else {
+                            showResult('both-result', '✅ 感應器修復成功！GPS待修復', 'success');
+                        }
+                    } else {
+                        console.log('感應器修復失敗');
+                        showResult('both-result', '❌ 感應器權限被拒絕\n\n解決方案：\n1. 點擊瀏覽器地址欄左側的鎖頭圖標\n2. 選擇「動作與方向」→「允許」\n3. 重新點擊修復按鈕', 'error');
+                    }
+                }).catch(error => {
+                    console.log('感應器修復錯誤:', error);
+                    showResult('both-result', '❌ 感應器修復失敗: ' + error.message, 'error');
+                });
+            } else {
+                console.log('感應器直接啟用');
+                sensorSuccess = true;
+                startSensorTracking();
+                
+                if (gpsSuccess) {
+                    showResult('both-result', '✅ 修復完成！GPS和感應器都正常工作', 'success');
+                } else {
+                    showResult('both-result', '✅ 感應器已啟用（無需權限）！GPS待修復', 'success');
+                }
+            }
+        }
+        
+        function fixGPS() {
+            console.log('開始修復GPS...');
+            showResult('gps-result', '正在修復GPS權限...', 'info');
+            
+            if (!navigator.geolocation) {
+                showResult('gps-result', '❌ 瀏覽器不支援GPS', 'error');
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    console.log('GPS修復成功:', position);
+                    const coords = `
+緯度: ${position.coords.latitude.toFixed(6)}
+經度: ${position.coords.longitude.toFixed(6)}
+精度: ${position.coords.accuracy.toFixed(0)}米`;
+                    showResult('gps-result', `✅ GPS修復成功！\n\n${coords}`, 'success');
+                    startGPSTracking();
+                },
+                function(error) {
+                    console.log('GPS修復失敗:', error);
+                    let msg = '❌ GPS修復失敗: ';
+                    if (error.code === 1) {
+                        msg += '權限被拒絕\n\n解決方案：\n1. 點擊瀏覽器地址欄左側的鎖頭圖標\n2. 選擇「位置」→「允許」\n3. 重新點擊修復按鈕';
+                    } else if (error.code === 2) {
+                        msg += '位置不可用\n\n解決方案：\n1. 檢查手機GPS設定\n2. 確保在戶外或有窗戶的室內';
+                    } else if (error.code === 3) {
+                        msg += '定位超時\n\n解決方案：\n1. 確保網路連線正常\n2. 重新點擊修復按鈕';
+                    } else {
+                        msg += error.message;
+                    }
+                    showResult('gps-result', msg, 'error');
+                },
+                { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+            );
+        }
+        
+        function fixSensor() {
+            console.log('開始修復感應器...');
+            showResult('sensor-result', '正在修復感應器權限...', 'info');
+            
+            if (typeof DeviceMotionEvent !== "undefined" && typeof DeviceMotionEvent.requestPermission === "function") {
+                DeviceMotionEvent.requestPermission().then(response => {
+                    if (response === "granted") {
+                        console.log('感應器修復成功');
+                        showResult('sensor-result', '✅ 感應器修復成功！', 'success');
+                        startSensorTracking();
+                    } else {
+                        console.log('感應器修復失敗');
+                        showResult('sensor-result', '❌ 感應器權限被拒絕\n\n解決方案：\n1. 點擊瀏覽器地址欄左側的鎖頭圖標\n2. 選擇「動作與方向」→「允許」\n3. 重新點擊修復按鈕', 'error');
+                    }
+                }).catch(error => {
+                    console.log('感應器修復錯誤:', error);
+                    showResult('sensor-result', '❌ 感應器修復失敗: ' + error.message, 'error');
+                });
+            } else {
+                console.log('感應器直接啟用');
+                showResult('sensor-result', '✅ 感應器已啟用（無需權限）', 'success');
+                startSensorTracking();
+            }
+        }
+        
+        function startGPSTracking() {
+            if (!navigator.geolocation) return;
+            
+            navigator.geolocation.watchPosition(
+                function(position) {
+                    console.log('GPS追蹤:', position.coords.latitude, position.coords.longitude);
+                },
+                function(error) {
+                    console.log('GPS追蹤錯誤:', error);
+                },
+                { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
+            );
+        }
+        
+        function startSensorTracking() {
+            let count = 0;
+            window.addEventListener('devicemotion', function(e) {
+                count++;
+                if (count === 1) {
+                    console.log('感應器工作正常');
+                }
+                if (count <= 3) {
+                    console.log('感應器數據:', e.acceleration);
+                }
+            });
+        }
+        
+        // 顯示設備信息
+        window.onload = function() {
+            const deviceInfo = document.getElementById('device-info');
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            const isAndroid = /Android/.test(navigator.userAgent);
+            const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+            
+            deviceInfo.innerHTML = `
+                <strong>設備信息：</strong><br>
+                設備: ${isIOS ? 'iPhone/iPad' : isAndroid ? 'Android' : '桌面'}<br>
+                瀏覽器: ${navigator.userAgent.split(' ')[0]}<br>
+                GPS支援: ${!!navigator.geolocation}<br>
+                感應器支援: ${!!window.DeviceMotionEvent}<br>
+                感應器需要權限: ${typeof DeviceMotionEvent.requestPermission === 'function'}<br>
+                HTTPS: ${location.protocol === 'https:'}<br>
+                <br>
+                <strong>注意：</strong><br>
+                ${isIOS ? 'iPhone需要手動允許權限' : isAndroid ? 'Android可能直接允許' : '桌面版權限較寬鬆'}
+            `;
+        };
+    </script>
+</body>
+</html>

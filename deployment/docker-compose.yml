@@ -1,0 +1,146 @@
+version: '3.8'
+
+services:
+  # MongoDB 資料庫
+  mongodb:
+    image: mongo:7.0
+    container_name: carbon-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: carbon-tracker
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    networks:
+      - carbon-network
+
+  # Redis 快取
+  redis:
+    image: redis:7.2-alpine
+    container_name: carbon-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - carbon-network
+
+  # Node.js 後端 API
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: carbon-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      MONGODB_URI: mongodb://admin:password123@mongodb:27017/carbon-tracker?authSource=admin
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: your-super-secret-jwt-key-here
+      JWT_EXPIRE: 7d
+      FRONTEND_URL: http://localhost:8081
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongodb
+      - redis
+    volumes:
+      - backend_uploads:/app/uploads
+      - backend_logs:/app/logs
+    networks:
+      - carbon-network
+
+  # Python AI 服務
+  ai-service:
+    build:
+      context: ../ai-service
+      dockerfile: Dockerfile
+    container_name: carbon-ai-service
+    restart: unless-stopped
+    environment:
+      FLASK_ENV: production
+      PORT: 5000
+      REDIS_URL: redis://redis:6379
+      GOOGLE_API_KEY: your-google-api-key-here
+    ports:
+      - "5000:5000"
+    depends_on:
+      - redis
+    volumes:
+      - ai_service_models:/app/models
+      - ai_service_logs:/app/logs
+    networks:
+      - carbon-network
+
+  # Nginx 反向代理
+  nginx:
+    image: nginx:alpine
+    container_name: carbon-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - backend
+      - ai-service
+    networks:
+      - carbon-network
+
+  # 監控服務 (可選)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: carbon-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - carbon-network
+
+  # Grafana 儀表板 (可選)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: carbon-grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin123
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - carbon-network
+
+volumes:
+  mongodb_data:
+  redis_data:
+  backend_uploads:
+  backend_logs:
+  ai_service_models:
+  ai_service_logs:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  carbon-network:
+    driver: bridge
