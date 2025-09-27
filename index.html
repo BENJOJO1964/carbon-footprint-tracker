@@ -1150,7 +1150,7 @@
             </div>
             <div class="form-group">
                 <label data-lang="auto_tracking">自動追蹤</label>
-                <select id="autoTracking">
+                <select id="autoTrackingSetting">
                     <option value="true" data-lang="enabled">啟用</option>
                     <option value="false" data-lang="disabled">停用</option>
                 </select>
@@ -2581,7 +2581,7 @@
         function saveSettings() {
             const dailyGoal = document.getElementById('dailyGoal').value;
             const gpsEnabled = document.getElementById('gpsEnabled').value;
-            const autoTracking = document.getElementById('autoTracking').value;
+            const autoTracking = document.getElementById('autoTrackingSetting').value;
             
             alert(t('settings_saved') + '\n\n' + t('daily_goal_kg').replace(' (公斤)', '') + '：' + dailyGoal + ' kg\nGPS：' + (gpsEnabled === 'true' ? t('enabled') : t('disabled')) + '\n' + t('auto_tracking') + '：' + (autoTracking === 'true' ? t('enabled') : t('disabled')));
             closeModal('settingsModal');
@@ -3063,7 +3063,7 @@
         function startSensorTracking() {
             if (window.DeviceMotionEvent) {
                 console.log('開始感應器監聽...');
-                updateSensorStatus(t('sensor_enabled'));
+                document.getElementById('sensorStatus').textContent = t('sensor_enabled');
                 
                 window.addEventListener('devicemotion', function(e) {
                     if (e.acceleration) {
@@ -3073,7 +3073,7 @@
                 });
             } else {
                 console.log('瀏覽器不支援感應器');
-                updateSensorStatus(t('sensor_not_supported'));
+                document.getElementById('sensorStatus').textContent = t('sensor_not_supported');
             }
         }
         
@@ -3594,7 +3594,8 @@
                     navigator.geolocation.getCurrentPosition(
                         function(position) {
                             console.log('📍 手機GPS權限獲得，開始追蹤');
-                            updateLocationStatus(position, null);
+                            document.getElementById('locationStatusText').textContent = '📍 GPS定位成功 | 正在追蹤您的移動';
+                            document.getElementById('gpsStatus').textContent = `✅ GPS定位成功 (精度: ${position.coords.accuracy.toFixed(0)}米)`;
                             
                             // 開始持續追蹤
                             window.gpsWatchId = navigator.geolocation.watchPosition(
@@ -3626,7 +3627,8 @@
                             } else if (error.code === error.POSITION_UNAVAILABLE) {
                                 errorMsg = '❌ GPS位置不可用，請檢查GPS設定';
                             }
-                            updateLocationStatus(null, errorMsg);
+                            document.getElementById('locationStatusText').textContent = '📍 GPS定位失敗 | 請檢查權限設定';
+                            document.getElementById('gpsStatus').textContent = errorMsg;
                         },
                         { enableHighAccuracy: true, timeout: 60000, maximumAge: 0 }
                     );
@@ -3635,7 +3637,8 @@
                     navigator.geolocation.watchPosition(
                         function(position) {
                             console.log('📍 電腦GPS 自動啟動成功');
-                            updateLocationStatus(position, null);
+                            document.getElementById('locationStatusText').textContent = '📍 GPS定位成功 | 正在追蹤您的移動';
+                            document.getElementById('gpsStatus').textContent = `✅ GPS定位成功 (精度: ${position.coords.accuracy.toFixed(0)}米)`;
                             
                             if (lastPosition && isTracking) {
                                 const distance = calculateDistance(lastPosition, position);
@@ -3648,7 +3651,8 @@
                         },
                         function(error) {
                             console.log('❌ 電腦GPS 自動啟動失敗:', error.message);
-                            updateLocationStatus(null, '❌ GPS定位失敗: ' + error.message);
+                            document.getElementById('locationStatusText').textContent = '📍 GPS定位失敗 | 請檢查權限設定';
+                            document.getElementById('gpsStatus').textContent = '❌ GPS定位失敗: ' + error.message;
                         },
                         { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
                     );
@@ -3656,7 +3660,7 @@
             }
             
             // 設置自動追蹤狀態
-            updateAutoTrackingStatus(t('auto_tracking_enabled'));
+            document.getElementById('autoTracking').textContent = t('auto_tracking_enabled');
         }
 
         // Chrome專用GPS權限請求
