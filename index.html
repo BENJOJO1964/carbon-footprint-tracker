@@ -959,7 +959,7 @@
                 <div class="progress-fill" id="realTimeProgress"></div>
             </div>
             <div class="goal-text" id="realTimeGoal" data-lang="daily_target">今日目標: 20.0 公斤 | 完成度: 0.0%</div>
-            <button onclick="showPersonalizedGoalSetup()" style="
+            <button onclick="openModal('settings')" style="
                 background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
                 color: white;
                 border: none;
@@ -1194,7 +1194,7 @@
     <div id="settingsModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 data-lang="settings_title">⚙️ 高級設定</h3>
+                <h3 data-lang="settings_title">⚙️ 設定</h3>
                 <button class="close-btn" onclick="closeModal('settingsModal')">&times;</button>
             </div>
             <div class="form-group">
@@ -1263,8 +1263,7 @@
             } else if (type === 'invoice') {
                 document.getElementById('invoiceModal').style.display = 'block';
             } else if (type === 'settings') {
-                // 設定按鈕直接跳轉到個人化目標設置
-                showPersonalizedGoalSetup();
+                document.getElementById('settingsModal').style.display = 'block';
             }
         }
         
