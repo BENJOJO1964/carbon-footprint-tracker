@@ -126,6 +126,14 @@
                 'distance_km': '距離 (公里)',
                 'time_minutes': '時間 (分鐘)',
                 'record_movement': '記錄移動',
+                'manual_activity_title': '🏃 手動記錄活動',
+                'activity_type': '活動類型',
+                'activity_duration': '活動時長 (分鐘)',
+                'activity_intensity': '活動強度',
+                'low_intensity': '低強度',
+                'medium_intensity': '中強度',
+                'high_intensity': '高強度',
+                'record_activity': '記錄活動',
                 'settings_title': '⚙️ 設定',
                 'daily_goal_kg': '每日碳足跡目標 (公斤)',
                 'gps_positioning': '📍 GPS定位中...',
@@ -279,6 +287,14 @@
                 'distance_km': '距离 (公里)',
                 'time_minutes': '时间 (分钟)',
                 'record_movement': '记录移动',
+                'manual_activity_title': '🏃 手动记录活动',
+                'activity_type': '活动类型',
+                'activity_duration': '活动时长 (分钟)',
+                'activity_intensity': '活动强度',
+                'low_intensity': '低强度',
+                'medium_intensity': '中强度',
+                'high_intensity': '高强度',
+                'record_activity': '记录活动',
                 'settings_title': '⚙️ 设定',
                 'daily_goal_kg': '每日碳足迹目标 (公斤)',
                 'gps_positioning': '📍 GPS定位中...',
@@ -429,6 +445,14 @@
                 'distance_km': 'Distance (km)',
                 'time_minutes': 'Time (minutes)',
                 'record_movement': 'Record Movement',
+                'manual_activity_title': '🏃 Manual Activity Record',
+                'activity_type': 'Activity Type',
+                'activity_duration': 'Duration (minutes)',
+                'activity_intensity': 'Activity Intensity',
+                'low_intensity': 'Low Intensity',
+                'medium_intensity': 'Medium Intensity',
+                'high_intensity': 'High Intensity',
+                'record_activity': 'Record Activity',
                 'settings_title': '⚙️ Settings',
                 'daily_goal_kg': 'Daily Carbon Goal (kg)',
                 'gps_positioning': '📍 GPS positioning...',
@@ -1040,7 +1064,14 @@
                 <label data-lang="time_minutes">時間 (分鐘)</label>
                 <input type="number" id="duration" placeholder="例如: 30" data-lang="time_placeholder">
             </div>
-            <button class="btn" onclick="submitMovement()" data-lang="record_movement">記錄移動</button>
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                <button class="btn" onclick="submitMovement()" data-lang="record_movement" style="background: #4CAF50; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">
+                    記錄移動
+                </button>
+                <button class="btn" onclick="showManualActivityForm()" data-lang="manual_activity_title" style="background: #FF9800; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">
+                    手動記錄活動
+                </button>
+            </div>
         </div>
     </div>
     
@@ -1189,6 +1220,143 @@
             } catch (error) {
                 alert('網絡錯誤：' + error.message);
             }
+        }
+        
+        // 顯示手動活動記錄表單
+        function showManualActivityForm() {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 400px; background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%); color: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                    <div style="padding: 20px;">
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <div style="font-size: 24px; margin-bottom: 10px;">🏃</div>
+                            <h3 style="margin: 0 0 10px 0; font-size: 18px;" data-lang="manual_activity_title">手動記錄活動</h3>
+                            <div style="font-size: 14px; opacity: 0.9;">記錄您的手機無法偵測到的活動</div>
+                        </div>
+                        
+                        <form id="manualActivityForm" style="background: rgba(255,255,255,0.15); border-radius: 10px; padding: 15px;">
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;" data-lang="activity_type">活動類型</label>
+                                <select id="activityType" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; background: rgba(255,255,255,0.2); color: white; font-size: 14px;">
+                                    <option value="running" style="color: black;">跑步</option>
+                                    <option value="gym" style="color: black;">健身房</option>
+                                    <option value="swimming" style="color: black;">游泳</option>
+                                    <option value="hiking" style="color: black;">登山健行</option>
+                                    <option value="basketball" style="color: black;">籃球</option>
+                                    <option value="football" style="color: black;">足球</option>
+                                    <option value="tennis" style="color: black;">網球</option>
+                                    <option value="yoga" style="color: black;">瑜伽</option>
+                                    <option value="dancing" style="color: black;">舞蹈</option>
+                                    <option value="other" style="color: black;">其他運動</option>
+                                </select>
+                            </div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;" data-lang="activity_duration">活動時長 (分鐘)</label>
+                                <input type="number" id="activityDuration" placeholder="例如: 60" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; background: rgba(255,255,255,0.2); color: white; font-size: 14px;">
+                                <style>
+                                    #activityDuration::placeholder { color: rgba(255,255,255,0.7); }
+                                </style>
+                            </div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;" data-lang="activity_intensity">活動強度</label>
+                                <select id="activityIntensity" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; background: rgba(255,255,255,0.2); color: white; font-size: 14px;">
+                                    <option value="low" style="color: black;">低強度 - 輕鬆活動</option>
+                                    <option value="medium" style="color: black;">中強度 - 適度運動</option>
+                                    <option value="high" style="color: black;">高強度 - 劇烈運動</option>
+                                </select>
+                            </div>
+                            
+                            <div style="display: flex; gap: 10px; justify-content: center;">
+                                <button type="button" onclick="submitManualActivity()" data-lang="record_activity" style="background: rgba(255,255,255,0.3); color: white; border: 2px solid white; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-size: 14px; font-weight: bold;">
+                                    記錄活動
+                                </button>
+                                <button type="button" onclick="closeModal(this)" data-lang="cancel" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid white; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-size: 14px; font-weight: bold;">
+                                    取消
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+        
+        // 提交手動活動記錄
+        function submitManualActivity() {
+            const activityType = document.getElementById('activityType').value;
+            const duration = parseFloat(document.getElementById('activityDuration').value);
+            const intensity = document.getElementById('activityIntensity').value;
+            
+            if (!duration) {
+                alert('請填寫活動時長');
+                return;
+            }
+            
+            // 計算活動碳足跡（基於活動類型和強度）
+            let carbonFootprint = 0;
+            const baseRate = {
+                'running': 0.02,
+                'gym': 0.015,
+                'swimming': 0.012,
+                'hiking': 0.018,
+                'basketball': 0.025,
+                'football': 0.028,
+                'tennis': 0.022,
+                'yoga': 0.008,
+                'dancing': 0.015,
+                'other': 0.015
+            };
+            
+            const intensityMultiplier = {
+                'low': 0.8,
+                'medium': 1.0,
+                'high': 1.3
+            };
+            
+            carbonFootprint = (baseRate[activityType] || 0.015) * duration * intensityMultiplier[intensity];
+            
+            // 記錄到發票數據中
+            const activityNames = {
+                'running': '跑步',
+                'gym': '健身房運動',
+                'swimming': '游泳',
+                'hiking': '登山健行',
+                'basketball': '籃球',
+                'football': '足球',
+                'tennis': '網球',
+                'yoga': '瑜伽',
+                'dancing': '舞蹈',
+                'other': '其他運動'
+            };
+            
+            const invoice = {
+                id: Date.now(),
+                storeName: activityNames[activityType] || '運動活動',
+                amount: duration,
+                carbonFootprint: carbonFootprint,
+                category: 'activity',
+                date: new Date().toISOString(),
+                type: 'manual_activity',
+                activityType: activityType,
+                intensity: intensity
+            };
+            
+            // 保存到本地存儲
+            const invoices = JSON.parse(localStorage.getItem('invoices') || '[]');
+            invoices.push(invoice);
+            localStorage.setItem('invoices', JSON.stringify(invoices));
+            
+            // 更新顯示
+            updateRealTimeDisplay();
+            closeModal(document.querySelector('.modal'));
+            
+            alert(`活動記錄已保存！\n${activityNames[activityType]} ${duration}分鐘\n碳足跡：${carbonFootprint.toFixed(3)} kg CO₂`);
         }
         
         // 掃描發票
