@@ -14,7 +14,8 @@
         const languages = {
             'zh-TW': {
                 // 主要界面
-                'app_title': '碳足跡追蹤器',
+                'app_title': '減碳日記',
+                'app_subtitle': '自動偵測碳排，生活就是日記',
                 'daily_record': '每日記錄',
                 'feedback': '意見反饋',
                 'scan_invoice': '📷 開啟相機掃描',
@@ -70,11 +71,20 @@
                 'success': '成功',
                 'confirm': '確定',
                 'kg_co2': 'kg CO₂',
-                'ntd': 'NT$'
+                'ntd': 'NT$',
+                'daily_target': '今日目標: 20.0 公斤 | 完成度: 0.0%',
+                'gps_status': 'GPS定位成功 | 正在追蹤您的移動',
+                'realtime_status_title': '📱 實時功能狀態：',
+                'status_explanation': '📋 狀態說明：',
+                'gps_desc': '定位您的位置，用於記錄移動軌跡',
+                'sensor_desc': '檢測手機動作，判斷交通工具類型',
+                'auto_tracking_desc': '自動記錄移動和發票，計算碳足跡',
+                'auto_enabled_status': '✅ GPS和感應器已自動啟用，正在監測您的碳足跡'
             },
             'zh-CN': {
                 // 主要界面
-                'app_title': '碳足迹追踪器',
+                'app_title': '减碳日记',
+                'app_subtitle': '自动侦测碳排，生活就是日记',
                 'daily_record': '每日记录',
                 'feedback': '意见反馈',
                 'scan_invoice': '📷 开启相机扫描',
@@ -130,11 +140,20 @@
                 'success': '成功',
                 'confirm': '确定',
                 'kg_co2': 'kg CO₂',
-                'ntd': '¥'
+                'ntd': '¥',
+                'daily_target': '今日目标: 20.0 公斤 | 完成度: 0.0%',
+                'gps_status': 'GPS定位成功 | 正在追踪您的移动',
+                'realtime_status_title': '📱 实时功能状态：',
+                'status_explanation': '📋 状态说明：',
+                'gps_desc': '定位您的位置，用于记录移动轨迹',
+                'sensor_desc': '检测手机动作，判断交通工具类型',
+                'auto_tracking_desc': '自动记录移动和发票，计算碳足迹',
+                'auto_enabled_status': '✅ GPS和感应器已自动启用，正在监测您的碳足迹'
             },
             'en': {
                 // 主要界面
-                'app_title': 'Carbon Footprint Tracker',
+                'app_title': 'Carbon Diary',
+                'app_subtitle': 'Auto-detect carbon emissions, life is a diary',
                 'daily_record': 'Daily Record',
                 'feedback': 'Feedback',
                 'scan_invoice': '📷 Open Camera Scan',
@@ -190,7 +209,15 @@
                 'success': 'Success',
                 'confirm': 'Confirm',
                 'kg_co2': 'kg CO₂',
-                'ntd': '$'
+                'ntd': '$',
+                'daily_target': 'Daily Goal: 20.0 kg | Progress: 0.0%',
+                'gps_status': 'GPS positioning successful | Tracking your movement',
+                'realtime_status_title': '📱 Real-time Function Status:',
+                'status_explanation': '📋 Status Explanation:',
+                'gps_desc': 'Locate your position, used to record movement trajectories',
+                'sensor_desc': 'Detect phone movements, determine transportation type',
+                'auto_tracking_desc': 'Automatically record movements and invoices, calculate carbon footprint',
+                'auto_enabled_status': '✅ GPS and sensors are automatically enabled, monitoring your carbon footprint'
             }
         };
         
@@ -616,9 +643,9 @@
             <div style="display: flex; align-items: center; justify-content: center; margin-left: 90px; margin-right: 90px;">
                 <div style="text-align: center;">
                         <h1 style="margin: 0; font-size: 28px; font-weight: bold;">
-                            <span style="display: inline-block; width: 0; overflow: hidden;">🌱</span>減碳日記
+                            <span style="display: inline-block; width: 0; overflow: hidden;">🌱</span><span data-lang="app_title">減碳日記</span>
                         </h1>
-                        <p style="margin: 5px 0 0 0; font-size: 16px; opacity: 0.9; white-space: nowrap;">自動偵測碳排，生活就是日記</p>
+                        <p style="margin: 5px 0 0 0; font-size: 16px; opacity: 0.9; white-space: nowrap;" data-lang="app_subtitle">自動偵測碳排，生活就是日記</p>
                 </div>
             </div>
         </div>
@@ -629,28 +656,28 @@
             <div class="progress-bar">
                 <div class="progress-fill" id="realTimeProgress"></div>
             </div>
-            <div class="goal-text" id="realTimeGoal">今日目標: 20.0 公斤 | 完成度: 0.0%</div>
+            <div class="goal-text" id="realTimeGoal" data-lang="daily_target">今日目標: 20.0 公斤 | 完成度: 0.0%</div>
         </div>
         
         <div style="margin: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
-            <div class="status-text" id="locationStatusText"></div>
+            <div class="status-text" id="locationStatusText" data-lang="gps_status">GPS定位成功 | 正在追蹤您的移動</div>
         </div>
         
         <div style="margin: 20px; padding: 15px; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">
             <div style="font-size: 14px; color: #856404;">
-                <strong>📱 實時功能狀態：</strong><br>
+                <strong data-lang="realtime_status_title">📱 實時功能狀態：</strong><br>
                 <span id="gpsStatus"></span><br>
                 <span id="sensorStatus"></span><br>
                 <span id="autoTracking"></span>
             </div>
             <div style="font-size: 12px; color: #666; margin-top: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;">
-                <strong>📋 狀態說明：</strong><br>
-                • <strong>GPS</strong>：定位您的位置，用於記錄移動軌跡<br>
-                • <strong>感應器</strong>：檢測手機動作，判斷交通工具類型<br>
-                • <strong>自動追蹤</strong>：自動記錄移動和發票，計算碳足跡
+                <strong data-lang="status_explanation">📋 狀態說明：</strong><br>
+                • <strong>GPS</strong>：<span data-lang="gps_desc">定位您的位置，用於記錄移動軌跡</span><br>
+                • <strong>感應器</strong>：<span data-lang="sensor_desc">檢測手機動作，判斷交通工具類型</span><br>
+                • <strong>自動追蹤</strong>：<span data-lang="auto_tracking_desc">自動記錄移動和發票，計算碳足跡</span>
             </div>
             <div style="margin-top: 10px; text-align: center; color: #666; font-size: 14px;" id="statusMessage">
-                ✅ GPS和感應器已自動啟用，正在監測您的碳足跡
+                <span data-lang="auto_enabled_status">✅ GPS和感應器已自動啟用，正在監測您的碳足跡</span>
             </div>
             
             <!-- Chrome專用GPS權限按鈕 -->
@@ -2485,8 +2512,8 @@
             const dailyGoal = 20.0;
             const progress = (realTimeData.total / dailyGoal) * 100;
             document.getElementById('realTimeProgress').style.width = Math.min(progress, 100) + '%';
-            document.getElementById('realTimeGoal').textContent = 
-                `今日目標: ${dailyGoal} 公斤 | 完成度: ${progress.toFixed(1)}%`;
+            const goalText = t('daily_target').replace('20.0', dailyGoal).replace('0.0%', `${progress.toFixed(1)}%`);
+            document.getElementById('realTimeGoal').textContent = goalText;
             
             // 更新分解數據
             document.getElementById('transportCarbon').textContent = realTimeData.transport.toFixed(2) + ' kg';
