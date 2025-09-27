@@ -1176,6 +1176,7 @@
                     <input type="text" id="carbonFootprint" placeholder="掃描後自動計算" readonly style="background-color: #f8f9fa; color: #4CAF50; font-weight: bold;" data-lang="carbon_placeholder">
                 </div>
                 <button class="btn camera-btn" onclick="scanInvoice()" data-lang="scan_invoice">📷 開啟相機掃描</button>
+                <button class="btn" onclick="testCameraPermission()" style="background: #FF9800; color: white; margin-left: 10px;">🧪 測試相機權限</button>
             </div>
             
             <!-- 最近發票記錄 -->
@@ -1453,14 +1454,56 @@
             alert(`活動記錄已保存！\n${activityNames[activityType]} ${duration}分鐘\n碳足跡：${carbonFootprint.toFixed(3)} kg CO₂`);
         }
         
+        // 測試相機權限
+        async function testCameraPermission() {
+            console.log('🧪 測試相機權限...');
+            
+            const results = [];
+            
+            // 1. 檢查協議
+            if (location.protocol === 'https:' || location.hostname === 'localhost') {
+                results.push('✅ HTTPS環境：' + location.protocol);
+            } else {
+                results.push('❌ 需要HTTPS環境：' + location.protocol);
+            }
+            
+            // 2. 檢查瀏覽器支持
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                results.push('✅ 瀏覽器支持相機API');
+            } else {
+                results.push('❌ 瀏覽器不支持相機API');
+            }
+            
+            // 3. 測試權限請求
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                results.push('✅ 相機權限已獲得');
+                stream.getTracks().forEach(track => track.stop()); // 立即關閉
+            } catch (error) {
+                results.push('❌ 相機權限被拒絕：' + error.message);
+            }
+            
+            alert('🧪 相機權限測試結果：\n\n' + results.join('\n') + '\n\n📱 用戶代理：\n' + navigator.userAgent.substring(0, 80) + '...');
+        }
+        
         // 掃描發票
         async function scanInvoice() {
+            console.log('📷 開始掃描發票...');
+            
+            // 首先檢查是否在HTTPS環境
+            if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+                alert('⚠️ 相機功能需要HTTPS環境\n\n請使用：\n• https://your-domain.com\n• 或 localhost\n\n當前網址：' + location.href);
+                return;
+            }
+            
             try {
                 // 檢查瀏覽器是否支持相機
                 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                     alert('您的瀏覽器不支持相機功能，請使用Chrome或Safari');
                     return;
                 }
+                
+                console.log('✅ 瀏覽器支持相機功能');
 
                 // 創建相機模態框
                 const cameraModal = document.createElement('div');
@@ -1524,7 +1567,8 @@
                 window.cameraStream = stream;
                 
             } catch (error) {
-                alert('無法開啟相機：' + error.message + '\n\n請確保：\n1. 允許瀏覽器使用相機\n2. 使用HTTPS或localhost\n3. 使用Chrome或Safari瀏覽器');
+                console.error('❌ 相機開啟失敗:', error);
+                alert('❌ 無法開啟相機：' + error.message + '\n\n🔧 解決方案：\n1. 允許瀏覽器使用相機權限\n2. 確保使用HTTPS環境\n3. 使用Chrome或Safari瀏覽器\n4. 檢查相機是否被其他應用占用\n\n📱 當前環境：\n• 協議：' + location.protocol + '\n• 主機：' + location.hostname + '\n• 用戶代理：' + navigator.userAgent.substring(0, 50) + '...');
             }
         }
         
@@ -1791,7 +1835,7 @@
             
             // 調用真實OCR API（需要後端服務）
             try {
-                const response = await fetch('http://localhost:3001/api/ocr/analyze', {
+                const response = await fetch(`${API_BASE}/api/ocr/analyze`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
