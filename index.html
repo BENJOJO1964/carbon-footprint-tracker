@@ -116,7 +116,22 @@
                 'store_placeholder': '例如: 全聯福利中心',
                 'amount_placeholder': '例如: 150',
                 'carbon_placeholder': '掃描後自動計算',
-                'recent_invoice_records': '📋 最近發票記錄'
+                'recent_invoice_records': '📋 最近發票記錄',
+                'record_movement_title': '🚗 記錄移動',
+                'movement_method': '移動方式',
+                'driving': '開車',
+                'walking': '步行',
+                'cycling': '騎自行車',
+                'public_transport': '大眾運輸',
+                'distance_km': '距離 (公里)',
+                'time_minutes': '時間 (分鐘)',
+                'record_movement': '記錄移動',
+                'settings_title': '⚙️ 設定',
+                'daily_goal_kg': '每日碳足跡目標 (公斤)',
+                'gps_positioning': 'GPS定位',
+                'enabled': '啟用',
+                'disabled': '停用',
+                'save_settings': '儲存設定'
             },
             'zh-CN': {
                 // 主要界面
@@ -222,7 +237,22 @@
                 'store_placeholder': '例如: 全联福利中心',
                 'amount_placeholder': '例如: 150',
                 'carbon_placeholder': '扫描后自动计算',
-                'recent_invoice_records': '📋 最近发票记录'
+                'recent_invoice_records': '📋 最近发票记录',
+                'record_movement_title': '🚗 记录移动',
+                'movement_method': '移动方式',
+                'driving': '开车',
+                'walking': '步行',
+                'cycling': '骑自行车',
+                'public_transport': '大众运输',
+                'distance_km': '距离 (公里)',
+                'time_minutes': '时间 (分钟)',
+                'record_movement': '记录移动',
+                'settings_title': '⚙️ 设定',
+                'daily_goal_kg': '每日碳足迹目标 (公斤)',
+                'gps_positioning': 'GPS定位',
+                'enabled': '启用',
+                'disabled': '停用',
+                'save_settings': '储存设定'
             },
             'en': {
                 // 主要界面
@@ -328,7 +358,22 @@
                 'store_placeholder': 'e.g., PX Mart',
                 'amount_placeholder': 'e.g., 150',
                 'carbon_placeholder': 'Auto-calculated after scan',
-                'recent_invoice_records': '📋 Recent Invoice Records'
+                'recent_invoice_records': '📋 Recent Invoice Records',
+                'record_movement_title': '🚗 Record Movement',
+                'movement_method': 'Movement Method',
+                'driving': 'Driving',
+                'walking': 'Walking',
+                'cycling': 'Cycling',
+                'public_transport': 'Public Transport',
+                'distance_km': 'Distance (km)',
+                'time_minutes': 'Time (minutes)',
+                'record_movement': 'Record Movement',
+                'settings_title': '⚙️ Settings',
+                'daily_goal_kg': 'Daily Carbon Goal (kg)',
+                'gps_positioning': 'GPS Positioning',
+                'enabled': 'Enabled',
+                'disabled': 'Disabled',
+                'save_settings': 'Save Settings'
             }
         };
         
@@ -879,28 +924,28 @@
     <div id="movementModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>🚗 記錄移動</h3>
+                <h3 data-lang="record_movement_title">🚗 記錄移動</h3>
                 <button class="close-btn" onclick="closeModal('movementModal')">&times;</button>
             </div>
             <div class="form-group">
-                <label>移動方式</label>
+                <label data-lang="movement_method">移動方式</label>
                 <select id="movementType">
-                    <option value="driving">開車</option>
-                    <option value="walking">步行</option>
-                    <option value="cycling">騎自行車</option>
-                    <option value="public_transport">大眾運輸</option>
+                    <option value="driving" data-lang="driving">開車</option>
+                    <option value="walking" data-lang="walking">步行</option>
+                    <option value="cycling" data-lang="cycling">騎自行車</option>
+                    <option value="public_transport" data-lang="public_transport">大眾運輸</option>
                     <option value="flying">飛機</option>
                 </select>
             </div>
             <div class="form-group">
-                <label>距離 (公里)</label>
+                <label data-lang="distance_km">距離 (公里)</label>
                 <input type="number" id="distance" placeholder="例如: 5.2" step="0.1">
             </div>
             <div class="form-group">
-                <label>時間 (分鐘)</label>
+                <label data-lang="time_minutes">時間 (分鐘)</label>
                 <input type="number" id="duration" placeholder="例如: 30">
             </div>
-            <button class="btn" onclick="submitMovement()">記錄移動</button>
+            <button class="btn" onclick="submitMovement()" data-lang="record_movement">記錄移動</button>
         </div>
     </div>
     
@@ -963,28 +1008,28 @@
     <div id="settingsModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>⚙️ 設定</h3>
+                <h3 data-lang="settings_title">⚙️ 設定</h3>
                 <button class="close-btn" onclick="closeModal('settingsModal')">&times;</button>
             </div>
             <div class="form-group">
-                <label>每日碳足跡目標 (公斤)</label>
+                <label data-lang="daily_goal_kg">每日碳足跡目標 (公斤)</label>
                 <input type="number" id="dailyGoal" value="20" step="0.1">
             </div>
             <div class="form-group">
-                <label>GPS定位</label>
+                <label data-lang="gps_positioning">GPS定位</label>
                 <select id="gpsEnabled">
-                    <option value="true">啟用</option>
-                    <option value="false">停用</option>
+                    <option value="true" data-lang="enabled">啟用</option>
+                    <option value="false" data-lang="disabled">停用</option>
                 </select>
             </div>
             <div class="form-group">
-                <label>自動追蹤</label>
+                <label data-lang="auto_tracking">自動追蹤</label>
                 <select id="autoTracking">
-                    <option value="true">啟用</option>
-                    <option value="false">停用</option>
+                    <option value="true" data-lang="enabled">啟用</option>
+                    <option value="false" data-lang="disabled">停用</option>
                 </select>
             </div>
-            <button class="btn" onclick="saveSettings()">儲存設定</button>
+            <button class="btn" onclick="saveSettings()" data-lang="save_settings">儲存設定</button>
         </div>
     </div>
 
@@ -1003,8 +1048,16 @@
         }
         
         // 關閉模態框
-        function closeModal(modalId) {
-            const modal = document.getElementById(modalId);
+        function closeModal(modalIdOrElement) {
+            let modal;
+            if (typeof modalIdOrElement === 'string') {
+                // 如果是字符串，當作ID處理
+                modal = document.getElementById(modalIdOrElement);
+            } else {
+                // 如果是元素，當作元素處理
+                modal = modalIdOrElement.closest('.modal');
+            }
+            
             if (modal) {
                 modal.style.display = 'none';
             }
@@ -1213,7 +1266,7 @@
                 <div class="modal-content" style="max-width: 400px;">
                     <div class="modal-header">
                         <h3>📷 掃描結果</h3>
-                        <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+                        <button class="close-btn" onclick="closeModal(this)">&times;</button>
                     </div>
                     <div style="padding: 20px;">
                         <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
@@ -1459,7 +1512,7 @@
                 <div class="modal-content" style="max-width: 400px;">
                     <div class="modal-header">
                         <h3>📷 手動輸入發票</h3>
-                        <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+                        <button class="close-btn" onclick="closeModal(this)">&times;</button>
                     </div>
                     <div style="padding: 20px;">
                         <div style="background: #fff3cd; padding: 10px; border-radius: 6px; margin-bottom: 15px; border-left: 4px solid #ffc107;">
@@ -1734,7 +1787,7 @@
                 <div class="modal-content" style="max-width: 400px;">
                     <div class="modal-header">
                         <h3>🕛 每日記錄完成</h3>
-                        <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+                        <button class="close-btn" onclick="closeModal(this)">&times;</button>
                     </div>
                     <div style="padding: 20px;">
                         <div style="text-align: center; margin-bottom: 20px;">
@@ -1842,9 +1895,10 @@
                 window.cameraStream.getTracks().forEach(track => track.stop());
                 window.cameraStream = null;
             }
+            // 使用統一的關閉邏輯
             const cameraModal = document.querySelector('.modal:last-child');
             if (cameraModal) {
-                cameraModal.remove();
+                cameraModal.style.display = 'none';
             }
         }
         
@@ -1861,7 +1915,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h3>🔗 綁定電子發票載具</h3>
-                        <button class="close-btn" onclick="closeCarrierModal()">&times;</button>
+                        <button class="close-btn" onclick="closeModal(this)">&times;</button>
                     </div>
                     <div style="background: #e8f5e8; padding: 10px; margin: 10px 0; border-radius: 8px; text-align: center;">
                         <div style="color: #4CAF50; font-weight: bold;">💡 綁定後自動偵測</div>
@@ -2059,12 +2113,6 @@
         }
         
         // 關閉載具模態框
-        function closeCarrierModal() {
-            const carrierModal = document.querySelector('.modal:last-child');
-            if (carrierModal) {
-                carrierModal.remove();
-            }
-        }
         
         // 更新載具狀態
         function updateCarrierStatus() {
@@ -3603,12 +3651,6 @@
         }
         
         // 關閉模態框
-        function closeModal(element) {
-            const modal = element.closest('.modal');
-            if (modal) {
-                modal.remove();
-            }
-        }
         
         // 測試感應器功能（基於正確的用戶互動事件）
         function testSensor() {
