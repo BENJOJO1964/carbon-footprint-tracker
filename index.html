@@ -1175,8 +1175,39 @@
                 <button class="close-btn" onclick="closeModal('settingsModal')">&times;</button>
             </div>
             <div class="form-group">
+                <label data-lang="user_profile">👤 用戶檔案</label>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <div style="margin-bottom: 10px;">
+                        <label style="font-size: 14px; font-weight: bold;">年齡層：</label>
+                        <select id="ageGroup" onchange="updatePersonalizedGoal()" style="width: 100%; padding: 8px; margin-top: 5px;">
+                            <option value="">請選擇年齡層</option>
+                            <option value="18-25">18-25歲</option>
+                            <option value="26-35">26-35歲</option>
+                            <option value="36-50">36-50歲</option>
+                            <option value="51-65">51-65歲</option>
+                            <option value="65+">65歲以上</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label style="font-size: 14px; font-weight: bold;">居住區域：</label>
+                        <select id="residenceType" onchange="updatePersonalizedGoal()" style="width: 100%; padding: 8px; margin-top: 5px;">
+                            <option value="">請選擇居住區域</option>
+                            <option value="urban">都市</option>
+                            <option value="suburban">郊區</option>
+                            <option value="rural">鄉村</option>
+                        </select>
+                    </div>
+                    <div style="background: #e8f5e8; padding: 10px; border-radius: 5px;">
+                        <div style="font-size: 14px; font-weight: bold; color: #2e7d32;">個人化目標：</div>
+                        <div id="personalizedGoalDisplay" style="font-size: 18px; color: #1b5e20; font-weight: bold;">20.0 公斤 CO₂/天</div>
+                        <div style="font-size: 12px; color: #666; margin-top: 5px;">基於您的年齡層和居住區域調整</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
                 <label data-lang="daily_goal_kg">每日碳足跡目標 (公斤)</label>
-                <input type="number" id="dailyGoal" value="20" step="0.1">
+                <input type="number" id="dailyGoal" value="20" step="0.1" onchange="updateGoalFromInput()">
+                <div style="font-size: 12px; color: #666; margin-top: 5px;">手動調整目標或使用個人化建議</div>
             </div>
             <div class="form-group">
                 <label data-lang="gps_positioning">GPS定位</label>
@@ -2614,11 +2645,45 @@
             }
         }
         
+        // 更新個人化目標
+        function updatePersonalizedGoal() {
+            const ageGroup = document.getElementById('ageGroup').value;
+            const residenceType = document.getElementById('residenceType').value;
+            
+            userProfile.ageGroup = ageGroup;
+            userProfile.residenceType = residenceType;
+            
+            const personalizedGoal = calculatePersonalizedGoal();
+            
+            // 更新顯示
+            document.getElementById('personalizedGoalDisplay').textContent = `${personalizedGoal.toFixed(1)} 公斤 CO₂/天`;
+            
+            // 更新每日目標輸入框
+            document.getElementById('dailyGoal').value = personalizedGoal.toFixed(1);
+            
+            // 保存到localStorage
+            localStorage.setItem('userProfile', JSON.stringify(userProfile));
+            
+            // 更新實時顯示
+            updateRealTimeDisplay();
+        }
+        
+        // 從輸入框更新目標
+        function updateGoalFromInput() {
+            const manualGoal = parseFloat(document.getElementById('dailyGoal').value);
+            userProfile.personalizedGoal = manualGoal;
+            localStorage.setItem('userProfile', JSON.stringify(userProfile));
+            updateRealTimeDisplay();
+        }
+        
         // 儲存設定
         function saveSettings() {
             const dailyGoal = document.getElementById('dailyGoal').value;
             const gpsEnabled = document.getElementById('gpsEnabled').value;
             const autoTracking = document.getElementById('autoTrackingSetting').value;
+            
+            // 保存用戶檔案
+            localStorage.setItem('userProfile', JSON.stringify(userProfile));
             
             alert(t('settings_saved') + '\n\n' + t('daily_goal_kg').replace(' (公斤)', '') + '：' + dailyGoal + ' kg\nGPS：' + (gpsEnabled === 'true' ? t('enabled') : t('disabled')) + '\n' + t('auto_tracking') + '：' + (autoTracking === 'true' ? t('enabled') : t('disabled')));
             closeModal('settingsModal');
@@ -2684,6 +2749,28 @@
                                         <div style="font-size: 10px; opacity: 0.6;">${day.value}</div>
                                     </div>`
                                 ).join('')}
+                            </div>
+                        </div>
+                        
+                        <div style="background: rgba(255,255,255,0.15); border-radius: 10px; padding: 15px; margin-bottom: 15px;">
+                            <h4 style="margin: 0 0 10px 0; font-size: 16px;">📊 個人化比較</h4>
+                            <div style="font-size: 14px; line-height: 1.4;">
+                                ${(() => {
+                                    const feedback = generatePersonalizedFeedback();
+                                    return `
+                                        <div style="background: rgba(255,255,255,0.1); padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+                                            <div style="font-weight: bold; margin-bottom: 8px;">📈 與同齡同區比較</div>
+                                            <div style="margin-bottom: 5px;">當前: ${feedback.current} kg</div>
+                                            <div style="margin-bottom: 5px;">同齡平均: ${feedback.average} kg</div>
+                                            <div style="margin-bottom: 5px;">個人目標: ${feedback.goal} kg</div>
+                                            <div style="color: #FFEB3B; font-weight: bold;">${feedback.comparison}</div>
+                                        </div>
+                                        <div style="background: rgba(255,255,255,0.1); padding: 12px; border-radius: 8px;">
+                                            <div style="font-weight: bold; margin-bottom: 8px;">🎯 個人表現評估</div>
+                                            <div style="color: #4CAF50;">${feedback.feedback}</div>
+                                        </div>
+                                    `;
+                                })()}
                             </div>
                         </div>
                         
@@ -2889,9 +2976,138 @@
             total: 0           // 總碳足跡
         };
         
+        // 用戶檔案數據
+        let userProfile = {
+            ageGroup: '', // '18-25', '26-35', '36-50', '51-65', '65+'
+            residenceType: '', // 'urban', 'suburban', 'rural'
+            personalizedGoal: 20.0, // 個人化目標
+            baselineGoal: 20.0 // 基準目標
+        };
+        
+        // 年齡層和居住區域的碳足跡係數
+        const carbonFactors = {
+            ageGroups: {
+                '18-25': 1.15, // 年輕人碳足跡較高
+                '26-35': 1.10,
+                '36-50': 1.05,
+                '51-65': 0.95,
+                '65+': 0.85
+            },
+            residenceTypes: {
+                'urban': 1.10, // 都市碳足跡較高
+                'suburban': 1.00,
+                'rural': 0.85 // 鄉村碳足跡較低
+            }
+        };
+        
+        // 同齡同區平均數據（模擬數據，實際應用中可從服務器獲取）
+        const averageData = {
+            '18-25_urban': 22.0,
+            '18-25_suburban': 20.0,
+            '18-25_rural': 17.0,
+            '26-35_urban': 21.0,
+            '26-35_suburban': 19.0,
+            '26-35_rural': 16.0,
+            '36-50_urban': 20.0,
+            '36-50_suburban': 18.0,
+            '36-50_rural': 15.5,
+            '51-65_urban': 18.5,
+            '51-65_suburban': 16.5,
+            '51-65_rural': 14.0,
+            '65+_urban': 16.5,
+            '65+_suburban': 15.0,
+            '65+_rural': 12.5
+        };
+        
         // 移動歷史記錄
         let movementHistory = [];
         let activityHistory = [];
+        
+        // 計算個人化目標
+        function calculatePersonalizedGoal() {
+            if (!userProfile.ageGroup || !userProfile.residenceType) {
+                return userProfile.baselineGoal;
+            }
+            
+            const ageFactor = carbonFactors.ageGroups[userProfile.ageGroup] || 1.0;
+            const residenceFactor = carbonFactors.residenceTypes[userProfile.residenceType] || 1.0;
+            
+            userProfile.personalizedGoal = userProfile.baselineGoal * ageFactor * residenceFactor;
+            return userProfile.personalizedGoal;
+        }
+        
+        // 獲取同齡同區平均數據
+        function getAverageCarbonFootprint() {
+            if (!userProfile.ageGroup || !userProfile.residenceType) {
+                return 20.0; // 默認平均值
+            }
+            
+            const key = `${userProfile.ageGroup}_${userProfile.residenceType}`;
+            return averageData[key] || 20.0;
+        }
+        
+        // 生成個人化反饋
+        function generatePersonalizedFeedback() {
+            const currentTotal = realTimeData.total;
+            const average = getAverageCarbonFootprint();
+            const personalizedGoal = userProfile.personalizedGoal;
+            
+            let feedback = '';
+            let comparison = '';
+            
+            // 與同齡同區平均比較
+            if (currentTotal < average) {
+                const percentage = Math.round(((average - currentTotal) / average) * 100);
+                comparison = `你比${getResidenceTypeText()}同齡人低${percentage}%，很棒！`;
+            } else if (currentTotal > average) {
+                const percentage = Math.round(((currentTotal - average) / average) * 100);
+                const suggestion = getImprovementSuggestion();
+                comparison = `你高於${getResidenceTypeText()}平均${percentage}%，${suggestion}`;
+            } else {
+                comparison = `你的表現與${getResidenceTypeText()}同齡人相當！`;
+            }
+            
+            // 與個人目標比較
+            if (currentTotal < personalizedGoal * 0.8) {
+                feedback = '表現優秀！你遠低於個人目標。';
+            } else if (currentTotal < personalizedGoal) {
+                feedback = '表現良好！你正在接近個人目標。';
+            } else if (currentTotal < personalizedGoal * 1.2) {
+                feedback = '接近目標，繼續努力！';
+            } else {
+                feedback = '需要調整生活方式來降低碳足跡。';
+            }
+            
+            return {
+                comparison: comparison,
+                feedback: feedback,
+                current: currentTotal.toFixed(2),
+                average: average.toFixed(2),
+                goal: personalizedGoal.toFixed(2)
+            };
+        }
+        
+        // 獲取居住區域中文描述
+        function getResidenceTypeText() {
+            const residenceTexts = {
+                'urban': '都市',
+                'suburban': '郊區',
+                'rural': '鄉村'
+            };
+            return residenceTexts[userProfile.residenceType] || '';
+        }
+        
+        // 獲取改善建議
+        function getImprovementSuggestion() {
+            const suggestions = [
+                '建議減少開車里程，每天可省下2-3kg CO₂',
+                '嘗試使用大眾運輸工具，可降低30%交通碳足跡',
+                '選擇步行或騎自行車短途出行',
+                '減少不必要的購物，選擇環保產品',
+                '優化家居能源使用，節省用電'
+            ];
+            return suggestions[Math.floor(Math.random() * suggestions.length)];
+        }
         
         // 開始GPS追蹤
         function startGPSTracking() {
@@ -3210,11 +3426,11 @@
             // 更新主顯示
             document.getElementById('realTimeCarbon').textContent = realTimeData.total.toFixed(2);
             
-            // 更新進度條
-            const dailyGoal = 20.0;
+            // 使用個人化目標
+            const dailyGoal = userProfile.personalizedGoal || 20.0;
             const progress = (realTimeData.total / dailyGoal) * 100;
             document.getElementById('realTimeProgress').style.width = Math.min(progress, 100) + '%';
-            const goalText = t('daily_target').replace('20.0', dailyGoal).replace('0.0%', `${progress.toFixed(1)}%`);
+            const goalText = t('daily_target').replace('20.0', dailyGoal.toFixed(1)).replace('0.0%', `${progress.toFixed(1)}%`);
             document.getElementById('realTimeGoal').textContent = goalText;
             
             // 更新分解數據
@@ -3257,6 +3473,23 @@
             const savedCarrierInfo = localStorage.getItem('carrierInfo');
             if (savedCarrierInfo) {
                 carrierInfo = JSON.parse(savedCarrierInfo);
+            }
+            
+            // 初始化用戶檔案
+            const savedUserProfile = localStorage.getItem('userProfile');
+            if (savedUserProfile) {
+                userProfile = JSON.parse(savedUserProfile);
+                // 更新設置界面
+                if (userProfile.ageGroup) {
+                    document.getElementById('ageGroup').value = userProfile.ageGroup;
+                }
+                if (userProfile.residenceType) {
+                    document.getElementById('residenceType').value = userProfile.residenceType;
+                }
+                if (userProfile.personalizedGoal) {
+                    document.getElementById('dailyGoal').value = userProfile.personalizedGoal.toFixed(1);
+                    document.getElementById('personalizedGoalDisplay').textContent = `${userProfile.personalizedGoal.toFixed(1)} 公斤 CO₂/天`;
+                }
             }
             
             // 初始化實時數據
