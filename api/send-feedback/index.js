@@ -14,7 +14,9 @@ export default async function handler(req, res) {
         console.log('收到反饋郵件請求:', { userEmail, feedbackContent });
         console.log('環境變數檢查:', {
             EMAIL_USER: process.env.EMAIL_USER ? '已設定' : '未設定',
-            EMAIL_PASS: process.env.EMAIL_PASS ? '已設定' : '未設定'
+            EMAIL_PASS: process.env.EMAIL_PASS ? '已設定' : '未設定',
+            SENDGRID_API_KEY: process.env.SENDGRID_API_KEY ? '已設定' : '未設定',
+            SENDGRID_API_KEY_PREFIX: process.env.SENDGRID_API_KEY ? process.env.SENDGRID_API_KEY.substring(0, 10) + '...' : '未設定'
         });
         
         // 檢查SendGrid API Key
@@ -29,6 +31,7 @@ export default async function handler(req, res) {
         console.log('SendGrid API Key檢查:', {
             SENDGRID_API_KEY: process.env.SENDGRID_API_KEY ? '已設定' : '未設定',
             SENDGRID_API_KEY_LENGTH: process.env.SENDGRID_API_KEY ? process.env.SENDGRID_API_KEY.length : 0,
+            SENDGRID_API_KEY_PREFIX: process.env.SENDGRID_API_KEY ? process.env.SENDGRID_API_KEY.substring(0, 15) + '...' : '未設定',
             NODE_ENV: process.env.NODE_ENV,
             VERCEL: process.env.VERCEL
         });
