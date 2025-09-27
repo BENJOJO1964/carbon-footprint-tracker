@@ -959,6 +959,20 @@
                 <div class="progress-fill" id="realTimeProgress"></div>
             </div>
             <div class="goal-text" id="realTimeGoal" data-lang="daily_target">今日目標: 20.0 公斤 | 完成度: 0.0%</div>
+            <button onclick="showPersonalizedGoalSetup()" style="
+                background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 20px;
+                font-size: 12px;
+                margin-top: 8px;
+                cursor: pointer;
+                box-shadow: 0 2px 8px rgba(255,152,0,0.3);
+                transition: all 0.3s ease;
+            " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                🎯 設定個人化目標
+            </button>
         </div>
         
         <div style="margin: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
@@ -2688,6 +2702,199 @@
             updateRealTimeDisplay();
         }
         
+        // 簡化的個人化目標設置（主界面直接調用）
+        function showPersonalizedGoalSetup() {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 400px; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                    <div style="padding: 25px;">
+                        <div style="text-align: center; margin-bottom: 25px;">
+                            <div style="font-size: 48px; margin-bottom: 10px;">🎯</div>
+                            <h3 style="margin: 0 0 10px 0; color: #333; font-size: 20px;">設定個人化目標</h3>
+                            <div style="font-size: 14px; color: #666;">根據您的年齡和居住地，為您計算最適合的碳足跡目標</div>
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">年齡層</label>
+                            <select id="quickAgeGroup" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+                                <option value="">請選擇年齡層</option>
+                                <option value="18-25">18-25歲</option>
+                                <option value="26-35">26-35歲</option>
+                                <option value="36-50">36-50歲</option>
+                                <option value="51-65">51-65歲</option>
+                                <option value="65+">65歲以上</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 25px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">居住區域</label>
+                            <select id="quickResidenceType" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+                                <option value="">請選擇居住區域</option>
+                                <option value="urban">都市</option>
+                                <option value="suburban">郊區</option>
+                                <option value="rural">鄉村</option>
+                            </select>
+                        </div>
+                        
+                        <div id="goalPreview" style="display: none; background: #e8f5e8; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+                            <div style="font-size: 14px; color: #2e7d32; margin-bottom: 5px;">您的個人化目標</div>
+                            <div id="previewGoal" style="font-size: 24px; font-weight: bold; color: #1b5e20;"></div>
+                            <div style="font-size: 12px; color: #666; margin-top: 5px;">基於您的年齡層和居住區域計算</div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px;">
+                            <button onclick="closeModal(this)" style="
+                                flex: 1;
+                                background: #f5f5f5;
+                                color: #666;
+                                border: none;
+                                padding: 12px;
+                                border-radius: 8px;
+                                font-size: 16px;
+                                cursor: pointer;
+                            ">取消</button>
+                            <button onclick="applyPersonalizedGoal()" style="
+                                flex: 1;
+                                background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+                                color: white;
+                                border: none;
+                                padding: 12px;
+                                border-radius: 8px;
+                                font-size: 16px;
+                                cursor: pointer;
+                                font-weight: bold;
+                            ">確認設定</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // 添加即時預覽功能
+            document.getElementById('quickAgeGroup').addEventListener('change', updateGoalPreview);
+            document.getElementById('quickResidenceType').addEventListener('change', updateGoalPreview);
+            
+            // 如果有已保存的設置，自動填入
+            if (userProfile.ageGroup) {
+                document.getElementById('quickAgeGroup').value = userProfile.ageGroup;
+            }
+            if (userProfile.residenceType) {
+                document.getElementById('quickResidenceType').value = userProfile.residenceType;
+            }
+            
+            updateGoalPreview();
+        }
+        
+        // 更新目標預覽
+        function updateGoalPreview() {
+            const ageGroup = document.getElementById('quickAgeGroup').value;
+            const residenceType = document.getElementById('quickResidenceType').value;
+            
+            if (ageGroup && residenceType) {
+                const ageFactor = carbonFactors.ageGroups[ageGroup] || 1.0;
+                const residenceFactor = carbonFactors.residenceTypes[residenceType] || 1.0;
+                const personalizedGoal = 20.0 * ageFactor * residenceFactor;
+                
+                document.getElementById('previewGoal').textContent = `${personalizedGoal.toFixed(1)} 公斤 CO₂/天`;
+                document.getElementById('goalPreview').style.display = 'block';
+            } else {
+                document.getElementById('goalPreview').style.display = 'none';
+            }
+        }
+        
+        // 應用個人化目標
+        function applyPersonalizedGoal() {
+            const ageGroup = document.getElementById('quickAgeGroup').value;
+            const residenceType = document.getElementById('quickResidenceType').value;
+            
+            if (!ageGroup || !residenceType) {
+                alert('請選擇年齡層和居住區域');
+                return;
+            }
+            
+            userProfile.ageGroup = ageGroup;
+            userProfile.residenceType = residenceType;
+            
+            const personalizedGoal = calculatePersonalizedGoal();
+            
+            // 保存到localStorage
+            localStorage.setItem('userProfile', JSON.stringify(userProfile));
+            
+            // 更新主界面顯示
+            updateRealTimeDisplay();
+            
+            // 關閉模態框
+            closeModal(document.querySelector('.modal'));
+            
+            // 顯示成功提示
+            alert(`✅ 個人化目標設置成功！\n\n年齡層: ${ageGroup.replace('-', '-')}歲\n居住區域: ${getResidenceTypeText()}\n個人化目標: ${personalizedGoal.toFixed(1)} kg/天\n\n主界面目標已更新！`);
+        }
+        
+        // 首次使用引導
+        function showFirstTimeGuide() {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            modal.style.zIndex = '10000';
+            
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 350px; background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                    <div style="padding: 25px;">
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <div style="font-size: 48px; margin-bottom: 10px;">👋</div>
+                            <h3 style="margin: 0 0 10px 0; font-size: 20px;">歡迎使用減碳日記！</h3>
+                            <div style="font-size: 14px; opacity: 0.9;">讓我們為您設定個人化的碳足跡目標</div>
+                        </div>
+                        
+                        <div style="background: rgba(255,255,255,0.15); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                            <div style="font-size: 14px; margin-bottom: 8px;">💡 為什麼需要個人化目標？</div>
+                            <div style="font-size: 12px; opacity: 0.9; line-height: 1.4;">
+                                不同年齡和居住地的人，碳足跡差異很大。<br>
+                                年輕人通勤多，都市人消費頻繁，<br>
+                                個人化目標更貼近您的實際情況！
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px;">
+                            <button onclick="closeModal(this); skipPersonalizedSetup()" style="
+                                flex: 1;
+                                background: rgba(255,255,255,0.2);
+                                color: white;
+                                border: 2px solid white;
+                                padding: 12px;
+                                border-radius: 8px;
+                                font-size: 14px;
+                                cursor: pointer;
+                            ">稍後設定</button>
+                            <button onclick="closeModal(this); showPersonalizedGoalSetup()" style="
+                                flex: 1;
+                                background: white;
+                                color: #4CAF50;
+                                border: none;
+                                padding: 12px;
+                                border-radius: 8px;
+                                font-size: 14px;
+                                cursor: pointer;
+                                font-weight: bold;
+                            ">立即設定</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+        
+        // 跳過個人化設置
+        function skipPersonalizedSetup() {
+            // 記錄用戶選擇跳過，避免重複彈出
+            localStorage.setItem('skipPersonalizedSetup', 'true');
+        }
+        
         // 測試個人化目標
         function testPersonalizedGoal() {
             // 設置測試數據
@@ -3522,6 +3729,14 @@
                 if (userProfile.personalizedGoal) {
                     document.getElementById('dailyGoal').value = userProfile.personalizedGoal.toFixed(1);
                     document.getElementById('personalizedGoalDisplay').textContent = `${userProfile.personalizedGoal.toFixed(1)} 公斤 CO₂/天`;
+                }
+            } else {
+                // 首次使用，檢查是否已跳過引導
+                const skipGuide = localStorage.getItem('skipPersonalizedSetup');
+                if (!skipGuide) {
+                    setTimeout(() => {
+                        showFirstTimeGuide();
+                    }, 2000);
                 }
             }
             
