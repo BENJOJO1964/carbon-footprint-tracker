@@ -128,10 +128,17 @@
                 'record_movement': '記錄移動',
                 'settings_title': '⚙️ 設定',
                 'daily_goal_kg': '每日碳足跡目標 (公斤)',
-                'gps_positioning': 'GPS定位',
+                'gps_positioning': '📍 GPS定位中...',
                 'enabled': '啟用',
                 'disabled': '停用',
-                'save_settings': '儲存設定'
+                'save_settings': '儲存設定',
+                'gps_status_loading': '🔄 GPS定位中...',
+                'sensor_loading': '🔄 感應器啟動中...',
+                'auto_tracking_enabled': '✅ 自動追蹤功能已啟用',
+                'gps_status_checking': '📍 GPS狀態檢測中...',
+                'gps_failed': '📍 GPS定位失敗 | 請檢查權限設定',
+                'distance_placeholder': '例如: 5.2',
+                'time_placeholder': '例如: 30'
             },
             'zh-CN': {
                 // 主要界面
@@ -249,10 +256,17 @@
                 'record_movement': '记录移动',
                 'settings_title': '⚙️ 设定',
                 'daily_goal_kg': '每日碳足迹目标 (公斤)',
-                'gps_positioning': 'GPS定位',
+                'gps_positioning': '📍 GPS定位中...',
                 'enabled': '启用',
                 'disabled': '停用',
-                'save_settings': '储存设定'
+                'save_settings': '储存设定',
+                'gps_status_loading': '🔄 GPS定位中...',
+                'sensor_loading': '🔄 感应器启动中...',
+                'auto_tracking_enabled': '✅ 自动追踪功能已启用',
+                'gps_status_checking': '📍 GPS状态检测中...',
+                'gps_failed': '📍 GPS定位失败 | 请检查权限设定',
+                'distance_placeholder': '例如: 5.2',
+                'time_placeholder': '例如: 30'
             },
             'en': {
                 // 主要界面
@@ -370,10 +384,17 @@
                 'record_movement': 'Record Movement',
                 'settings_title': '⚙️ Settings',
                 'daily_goal_kg': 'Daily Carbon Goal (kg)',
-                'gps_positioning': 'GPS Positioning',
+                'gps_positioning': '📍 GPS positioning...',
                 'enabled': 'Enabled',
                 'disabled': 'Disabled',
-                'save_settings': 'Save Settings'
+                'save_settings': 'Save Settings',
+                'gps_status_loading': '🔄 GPS positioning...',
+                'sensor_loading': '🔄 Sensors activating...',
+                'auto_tracking_enabled': '✅ Automatic tracking enabled',
+                'gps_status_checking': '📍 GPS status checking...',
+                'gps_failed': '📍 GPS positioning failed | Please check permissions',
+                'distance_placeholder': 'e.g., 5.2',
+                'time_placeholder': 'e.g., 30'
             }
         };
         
@@ -406,10 +427,12 @@
             elements.forEach(element => {
                 const key = element.getAttribute('data-lang');
                 if (lang[key]) {
-                    if (element.tagName === 'INPUT' && element.type === 'text') {
+                    if (element.tagName === 'INPUT' && (element.type === 'text' || element.type === 'number')) {
                         element.placeholder = lang[key];
                     } else if (element.tagName === 'TEXTAREA') {
                         element.placeholder = lang[key];
+                    } else if (element.tagName === 'OPTION') {
+                        element.textContent = lang[key];
                     } else {
                         element.textContent = lang[key];
                     }
@@ -939,11 +962,11 @@
             </div>
             <div class="form-group">
                 <label data-lang="distance_km">距離 (公里)</label>
-                <input type="number" id="distance" placeholder="例如: 5.2" step="0.1">
+                <input type="number" id="distance" placeholder="例如: 5.2" step="0.1" data-lang="distance_placeholder">
             </div>
             <div class="form-group">
                 <label data-lang="time_minutes">時間 (分鐘)</label>
-                <input type="number" id="duration" placeholder="例如: 30">
+                <input type="number" id="duration" placeholder="例如: 30" data-lang="time_placeholder">
             </div>
             <button class="btn" onclick="submitMovement()" data-lang="record_movement">記錄移動</button>
         </div>
@@ -2466,15 +2489,15 @@
                 let gpsText = message;
                 
                 if (message.includes('✅') || message.includes('成功')) {
-                    statusText = '📍 GPS定位成功 | 正在追蹤您的移動';
+                    statusText = t('gps_status');
                 } else if (message.includes('❌') || message.includes('失敗') || message.includes('錯誤') || message.includes('拒絕')) {
-                    statusText = '📍 GPS定位失敗 | 請檢查權限設定';
+                    statusText = t('gps_failed');
                     gpsText = `❌ ${message.replace('❌ ', '')}`;
                 } else if (message.includes('❓') || message.includes('檢測中')) {
-                    statusText = '📍 GPS狀態檢測中...';
+                    statusText = t('gps_status_checking');
                     gpsText = `❓ ${message.replace('❓ ', '')}`;
                 } else if (message.includes('🔄') || message.includes('定位中') || message.includes('啟動')) {
-                    statusText = '📍 GPS定位中...';
+                    statusText = t('gps_positioning');
                     gpsText = `🔄 ${message.replace('🔄 ', '')}`;
                 } else {
                     statusText = '📍 ' + message;
@@ -2935,10 +2958,10 @@
             console.log('初始化狀態顯示 - 自動啟動');
             
             // 設置初始狀態
-            document.getElementById('locationStatusText').textContent = '📍 GPS定位中...';
-            document.getElementById('gpsStatus').textContent = '🔄 GPS定位中...';
-            document.getElementById('sensorStatus').textContent = '🔄 感應器啟動中...';
-            document.getElementById('autoTracking').textContent = '✅ 自動追蹤功能已啟用';
+            document.getElementById('locationStatusText').textContent = t('gps_positioning');
+            document.getElementById('gpsStatus').textContent = t('gps_status_loading');
+            document.getElementById('sensorStatus').textContent = t('sensor_loading');
+            document.getElementById('autoTracking').textContent = t('auto_tracking_enabled');
         }
         
         // 強制請求權限（最簡化版本）
