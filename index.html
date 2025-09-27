@@ -150,7 +150,10 @@
                 'sensor_not_supported': '❌ 瀏覽器不支援感應器',
                 'sensor_normal': '📊 感應器正常 (加速度: {acceleration}m/s²)',
                 'sensor_permission_denied': '❌ 感應器權限被拒絕，請點擊「測試感應器」按鈕',
-                'sensor_permission_failed': '❌ 感應器權限請求失敗，請點擊「測試感應器」按鈕'
+                'sensor_permission_failed': '❌ 感應器權限請求失敗，請點擊「測試感應器」按鈕',
+                'sensor_label_short': '感應器',
+                'auto_tracking_label_short': '自動追蹤',
+                'settings_saved': '設定已儲存！'
             },
             'zh-CN': {
                 // 主要界面
@@ -290,7 +293,10 @@
                 'sensor_not_supported': '❌ 浏览器不支持感应器',
                 'sensor_normal': '📊 感应器正常 (加速度: {acceleration}m/s²)',
                 'sensor_permission_denied': '❌ 感应器权限被拒绝，请点击「测试感应器」按钮',
-                'sensor_permission_failed': '❌ 感应器权限请求失败，请点击「测试感应器」按钮'
+                'sensor_permission_failed': '❌ 感应器权限请求失败，请点击「测试感应器」按钮',
+                'sensor_label_short': '感应器',
+                'auto_tracking_label_short': '自动追踪',
+                'settings_saved': '设定已储存！'
             },
             'en': {
                 // 主要界面
@@ -430,7 +436,10 @@
                 'sensor_not_supported': '❌ Browser does not support sensors',
                 'sensor_normal': '📊 Sensors normal (acceleration: {acceleration}m/s²)',
                 'sensor_permission_denied': '❌ Sensor permission denied, please click "Test Sensor" button',
-                'sensor_permission_failed': '❌ Sensor permission request failed, please click "Test Sensor" button'
+                'sensor_permission_failed': '❌ Sensor permission request failed, please click "Test Sensor" button',
+                'sensor_label_short': 'Sensors',
+                'auto_tracking_label_short': 'Auto Tracking',
+                'settings_saved': 'Settings saved!'
             }
         };
         
@@ -888,8 +897,8 @@
             <div style="font-size: 12px; color: #666; margin-top: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;">
                 <strong data-lang="status_explanation">📋 狀態說明：</strong><br>
                 • <strong>GPS</strong>：<span data-lang="gps_desc">定位您的位置，用於記錄移動軌跡</span><br>
-                • <strong>感應器</strong>：<span data-lang="sensor_desc">檢測手機動作，判斷交通工具類型</span><br>
-                • <strong>自動追蹤</strong>：<span data-lang="auto_tracking_desc">自動記錄移動和發票，計算碳足跡</span>
+                • <strong data-lang="sensor_label_short">感應器</strong>：<span data-lang="sensor_desc">檢測手機動作，判斷交通工具類型</span><br>
+                • <strong data-lang="auto_tracking_label_short">自動追蹤</strong>：<span data-lang="auto_tracking_desc">自動記錄移動和發票，計算碳足跡</span>
             </div>
             <div style="margin-top: 10px; text-align: center; color: #666; font-size: 14px;" id="statusMessage">
                 <span data-lang="auto_enabled_status">✅ GPS和感應器已自動啟用，正在監測您的碳足跡</span>
@@ -2379,7 +2388,7 @@
             const gpsEnabled = document.getElementById('gpsEnabled').value;
             const autoTracking = document.getElementById('autoTracking').value;
             
-            alert('設定已儲存！\n\n每日目標：' + dailyGoal + ' 公斤\nGPS：' + (gpsEnabled === 'true' ? '啟用' : '停用') + '\n自動追蹤：' + (autoTracking === 'true' ? '啟用' : '停用'));
+            alert(t('settings_saved') + '\n\n' + t('daily_goal_kg').replace(' (公斤)', '') + '：' + dailyGoal + ' kg\nGPS：' + (gpsEnabled === 'true' ? t('enabled') : t('disabled')) + '\n' + t('auto_tracking') + '：' + (autoTracking === 'true' ? t('enabled') : t('disabled')));
             closeModal('settingsModal');
         }
         
@@ -3066,7 +3075,7 @@
             }
             
             // 自動追蹤功能
-            updateAutoTrackingStatus('✅ 自動追蹤功能已啟用');
+            updateAutoTrackingStatus(t('auto_tracking_enabled'));
             
             // 3秒後恢復按鈕
             setTimeout(() => {
@@ -3242,7 +3251,7 @@
             }
             
             // 設置自動追蹤狀態
-            document.getElementById('autoTracking').textContent = '✅ 自動追蹤功能已啟用';
+            document.getElementById('autoTracking').textContent = t('auto_tracking_enabled');
         }
 
         // Chrome專用GPS權限請求
@@ -3503,7 +3512,7 @@
             }
             
             // 自動追蹤功能
-            document.getElementById('autoTracking').textContent = '✅ 自動追蹤功能已啟用';
+            document.getElementById('autoTracking').textContent = t('auto_tracking_enabled');
         }
         
         
