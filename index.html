@@ -3597,6 +3597,10 @@
                             document.getElementById('locationStatusText').textContent = '📍 GPS定位成功 | 正在追蹤您的移動';
                             document.getElementById('gpsStatus').textContent = `✅ GPS定位成功 (精度: ${position.coords.accuracy.toFixed(0)}米)`;
                             
+                            // 設置初始位置和追蹤狀態
+                            lastPosition = position;
+                            isTracking = true;
+                            
                             // 開始持續追蹤
                             window.gpsWatchId = navigator.geolocation.watchPosition(
                                 function(pos) {
@@ -3606,7 +3610,6 @@
                                         updateMovementData(distance, pos);
                                     }
                                     lastPosition = pos;
-                                    isTracking = true;
                                     updateRealTimeDisplay();
                                 },
                                 function(error) {
