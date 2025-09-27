@@ -159,6 +159,10 @@
                 'sensor_normal': '📊 感應器正常 (加速度: {acceleration}m/s²)',
                 'sensor_permission_denied': '❌ 感應器權限被拒絕，請點擊「測試感應器」按鈕',
                 'sensor_permission_failed': '❌ 感應器權限請求失敗，請點擊「測試感應器」按鈕',
+                'gps_success_status': '📍 GPS定位成功 | 正在追蹤您的移動',
+                'gps_success_accuracy': '✅ GPS定位成功 (精度: {accuracy}米)',
+                'auto_tracking_enabled': '✅ 自動追蹤功能已啟用',
+                'gps_sensor_monitoring': '✅ GPS和感應器已啟用，正在監測您的碳足跡',
                 'sensor_label_short': '感應器',
                 'auto_tracking_label_short': '自動追蹤',
                 'settings_saved': '設定已儲存！',
@@ -320,6 +324,10 @@
                 'sensor_normal': '📊 感应器正常 (加速度: {acceleration}m/s²)',
                 'sensor_permission_denied': '❌ 感应器权限被拒绝，请点击「测试感应器」按钮',
                 'sensor_permission_failed': '❌ 感应器权限请求失败，请点击「测试感应器」按钮',
+                'gps_success_status': '📍 GPS定位成功 | 正在追踪您的移动',
+                'gps_success_accuracy': '✅ GPS定位成功 (精度: {accuracy}米)',
+                'auto_tracking_enabled': '✅ 自动追踪功能已启用',
+                'gps_sensor_monitoring': '✅ GPS和感应器已启用，正在监测您的碳足迹',
                 'sensor_label_short': '感应器',
                 'auto_tracking_label_short': '自动追踪',
                 'settings_saved': '设定已储存！',
@@ -478,6 +486,10 @@
                 'sensor_normal': '📊 Sensors normal (acceleration: {acceleration}m/s²)',
                 'sensor_permission_denied': '❌ Sensor permission denied, please click "Test Sensor" button',
                 'sensor_permission_failed': '❌ Sensor permission request failed, please click "Test Sensor" button',
+                'gps_success_status': '📍 GPS positioning successful | Tracking your movement',
+                'gps_success_accuracy': '✅ GPS positioning successful (accuracy: {accuracy}m)',
+                'auto_tracking_enabled': '✅ Automatic tracking function enabled',
+                'gps_sensor_monitoring': '✅ GPS and sensors enabled, monitoring your carbon footprint',
                 'sensor_label_short': 'Sensors',
                 'auto_tracking_label_short': 'Auto Tracking',
                 'settings_saved': 'Settings saved!',
@@ -2896,8 +2908,8 @@
             navigator.geolocation.getCurrentPosition(
                 function(position) {
                     console.log('✅ GPS權限已獲得，開始持續追蹤');
-                    document.getElementById('locationStatusText').textContent = '📍 GPS定位成功 | 正在追蹤您的移動';
-                    document.getElementById('gpsStatus').textContent = `✅ GPS定位成功 (精度: ${position.coords.accuracy.toFixed(0)}米)`;
+                    document.getElementById('locationStatusText').textContent = t('gps_success_status');
+                    document.getElementById('gpsStatus').textContent = t('gps_success_accuracy').replace('{accuracy}', position.coords.accuracy.toFixed(0));
                     
                     // 開始持續追蹤
                     window.gpsWatchId = navigator.geolocation.watchPosition(
@@ -3650,8 +3662,8 @@
                 navigator.geolocation.getCurrentPosition(
                     function(position) {
                         console.log('📍 GPS權限獲得，開始追蹤');
-                        document.getElementById('locationStatusText').textContent = '📍 GPS定位成功 | 正在追蹤您的移動';
-                        document.getElementById('gpsStatus').textContent = `✅ GPS定位成功 (精度: ${position.coords.accuracy.toFixed(0)}米)`;
+                        document.getElementById('locationStatusText').textContent = t('gps_success_status');
+                        document.getElementById('gpsStatus').textContent = t('gps_success_accuracy').replace('{accuracy}', position.coords.accuracy.toFixed(0));
                         
                         // 設置初始位置
                         lastPosition = position;
@@ -3679,8 +3691,8 @@
                             const sensorStatus = document.getElementById('sensorStatus').textContent;
                             // 检查感应器是否正常（包含"正常"或"✅"都表示成功）
                             if (sensorStatus.includes('✅') || sensorStatus.includes('正常') || sensorStatus.includes('已啟用')) {
-                                document.getElementById('autoTracking').textContent = '✅ 自動追蹤功能已啟用';
-                                statusMessage.textContent = '✅ GPS和感應器已啟用，正在監測您的碳足跡';
+                                document.getElementById('autoTracking').textContent = t('auto_tracking_enabled');
+                                statusMessage.textContent = t('gps_sensor_monitoring');
                                 button.style.display = 'none'; // 隱藏按鈕
                             } else {
                                 document.getElementById('autoTracking').textContent = '⚠️ GPS已啟用，等待感應器就緒';
@@ -3745,8 +3757,8 @@
                     console.log('✅ Chrome GPS權限獲得成功！');
                     
                     // 更新狀態
-                    document.getElementById('locationStatusText').textContent = '📍 GPS定位成功 | 正在追蹤您的移動';
-                    document.getElementById('gpsStatus').textContent = `✅ GPS定位成功 (精度: ${position.coords.accuracy.toFixed(0)}米)`;
+                    document.getElementById('locationStatusText').textContent = t('gps_success_status');
+                    document.getElementById('gpsStatus').textContent = t('gps_success_accuracy').replace('{accuracy}', position.coords.accuracy.toFixed(0));
                     statusMessage.textContent = '✅ Chrome GPS定位已啟用，正在監測您的碳足跡';
                     
                     // 隱藏按鈕
@@ -3812,8 +3824,8 @@
                 navigator.geolocation.getCurrentPosition(
                     function(position) {
                         console.log('✅ GPS定位成功！');
-                        document.getElementById('locationStatusText').textContent = '📍 GPS定位成功 | 正在追蹤您的移動';
-                        document.getElementById('gpsStatus').textContent = `✅ GPS定位成功 (精度: ${position.coords.accuracy.toFixed(0)}米)`;
+                        document.getElementById('locationStatusText').textContent = t('gps_success_status');
+                        document.getElementById('gpsStatus').textContent = t('gps_success_accuracy').replace('{accuracy}', position.coords.accuracy.toFixed(0));
                         
                         // 開始GPS追蹤
                         startGPSTracking();
@@ -3891,8 +3903,8 @@
                         console.log('座標:', position.coords.latitude, position.coords.longitude);
                         
                         // 直接更新狀態
-                        document.getElementById('locationStatusText').textContent = '📍 GPS定位成功 | 正在追蹤您的移動';
-                        document.getElementById('gpsStatus').textContent = `✅ GPS定位成功 (精度: ${position.coords.accuracy.toFixed(0)}米)`;
+                        document.getElementById('locationStatusText').textContent = t('gps_success_status');
+                        document.getElementById('gpsStatus').textContent = t('gps_success_accuracy').replace('{accuracy}', position.coords.accuracy.toFixed(0));
                         
                         // 開始GPS追蹤（不重複啟動）
                         if (!window.gpsWatchId) {
