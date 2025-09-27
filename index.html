@@ -2543,7 +2543,7 @@
                 const dayTotal = dayInvoices.reduce((sum, inv) => sum + (parseFloat(inv.carbonFootprint) || 0), 0);
                 
                 weeklyData.push({
-                    day: date.toLocaleDateString('zh-TW', { month: 'short', day: 'numeric' }),
+                    day: `${date.getMonth() + 1}/${date.getDate()}`,
                     value: dayTotal.toFixed(1)
                 });
             }
