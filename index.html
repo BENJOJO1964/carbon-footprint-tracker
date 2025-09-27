@@ -3061,20 +3061,49 @@
         
         // 感應器數據收集
         function startSensorTracking() {
-            if (window.DeviceMotionEvent) {
-                console.log('開始感應器監聽...');
-                document.getElementById('sensorStatus').textContent = '✅ 感應器已啟用，持續監聽中...';
-                
-                window.addEventListener('devicemotion', function(e) {
-                    if (e.acceleration) {
-                        console.log("📱 devicemotion: 加速度X=" + e.acceleration.x);
-                        handleMotion(e);
-                    }
-                });
-            } else {
+            console.log('開始檢測感應器...');
+            
+            // 先显示检测状态
+            document.getElementById('sensorStatus').textContent = '🔄 檢測感應器中...';
+            
+            // 检查浏览器是否支持感应器
+            if (!window.DeviceMotionEvent) {
                 console.log('瀏覽器不支援感應器');
                 document.getElementById('sensorStatus').textContent = '❌ 瀏覽器不支援感應器';
+                return;
             }
+            
+            // 请求感应器权限
+            if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                // iOS 13+ 需要权限请求
+                DeviceMotionEvent.requestPermission().then(response => {
+                    if (response === 'granted') {
+                        console.log('✅ iOS 感應器權限已允許');
+                        document.getElementById('sensorStatus').textContent = '✅ 感應器已啟用，持續監聽中...';
+                        startMotionListening();
+                    } else {
+                        console.log('❌ iOS 感應器權限被拒絕');
+                        document.getElementById('sensorStatus').textContent = '❌ 感應器權限被拒絕';
+                    }
+                }).catch(error => {
+                    console.log('❌ 感應器權限請求失敗:', error);
+                    document.getElementById('sensorStatus').textContent = '❌ 感應器權限請求失敗';
+                });
+            } else {
+                // Android/桌面浏览器直接启动
+                console.log('✅ Android/桌面 已啟用感應器監聽');
+                document.getElementById('sensorStatus').textContent = '✅ 感應器已啟用，持續監聽中...';
+                startMotionListening();
+            }
+        }
+        
+        function startMotionListening() {
+            window.addEventListener('devicemotion', function(e) {
+                if (e.acceleration) {
+                    console.log("📱 devicemotion: 加速度X=" + e.acceleration.x);
+                    handleMotion(e);
+                }
+            });
         }
         
         // 處理加速度計數據
@@ -3660,8 +3689,18 @@
                 }
             }
             
-            // 設置自動追蹤狀態
-            document.getElementById('autoTracking').textContent = '✅ 自動追蹤功能已啟用';
+            // 設置自動追蹤狀態 - 基于GPS和感应器的实际状态
+            // 只有当GPS和感应器都成功时才显示已启用
+            setTimeout(() => {
+                const gpsStatus = document.getElementById('gpsStatus').textContent;
+                const sensorStatus = document.getElementById('sensorStatus').textContent;
+                
+                if (gpsStatus.includes('✅') && sensorStatus.includes('✅')) {
+                    document.getElementById('autoTracking').textContent = '✅ 自動追蹤功能已啟用';
+                } else {
+                    document.getElementById('autoTracking').textContent = '⚠️ 自動追蹤功能等待GPS和感應器就緒';
+                }
+            }, 2000);
         }
 
         // Chrome專用GPS權限請求
