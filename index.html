@@ -1256,7 +1256,7 @@
     </div>
 
     <script>
-        const API_BASE = 'http://172.20.10.6:3002';
+        const API_BASE = window.location.origin;
         
         // 開啟模態框
         function openModal(type) {
@@ -1867,11 +1867,17 @@
                 });
                 
                 if (!response.ok) {
-                    throw new Error('OCR API調用失敗');
+                    throw new Error('OCR API調用失敗: ' + response.status);
                 }
                 
                 const result = await response.json();
-                return result;
+                
+                if (result.success && result.data) {
+                    console.log('✅ OCR識別成功:', result.data);
+                    return result.data;
+                } else {
+                    throw new Error(result.message || 'OCR識別失敗');
+                }
             } catch (error) {
                 console.error('❌ OCR識別失敗:', error);
                 
