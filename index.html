@@ -1223,7 +1223,10 @@
                     <option value="false" data-lang="disabled">停用</option>
                 </select>
             </div>
-            <button class="btn" onclick="saveSettings()" data-lang="save_settings">儲存設定</button>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn" onclick="saveSettings()" data-lang="save_settings" style="flex: 1;">儲存設定</button>
+                <button class="btn" onclick="testPersonalizedGoal()" style="flex: 1; background: #FF9800; color: white;">測試個人化目標</button>
+            </div>
         </div>
     </div>
 
@@ -2676,6 +2679,27 @@
             updateRealTimeDisplay();
         }
         
+        // 測試個人化目標
+        function testPersonalizedGoal() {
+            // 設置測試數據
+            userProfile.ageGroup = '26-35';
+            userProfile.residenceType = 'urban';
+            
+            // 計算個人化目標
+            const personalizedGoal = calculatePersonalizedGoal();
+            
+            // 更新界面
+            document.getElementById('ageGroup').value = userProfile.ageGroup;
+            document.getElementById('residenceType').value = userProfile.residenceType;
+            document.getElementById('dailyGoal').value = personalizedGoal.toFixed(1);
+            document.getElementById('personalizedGoalDisplay').textContent = `${personalizedGoal.toFixed(1)} 公斤 CO₂/天`;
+            
+            // 更新實時顯示
+            updateRealTimeDisplay();
+            
+            alert(`測試個人化目標設置成功！\n\n年齡層: 26-35歲\n居住區域: 都市\n個人化目標: ${personalizedGoal.toFixed(1)} kg/天\n\n主界面目標已更新！`);
+        }
+        
         // 儲存設定
         function saveSettings() {
             const dailyGoal = document.getElementById('dailyGoal').value;
@@ -3475,7 +3499,7 @@
                 carrierInfo = JSON.parse(savedCarrierInfo);
             }
             
-            // 初始化用戶檔案
+            // 初始化用戶檔案（必須在initializeRealTimeData之前）
             const savedUserProfile = localStorage.getItem('userProfile');
             if (savedUserProfile) {
                 userProfile = JSON.parse(savedUserProfile);
