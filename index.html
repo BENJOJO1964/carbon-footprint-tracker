@@ -3674,7 +3674,7 @@
                             { enableHighAccuracy: true, timeout: 60000, maximumAge: 0 }
                         );
                         
-                        // 檢查感應器狀態
+                        // 檢查感應器狀態並更新按鈕
                         setTimeout(() => {
                             const sensorStatus = document.getElementById('sensorStatus').textContent;
                             if (sensorStatus.includes('✅')) {
@@ -3684,8 +3684,13 @@
                             } else {
                                 document.getElementById('autoTracking').textContent = '⚠️ GPS已啟用，等待感應器就緒';
                                 statusMessage.textContent = '✅ GPS已啟用，等待感應器權限';
+                                
+                                // 恢復按鈕為可用狀態，但保持隱藏（因為GPS已成功）
+                                button.innerHTML = '🚀 重新啟用GPS和感應器功能';
+                                button.disabled = false;
+                                button.style.display = 'none';
                             }
-                        }, 1000);
+                        }, 2000);
                     },
                     function(error) {
                         console.log('❌ GPS權限被拒絕:', error.message);
