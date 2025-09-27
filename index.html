@@ -105,7 +105,18 @@
                 'data_analysis': '數據分析',
                 'view_detailed_stats': '查看詳細統計',
                 'settings': '設定',
-                'personalized_settings': '個人化設定'
+                'personalized_settings': '個人化設定',
+                'invoice_management_title': '🧾 發票管理',
+                'e_invoice_carrier': '📱 電子發票載具',
+                'carrier_not_bound': '未綁定載具',
+                'sync_carrier_invoices': '🔄 同步載具發票',
+                'auto_sync_status': '自動同步:',
+                'sync_enabled': '已啟用',
+                'traditional_invoice_scan': '📷 傳統發票掃描',
+                'store_placeholder': '例如: 全聯福利中心',
+                'amount_placeholder': '例如: 150',
+                'carbon_placeholder': '掃描後自動計算',
+                'recent_invoice_records': '📋 最近發票記錄'
             },
             'zh-CN': {
                 // 主要界面
@@ -200,7 +211,18 @@
                 'data_analysis': '数据分析',
                 'view_detailed_stats': '查看详细统计',
                 'settings': '设定',
-                'personalized_settings': '个性化设定'
+                'personalized_settings': '个性化设定',
+                'invoice_management_title': '🧾 发票管理',
+                'e_invoice_carrier': '📱 电子发票载具',
+                'carrier_not_bound': '未绑定载具',
+                'sync_carrier_invoices': '🔄 同步载具发票',
+                'auto_sync_status': '自动同步:',
+                'sync_enabled': '已启用',
+                'traditional_invoice_scan': '📷 传统发票扫描',
+                'store_placeholder': '例如: 全联福利中心',
+                'amount_placeholder': '例如: 150',
+                'carbon_placeholder': '扫描后自动计算',
+                'recent_invoice_records': '📋 最近发票记录'
             },
             'en': {
                 // 主要界面
@@ -295,7 +317,18 @@
                 'data_analysis': 'Data Analysis',
                 'view_detailed_stats': 'View Detailed Statistics',
                 'settings': 'Settings',
-                'personalized_settings': 'Personalized Settings'
+                'personalized_settings': 'Personalized Settings',
+                'invoice_management_title': '🧾 Invoice Management',
+                'e_invoice_carrier': '📱 E-Invoice Carrier',
+                'carrier_not_bound': 'Carrier Not Bound',
+                'sync_carrier_invoices': '🔄 Sync Carrier Invoices',
+                'auto_sync_status': 'Auto Sync:',
+                'sync_enabled': 'Enabled',
+                'traditional_invoice_scan': '📷 Traditional Invoice Scan',
+                'store_placeholder': 'e.g., PX Mart',
+                'amount_placeholder': 'e.g., 150',
+                'carbon_placeholder': 'Auto-calculated after scan',
+                'recent_invoice_records': '📋 Recent Invoice Records'
             }
         };
         
@@ -875,51 +908,51 @@
     <div id="invoiceModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>🧾 發票管理</h3>
+                <h3 data-lang="invoice_management_title">🧾 發票管理</h3>
                 <button class="close-btn" onclick="closeModal('invoiceModal')">&times;</button>
             </div>
             
             <!-- 電子發票載具綁定 -->
             <div style="margin-bottom: 20px; padding: 15px; background: #e8f5e8; border-radius: 8px; border-left: 4px solid #4CAF50;">
-                <h4 style="margin-bottom: 10px; color: #2e7d32;">📱 電子發票載具</h4>
+                <h4 style="margin-bottom: 10px; color: #2e7d32;" data-lang="e_invoice_carrier">📱 電子發票載具</h4>
                 <div id="carrierStatus" style="margin-bottom: 10px;">
-                    <span id="carrierInfo">未綁定載具</span>
+                    <span id="carrierInfo" data-lang="carrier_not_bound">未綁定載具</span>
                 </div>
                 <button class="btn" onclick="bindCarrier()" data-lang="bind_carrier" style="background: #4CAF50; margin-bottom: 10px;">
                     🔗 綁定電子發票載具
                 </button>
-                <button class="btn" onclick="checkCarrierInvoices()" style="background: #2196F3; margin-bottom: 10px;">
+                <button class="btn" onclick="checkCarrierInvoices()" style="background: #2196F3; margin-bottom: 10px;" data-lang="sync_carrier_invoices">
                     🔄 同步載具發票
                 </button>
-                <div id="autoSyncStatus" style="font-size: 12px; color: #666; margin-top: 5px;">
-                    自動同步: <span id="syncStatus">已啟用</span>
+                <div id="autoSyncStatus" style="font-size: 12px; color: #666; margin-top: 5px;" data-lang="auto_sync_status">
+                    自動同步: <span id="syncStatus" data-lang="sync_enabled">已啟用</span>
                 </div>
             </div>
             
             <!-- 傳統發票掃描 -->
             <div style="margin-bottom: 20px; padding: 15px; background: #fff3e0; border-radius: 8px; border-left: 4px solid #FF9800;">
-                <h4 style="margin-bottom: 10px; color: #e65100;">📷 傳統發票掃描</h4>
+                <h4 style="margin-bottom: 10px; color: #e65100;" data-lang="traditional_invoice_scan">📷 傳統發票掃描</h4>
                 <div class="form-group">
                     <label data-lang="store_name">商店名稱</label>
-                    <input type="text" id="storeName" placeholder="例如: 全聯福利中心">
+                    <input type="text" id="storeName" placeholder="例如: 全聯福利中心" data-lang="store_placeholder">
                 </div>
                 <div class="form-group">
                     <label data-lang="amount">消費金額</label>
-                    <input type="number" id="amount" placeholder="例如: 150" step="0.01">
+                    <input type="number" id="amount" placeholder="例如: 150" step="0.01" data-lang="amount_placeholder">
                 </div>
                 <div class="form-group">
                     <label data-lang="carbon_footprint">碳足跡</label>
-                    <input type="text" id="carbonFootprint" placeholder="掃描後自動計算" readonly style="background-color: #f8f9fa; color: #4CAF50; font-weight: bold;">
+                    <input type="text" id="carbonFootprint" placeholder="掃描後自動計算" readonly style="background-color: #f8f9fa; color: #4CAF50; font-weight: bold;" data-lang="carbon_placeholder">
                 </div>
                 <button class="btn camera-btn" onclick="scanInvoice()" data-lang="scan_invoice">📷 開啟相機掃描</button>
             </div>
             
             <!-- 最近發票記錄 -->
             <div style="margin-top: 20px;">
-                <h4 style="margin-bottom: 10px;">📋 最近發票記錄</h4>
+                <h4 style="margin-bottom: 10px;" data-lang="recent_invoice_records">📋 最近發票記錄</h4>
                 <div id="recentInvoices" style="max-height: 200px; overflow-y: auto;">
                     <div style="padding: 10px; text-align: center; color: #666;">
-                        載入中...
+                        <span data-lang="loading">載入中...</span>
                     </div>
                 </div>
             </div>
@@ -971,7 +1004,10 @@
         
         // 關閉模態框
         function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+            }
         }
         
         // 提交移動記錄
