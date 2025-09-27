@@ -138,7 +138,19 @@
                 'gps_status_checking': '📍 GPS狀態檢測中...',
                 'gps_failed': '📍 GPS定位失敗 | 請檢查權限設定',
                 'distance_placeholder': '例如: 5.2',
-                'time_placeholder': '例如: 30'
+                'time_placeholder': '例如: 30',
+                'sync_disabled': '已停用',
+                'analytics_feature': '📊 數據分析功能',
+                'full_version_features': '在完整版本中，這裡會顯示',
+                'historical_trends': '歷史趨勢圖表',
+                'categorized_stats': '分類統計',
+                'eco_suggestions': '環保建議',
+                'goal_achievement': '目標達成情況',
+                'sensor_enabled': '✅ 感應器已啟用，持續監聽中...',
+                'sensor_not_supported': '❌ 瀏覽器不支援感應器',
+                'sensor_normal': '📊 感應器正常 (加速度: {acceleration}m/s²)',
+                'sensor_permission_denied': '❌ 感應器權限被拒絕，請點擊「測試感應器」按鈕',
+                'sensor_permission_failed': '❌ 感應器權限請求失敗，請點擊「測試感應器」按鈕'
             },
             'zh-CN': {
                 // 主要界面
@@ -266,7 +278,19 @@
                 'gps_status_checking': '📍 GPS状态检测中...',
                 'gps_failed': '📍 GPS定位失败 | 请检查权限设定',
                 'distance_placeholder': '例如: 5.2',
-                'time_placeholder': '例如: 30'
+                'time_placeholder': '例如: 30',
+                'sync_disabled': '已停用',
+                'analytics_feature': '📊 数据分析功能',
+                'full_version_features': '在完整版本中，这里会显示',
+                'historical_trends': '历史趋势图表',
+                'categorized_stats': '分类统计',
+                'eco_suggestions': '环保建议',
+                'goal_achievement': '目标达成情况',
+                'sensor_enabled': '✅ 感应器已启用，持续监听中...',
+                'sensor_not_supported': '❌ 浏览器不支持感应器',
+                'sensor_normal': '📊 感应器正常 (加速度: {acceleration}m/s²)',
+                'sensor_permission_denied': '❌ 感应器权限被拒绝，请点击「测试感应器」按钮',
+                'sensor_permission_failed': '❌ 感应器权限请求失败，请点击「测试感应器」按钮'
             },
             'en': {
                 // 主要界面
@@ -394,7 +418,19 @@
                 'gps_status_checking': '📍 GPS status checking...',
                 'gps_failed': '📍 GPS positioning failed | Please check permissions',
                 'distance_placeholder': 'e.g., 5.2',
-                'time_placeholder': 'e.g., 30'
+                'time_placeholder': 'e.g., 30',
+                'sync_disabled': 'Disabled',
+                'analytics_feature': '📊 Data Analysis Feature',
+                'full_version_features': 'In the full version, this will display',
+                'historical_trends': 'Historical trend charts',
+                'categorized_stats': 'Categorized statistics',
+                'eco_suggestions': 'Environmental protection suggestions',
+                'goal_achievement': 'Goal achievement status',
+                'sensor_enabled': '✅ Sensors enabled, continuously monitoring...',
+                'sensor_not_supported': '❌ Browser does not support sensors',
+                'sensor_normal': '📊 Sensors normal (acceleration: {acceleration}m/s²)',
+                'sensor_permission_denied': '❌ Sensor permission denied, please click "Test Sensor" button',
+                'sensor_permission_failed': '❌ Sensor permission request failed, please click "Test Sensor" button'
             }
         };
         
@@ -2148,10 +2184,10 @@
                     ✅ 已綁定：${carrierInfo.name}<br>
                     <small>類型：${getCarrierTypeName(carrierInfo.type)} | 號碼：${carrierInfo.code}${autoDetectStatus}</small>
                 `;
-                syncStatusElement.textContent = autoSyncEnabled ? '已啟用' : '已停用';
+                syncStatusElement.textContent = autoSyncEnabled ? t('sync_enabled') : t('sync_disabled');
             } else {
-                carrierInfoElement.textContent = '未綁定載具';
-                syncStatusElement.textContent = '未啟用';
+                carrierInfoElement.textContent = t('carrier_not_bound');
+                syncStatusElement.textContent = t('sync_disabled');
             }
         }
         
@@ -2349,7 +2385,7 @@
         
         // 顯示分析
         function showAnalytics() {
-            alert('📊 數據分析功能\n\n在完整版本中，這裡會顯示：\n• 歷史趨勢圖表\n• 分類統計\n• 環保建議\n• 目標達成情況');
+            alert(t('analytics_feature') + '\n\n' + t('full_version_features') + ':\n• ' + t('historical_trends') + '\n• ' + t('categorized_stats') + '\n• ' + t('eco_suggestions') + '\n• ' + t('goal_achievement'));
         }
         
         // 初始化實時數據（載入歷史數據）
@@ -2609,7 +2645,7 @@
         function startSensorTracking() {
             if (window.DeviceMotionEvent) {
                 console.log('開始感應器監聽...');
-                document.getElementById('sensorStatus').textContent = '✅ 感應器已啟用，持續監聽中...';
+                document.getElementById('sensorStatus').textContent = t('sensor_enabled');
                 
                 window.addEventListener('devicemotion', function(e) {
                     if (e.acceleration) {
@@ -2619,7 +2655,7 @@
                 });
             } else {
                 console.log('瀏覽器不支援感應器');
-                document.getElementById('sensorStatus').textContent = '❌ 瀏覽器不支援感應器';
+                document.getElementById('sensorStatus').textContent = t('sensor_not_supported');
             }
         }
         
@@ -2637,7 +2673,7 @@
             );
             
             // 更新感應器狀態
-            sensorStatusElement.innerHTML = `📊 感應器正常 (加速度: ${totalAcceleration.toFixed(2)}m/s²)`;
+            sensorStatusElement.innerHTML = t('sensor_normal').replace('{acceleration}', totalAcceleration.toFixed(2));
             
             // 根據加速度判斷活動類型並計算碳足跡
             let activityType = '靜止';
@@ -3449,20 +3485,20 @@
                     console.log('感應器權限請求結果:', response);
                     if (response === "granted") {
                         console.log("✅ 感應器權限已允許");
-                        document.getElementById('sensorStatus').textContent = '✅ 感應器已啟用，持續監聽中...';
+                        document.getElementById('sensorStatus').textContent = t('sensor_enabled');
                         startSensorTracking();
                     } else {
                         console.log("❌ 感應器權限被拒絕");
-                        document.getElementById('sensorStatus').textContent = '❌ 感應器權限被拒絕，請點擊「測試感應器」按鈕';
+                        document.getElementById('sensorStatus').textContent = t('sensor_permission_denied');
                     }
                 }).catch(error => {
                     console.log("❌ 感應器權限請求失敗:", error);
-                    document.getElementById('sensorStatus').textContent = '❌ 感應器權限請求失敗，請點擊「測試感應器」按鈕';
+                    document.getElementById('sensorStatus').textContent = t('sensor_permission_failed');
                 });
             } else {
                 // Android / 桌面 Chrome 直接監聽
                 console.log("✅ Android/桌面 已啟用感應器監聽");
-                document.getElementById('sensorStatus').textContent = '✅ 感應器已啟用，持續監聽中...';
+                document.getElementById('sensorStatus').textContent = t('sensor_enabled');
                 startSensorTracking();
             }
             
