@@ -83,7 +83,7 @@
                 'breakdown_title': '今日碳足跡分解（實時偵測）',
                 'transport_label': '🚗 交通運輸',
                 'shopping_label': '🛒 購物消費',
-                'activity_label': '🏃 運動娛樂',
+                'activity_label': '📱 手機使用',
                 'location_label': '📍 移動軌跡',
                 'sensor_label': '📱 感應器數據',
                 'daily_stats_title': '今日碳足跡統計',
@@ -236,7 +236,7 @@
                 'breakdown_title': '今日碳足迹分解（实时侦测）',
                 'transport_label': '🚗 交通运输',
                 'shopping_label': '🛒 购物消费',
-                'activity_label': '🏃 运动娱乐',
+                'activity_label': '📱 手机使用',
                 'location_label': '📍 移动轨迹',
                 'sensor_label': '📱 感应器数据',
                 'daily_stats_title': '今日碳足迹统计',
@@ -386,7 +386,7 @@
                 'breakdown_title': 'Today\'s Carbon Footprint Breakdown (Real-time Detection)',
                 'transport_label': '🚗 Transportation',
                 'shopping_label': '🛒 Shopping',
-                'activity_label': '🏃 Sports & Entertainment',
+                'activity_label': '📱 Phone Usage',
                 'location_label': '📍 Movement Tracking',
                 'sensor_label': '📱 Sensor Data',
                 'daily_stats_title': 'Today\'s Carbon Footprint Statistics',
@@ -2461,7 +2461,7 @@
                                     <div>🚗 <span data-lang="transport_label">交通</span>: ${analyticsData.categories.transport} kg</div>
                                 </div>
                                 <div style="background: rgba(255,255,255,0.1); padding: 8px; border-radius: 6px; font-size: 12px;">
-                                    <div>🏃 <span data-lang="activity_label">運動娛樂</span>: ${analyticsData.categories.activity} kg</div>
+                                    <div>📱 <span data-lang="activity_label">手機使用</span>: ${analyticsData.categories.activity} kg</div>
                                 </div>
                                 <div style="background: rgba(255,255,255,0.1); padding: 8px; border-radius: 6px; font-size: 12px;">
                                     <div>📍 <span data-lang="location_label">移動軌跡</span>: ${analyticsData.categories.location} kg</div>
@@ -2598,9 +2598,9 @@
                 suggestions.push('近7天中有零碳足跡日，建議將環保習慣推廣到更多天');
             }
             
-            // 基於運動娛樂數據的建議
+            // 基於手機使用數據的建議
             if (categories.activity > 0) {
-                suggestions.push(`運動娛樂碳足跡 ${categories.activity}kg，建議多選擇低碳活動`);
+                suggestions.push(`手機使用碳足跡 ${categories.activity}kg，建議減少不必要的螢幕使用時間`);
             }
             
             // 基於移動軌跡數據的建議
