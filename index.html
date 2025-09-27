@@ -1177,7 +1177,7 @@
                 </div>
                 <button class="btn camera-btn" onclick="scanInvoice()" data-lang="scan_invoice">📷 開啟相機掃描</button>
                 <button class="btn" onclick="testCameraPermission()" style="background: #FF9800; color: white; margin-left: 10px;">🧪 測試相機權限</button>
-                <button class="btn" onclick="testScanWithMockData()" style="background: #9C27B0; color: white; margin-left: 10px;">📋 測試掃描功能</button>
+                <button class="btn" onclick="testScanWithMockData()" style="background: #9C27B0; color: white; margin-left: 10px;">📷 開啟相機掃描</button>
             </div>
             
             <!-- 最近發票記錄 -->
@@ -1498,46 +1498,12 @@
             alert('🧪 相機權限測試結果：\n\n' + results.join('\n') + '\n\n📱 當前網址：\n' + location.href);
         }
         
-        // 測試掃描功能（使用模擬數據）
+        // 測試真實掃描功能
         async function testScanWithMockData() {
-            console.log('📋 測試掃描功能...');
+            console.log('📋 測試真實掃描功能...');
             
-            try {
-                // 顯示掃描中指示器
-                showScanningIndicator();
-                
-                // 模擬掃描過程
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                
-                // 使用模擬發票數據
-                const mockInvoiceData = {
-                    storeName: '7-ELEVEN',
-                    amount: 85.0,
-                    items: ['飲料', '零食'],
-                    date: new Date().toISOString()
-                };
-                
-                // 移除掃描中指示器
-                hideScanningIndicator();
-                
-                // 計算碳足跡
-                const carbonFootprint = calculateInvoiceCarbonFootprint(mockInvoiceData);
-                
-                // 自動填入表單
-                fillInvoiceForm(mockInvoiceData, carbonFootprint);
-                
-                // 自動記錄到當日碳足跡記錄
-                await recordInvoiceToDaily(mockInvoiceData, carbonFootprint);
-                
-                // 顯示累計成功通知
-                showAccumulationNotification(mockInvoiceData, carbonFootprint);
-                
-                alert('✅ 測試掃描成功！\n\n商店：' + mockInvoiceData.storeName + '\n金額：NT$ ' + mockInvoiceData.amount + '\n碳足跡：' + carbonFootprint.toFixed(2) + ' kg CO₂\n\n已自動填入表單並記錄！');
-                
-            } catch (error) {
-                hideScanningIndicator();
-                alert('❌ 測試掃描失敗：' + error.message);
-            }
+            // 直接開啟真實的相機掃描
+            await scanInvoice();
         }
         
         // 掃描發票
@@ -1908,20 +1874,93 @@
                 return result;
             } catch (error) {
                 console.error('❌ OCR識別失敗:', error);
-                console.log('🔄 使用模擬發票數據...');
                 
-                // 如果OCR失敗，使用模擬數據讓功能能正常工作
-                const mockInvoiceData = {
-                    storeName: '7-ELEVEN',
-                    amount: 85.0,
-                    items: ['飲料', '零食'],
-                    date: new Date().toISOString()
-                };
+                // 顯示手動輸入選項
+                const shouldManualInput = confirm(
+                    '❌ 無法自動識別發票內容\n\n' +
+                    '可能原因：\n' +
+                    '• OCR服務未配置\n' +
+                    '• 網路連接問題\n' +
+                    '• 發票圖片不清楚\n\n' +
+                    '是否要手動輸入發票信息？'
+                );
                 
-                return mockInvoiceData;
+                if (shouldManualInput) {
+                    showManualInputForm();
+                    throw new Error('已切換到手動輸入模式');
+                } else {
+                    throw new Error('OCR識別失敗');
+                }
             }
         }
         
+        // 顯示手動輸入表單
+        function showManualInputForm() {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 400px;">
+                    <div class="modal-header">
+                        <h3>📝 手動輸入發票信息</h3>
+                        <button class="close-btn" onclick="closeModal(this)">&times;</button>
+                    </div>
+                    <div style="padding: 20px;">
+                        <div class="form-group">
+                            <label>商店名稱</label>
+                            <input type="text" id="manualStoreName" placeholder="例如：7-ELEVEN" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div class="form-group">
+                            <label>消費金額 (NT$)</label>
+                            <input type="number" id="manualAmount" placeholder="例如：85" step="0.01" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div style="margin-top: 20px; text-align: center;">
+                            <button onclick="processManualInput()" style="background: #4CAF50; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px;">
+                                計算碳足跡
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+        
+        // 處理手動輸入
+        async function processManualInput() {
+            const storeName = document.getElementById('manualStoreName').value;
+            const amount = parseFloat(document.getElementById('manualAmount').value);
+            
+            if (!storeName || !amount) {
+                alert('請填寫商店名稱和金額');
+                return;
+            }
+            
+            const invoiceData = {
+                storeName: storeName,
+                amount: amount,
+                items: ['手動輸入'],
+                date: new Date().toISOString()
+            };
+            
+            // 計算碳足跡
+            const carbonFootprint = calculateInvoiceCarbonFootprint(invoiceData);
+            
+            // 自動填入表單
+            fillInvoiceForm(invoiceData, carbonFootprint);
+            
+            // 自動記錄到當日碳足跡記錄
+            await recordInvoiceToDaily(invoiceData, carbonFootprint);
+            
+            // 顯示成功通知
+            showAccumulationNotification(invoiceData, carbonFootprint);
+            
+            // 關閉模態框
+            closeModal(document.querySelector('.modal:last-child'));
+            
+            alert('✅ 手動輸入成功！\n\n商店：' + storeName + '\n金額：NT$ ' + amount + '\n碳足跡：' + carbonFootprint.toFixed(2) + ' kg CO₂\n\n已自動填入表單並記錄！');
+        }
         
         // 計算發票碳足跡
         function calculateInvoiceCarbonFootprint(invoiceData) {
