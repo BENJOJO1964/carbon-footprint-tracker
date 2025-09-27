@@ -2548,19 +2548,80 @@
                 });
             }
             
-            // 環保建議
+            // 環保建議 - 基於真實數據的智能分析
             const suggestions = [];
-            if (todayTotal > dailyGoal) {
-                suggestions.push('今日碳足跡已超過目標，建議減少非必要消費');
+            
+            // 分析今日數據
+            const totalCategories = categories.shopping + categories.transport + categories.activity + categories.location;
+            const shoppingPercentage = totalCategories > 0 ? (categories.shopping / totalCategories) * 100 : 0;
+            const transportPercentage = totalCategories > 0 ? (categories.transport / totalCategories) * 100 : 0;
+            const activityPercentage = totalCategories > 0 ? (categories.activity / totalCategories) * 100 : 0;
+            
+            // 分析近7天趨勢
+            const weeklyTotals = weeklyData.map(day => parseFloat(day.value));
+            const avgWeekly = weeklyTotals.reduce((sum, val) => sum + val, 0) / 7;
+            const maxDay = Math.max(...weeklyTotals);
+            const minDay = Math.min(...weeklyTotals);
+            
+            // 基於目標達成情況的建議
+            if (todayTotal > dailyGoal * 1.2) {
+                suggestions.push(`今日碳足跡 ${todayTotal}kg 超出目標 ${dailyGoal}kg 達 ${goalProgress}%，建議減少非必要消費`);
+            } else if (todayTotal > dailyGoal) {
+                suggestions.push(`今日碳足跡 ${todayTotal}kg 略超目標，建議控制消費頻率`);
+            } else if (todayTotal === 0) {
+                suggestions.push('今日尚未記錄碳足跡，建議開始記錄您的消費行為');
+            } else if (goalProgress < 50) {
+                suggestions.push(`今日碳足跡 ${todayTotal}kg，進度良好！建議保持當前消費模式`);
             }
-            if (categories.transport > categories.shopping) {
-                suggestions.push('交通碳足跡較高，建議多使用大眾運輸或步行');
+            
+            // 基於分類統計的建議
+            if (shoppingPercentage > 60) {
+                suggestions.push(`購物碳足跡佔 ${shoppingPercentage.toFixed(1)}%，建議減少衝動消費，優先購買必需品`);
+            } else if (shoppingPercentage > 40) {
+                suggestions.push(`購物碳足跡佔 ${shoppingPercentage.toFixed(1)}%，建議選擇環保包裝商品`);
             }
-            if (categories.shopping > dailyGoal * 0.6) {
-                suggestions.push('購物碳足跡佔比高，建議減少衝動消費');
+            
+            if (transportPercentage > 50) {
+                suggestions.push(`交通碳足跡佔 ${transportPercentage.toFixed(1)}%，建議多使用大眾運輸或步行`);
+            } else if (transportPercentage > 30) {
+                suggestions.push(`交通碳足跡佔 ${transportPercentage.toFixed(1)}%，建議規劃更環保的出行路線`);
             }
+            
+            // 基於週趨勢的建議
+            if (maxDay > avgWeekly * 1.5) {
+                const maxDayIndex = weeklyTotals.indexOf(maxDay);
+                const maxDayDate = weeklyData[maxDayIndex].day;
+                suggestions.push(`${maxDayDate} 碳足跡異常高達 ${maxDay}kg，建議回顧當日消費行為`);
+            }
+            
+            if (minDay === 0 && avgWeekly > 0) {
+                suggestions.push('近7天中有零碳足跡日，建議將環保習慣推廣到更多天');
+            }
+            
+            // 基於活動數據的建議
+            if (categories.activity > 0) {
+                suggestions.push(`活動碳足跡 ${categories.activity}kg，建議多選擇低碳活動`);
+            }
+            
+            // 基於位置數據的建議
+            if (categories.location > 0) {
+                suggestions.push(`位置變更碳足跡 ${categories.location}kg，建議減少不必要的移動`);
+            }
+            
+            // 如果沒有任何具體建議，提供基於整體表現的建議
             if (suggestions.length === 0) {
-                suggestions.push('表現優秀！繼續保持環保生活習慣');
+                if (avgWeekly < dailyGoal * 0.5) {
+                    suggestions.push(`近7天平均碳足跡 ${avgWeekly.toFixed(1)}kg，表現優秀！繼續保持環保生活習慣`);
+                } else if (avgWeekly < dailyGoal) {
+                    suggestions.push(`近7天平均碳足跡 ${avgWeekly.toFixed(1)}kg，表現良好，可進一步優化消費選擇`);
+                } else {
+                    suggestions.push(`近7天平均碳足跡 ${avgWeekly.toFixed(1)}kg，建議制定更嚴格的環保目標`);
+                }
+            }
+            
+            // 限制建議數量，優先顯示最重要的
+            if (suggestions.length > 3) {
+                suggestions.splice(3);
             }
             
             return {
