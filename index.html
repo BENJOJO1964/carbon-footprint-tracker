@@ -3411,11 +3411,11 @@
         function initializeStatusDisplay() {
             console.log('初始化狀態顯示 - 自動啟動');
             
-            // 設置初始狀態 - 清空状态，让GPS和感应器函数自己设置
-            document.getElementById('locationStatusText').textContent = '';
-            document.getElementById('gpsStatus').textContent = '';
-            document.getElementById('sensorStatus').textContent = '';
-            document.getElementById('autoTracking').textContent = '';
+            // 設置初始狀態
+            document.getElementById('locationStatusText').textContent = '📍 GPS定位中...';
+            document.getElementById('gpsStatus').textContent = '🔄 GPS定位中...';
+            document.getElementById('sensorStatus').textContent = '🔄 感應器啟動中...';
+            document.getElementById('autoTracking').textContent = '✅ 自動追蹤功能已啟用';
         }
         
         // 強制請求權限（最簡化版本）
@@ -3597,6 +3597,10 @@
                             document.getElementById('locationStatusText').textContent = '📍 GPS定位成功 | 正在追蹤您的移動';
                             document.getElementById('gpsStatus').textContent = `✅ GPS定位成功 (精度: ${position.coords.accuracy.toFixed(0)}米)`;
                             
+                            // 設置初始位置
+                            lastPosition = position;
+                            isTracking = true;
+                            
                             // 開始持續追蹤
                             window.gpsWatchId = navigator.geolocation.watchPosition(
                                 function(pos) {
@@ -3606,7 +3610,6 @@
                                         updateMovementData(distance, pos);
                                     }
                                     lastPosition = pos;
-                                    isTracking = true;
                                     updateRealTimeDisplay();
                                 },
                                 function(error) {
@@ -3614,8 +3617,6 @@
                                 },
                                 { enableHighAccuracy: true, timeout: 60000, maximumAge: 0 }
                             );
-                            
-                            isTracking = true;
                         },
                         function(error) {
                             console.log('❌ 手機GPS權限被拒絕:', error.message);
