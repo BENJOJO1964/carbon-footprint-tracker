@@ -1194,7 +1194,7 @@
     <div id="settingsModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 data-lang="settings_title">⚙️ 設定</h3>
+                <h3 data-lang="settings_title">⚙️ 高級設定</h3>
                 <button class="close-btn" onclick="closeModal('settingsModal')">&times;</button>
             </div>
             <div class="form-group">
@@ -1263,7 +1263,8 @@
             } else if (type === 'invoice') {
                 document.getElementById('invoiceModal').style.display = 'block';
             } else if (type === 'settings') {
-                document.getElementById('settingsModal').style.display = 'block';
+                // 設定按鈕直接跳轉到個人化目標設置
+                showPersonalizedGoalSetup();
             }
         }
         
@@ -2745,28 +2746,41 @@
                             <div style="font-size: 12px; color: #666; margin-top: 5px;">基於您的年齡層和居住區域計算</div>
                         </div>
                         
-                        <div style="display: flex; gap: 10px;">
-                            <button onclick="closeModal(this)" style="
-                                flex: 1;
-                                background: #f5f5f5;
+                        <div style="display: flex; gap: 8px; flex-direction: column;">
+                            <div style="display: flex; gap: 8px;">
+                                <button onclick="closeModal(this)" style="
+                                    flex: 1;
+                                    background: #f5f5f5;
+                                    color: #666;
+                                    border: none;
+                                    padding: 12px;
+                                    border-radius: 8px;
+                                    font-size: 16px;
+                                    cursor: pointer;
+                                ">取消</button>
+                                <button onclick="applyPersonalizedGoal()" style="
+                                    flex: 1;
+                                    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+                                    color: white;
+                                    border: none;
+                                    padding: 12px;
+                                    border-radius: 8px;
+                                    font-size: 16px;
+                                    cursor: pointer;
+                                    font-weight: bold;
+                                ">確認設定</button>
+                            </div>
+                            <button onclick="closeModal(this); showAdvancedSettings()" style="
+                                width: 100%;
+                                background: transparent;
                                 color: #666;
-                                border: none;
-                                padding: 12px;
-                                border-radius: 8px;
-                                font-size: 16px;
+                                border: 1px solid #ddd;
+                                padding: 8px;
+                                border-radius: 6px;
+                                font-size: 14px;
                                 cursor: pointer;
-                            ">取消</button>
-                            <button onclick="applyPersonalizedGoal()" style="
-                                flex: 1;
-                                background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-                                color: white;
-                                border: none;
-                                padding: 12px;
-                                border-radius: 8px;
-                                font-size: 16px;
-                                cursor: pointer;
-                                font-weight: bold;
-                            ">確認設定</button>
+                                margin-top: 5px;
+                            ">⚙️ 更多設定選項</button>
                         </div>
                     </div>
                 </div>
@@ -2893,6 +2907,12 @@
         function skipPersonalizedSetup() {
             // 記錄用戶選擇跳過，避免重複彈出
             localStorage.setItem('skipPersonalizedSetup', 'true');
+        }
+        
+        // 顯示高級設定
+        function showAdvancedSettings() {
+            // 顯示原本的設定模態框
+            document.getElementById('settingsModal').style.display = 'block';
         }
         
         // 測試個人化目標
