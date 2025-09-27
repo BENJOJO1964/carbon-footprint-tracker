@@ -3435,13 +3435,13 @@
         
         // 初始化狀態顯示（重置為未知狀態）
         function initializeStatusDisplay() {
-            console.log('初始化狀態顯示 - 自動啟動');
+            console.log('初始化狀態顯示 - Web App需要用戶主動啟用');
             
-            // 設置初始狀態
-            document.getElementById('locationStatusText').textContent = '📍 GPS定位中...';
-            document.getElementById('gpsStatus').textContent = '🔄 GPS定位中...';
-            document.getElementById('sensorStatus').textContent = '🔄 感應器啟動中...';
-            document.getElementById('autoTracking').textContent = '✅ 自動追蹤功能已啟用';
+            // 設置初始狀態 - Web App需要用戶主動啟用
+            document.getElementById('locationStatusText').textContent = '📍 點擊下方按鈕啟用GPS定位';
+            document.getElementById('gpsStatus').textContent = '⚠️ GPS需要手動啟用，請點擊按鈕允許位置權限';
+            document.getElementById('sensorStatus').textContent = '⚠️ 感應器需要手動啟用，請點擊按鈕允許動作權限';
+            document.getElementById('autoTracking').textContent = '⚠️ 請先啟用GPS和感應器功能';
         }
         
         // 強制請求權限（最簡化版本）
