@@ -3677,7 +3677,8 @@
                         // 檢查感應器狀態並更新按鈕
                         setTimeout(() => {
                             const sensorStatus = document.getElementById('sensorStatus').textContent;
-                            if (sensorStatus.includes('✅')) {
+                            // 检查感应器是否正常（包含"正常"或"✅"都表示成功）
+                            if (sensorStatus.includes('✅') || sensorStatus.includes('正常') || sensorStatus.includes('已啟用')) {
                                 document.getElementById('autoTracking').textContent = '✅ 自動追蹤功能已啟用';
                                 statusMessage.textContent = '✅ GPS和感應器已啟用，正在監測您的碳足跡';
                                 button.style.display = 'none'; // 隱藏按鈕
