@@ -952,7 +952,26 @@
                 • <strong data-lang="auto_tracking_label_short">自動追蹤</strong>：<span data-lang="auto_tracking_desc">自動記錄移動和發票，計算碳足跡</span>
             </div>
             <div style="margin-top: 10px; text-align: center; color: #666; font-size: 14px;" id="statusMessage">
-                <span data-lang="auto_enabled_status">✅ GPS和感應器已自動啟用，正在監測您的碳足跡</span>
+                <span>📍 請點擊下方按鈕啟用GPS和感應器功能</span>
+            </div>
+            
+            <!-- GPS和感應器啟用按鈕 -->
+            <div id="enableBtn" style="display: block; margin: 10px 0;">
+                <button onclick="enableGPSAndSensor()" style="
+                    background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+                    color: white;
+                    border: none;
+                    padding: 15px 30px;
+                    border-radius: 10px;
+                    font-size: 16px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+                    width: 100%;
+                    margin-bottom: 10px;
+                " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                    🚀 啟用GPS和感應器功能
+                </button>
             </div>
             
             <!-- Chrome專用GPS權限按鈕 -->
@@ -3607,6 +3626,93 @@
             // 顯示啟用按鈕
             document.getElementById('enableBtn').style.display = 'block';
             document.getElementById('statusMessage').textContent = '📍 請點擊下方按鈕啟用GPS和感應器功能';
+        }
+
+        // 啟用GPS和感應器功能
+        function enableGPSAndSensor() {
+            console.log('🚀 用戶點擊啟用GPS和感應器功能');
+            
+            const button = document.querySelector('#enableBtn button');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            // 更新按鈕狀態
+            button.innerHTML = '🔄 正在啟用功能...';
+            button.disabled = true;
+            
+            // 更新狀態消息
+            statusMessage.textContent = '🔄 正在請求GPS和感應器權限...';
+            
+            // 先啟動感應器
+            startSensorTracking();
+            
+            // 再啟動GPS
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        console.log('📍 GPS權限獲得，開始追蹤');
+                        document.getElementById('locationStatusText').textContent = '📍 GPS定位成功 | 正在追蹤您的移動';
+                        document.getElementById('gpsStatus').textContent = `✅ GPS定位成功 (精度: ${position.coords.accuracy.toFixed(0)}米)`;
+                        
+                        // 設置初始位置
+                        lastPosition = position;
+                        isTracking = true;
+                        
+                        // 開始持續追蹤
+                        window.gpsWatchId = navigator.geolocation.watchPosition(
+                            function(pos) {
+                                if (lastPosition && isTracking) {
+                                    const distance = calculateDistance(lastPosition, pos);
+                                    totalDistance += distance;
+                                    updateMovementData(distance, pos);
+                                }
+                                lastPosition = pos;
+                                updateRealTimeDisplay();
+                            },
+                            function(error) {
+                                console.log('❌ GPS 監聽失敗:', error.message);
+                            },
+                            { enableHighAccuracy: true, timeout: 60000, maximumAge: 0 }
+                        );
+                        
+                        // 檢查感應器狀態
+                        setTimeout(() => {
+                            const sensorStatus = document.getElementById('sensorStatus').textContent;
+                            if (sensorStatus.includes('✅')) {
+                                document.getElementById('autoTracking').textContent = '✅ 自動追蹤功能已啟用';
+                                statusMessage.textContent = '✅ GPS和感應器已啟用，正在監測您的碳足跡';
+                                button.style.display = 'none'; // 隱藏按鈕
+                            } else {
+                                document.getElementById('autoTracking').textContent = '⚠️ GPS已啟用，等待感應器就緒';
+                                statusMessage.textContent = '✅ GPS已啟用，等待感應器權限';
+                            }
+                        }, 1000);
+                    },
+                    function(error) {
+                        console.log('❌ GPS權限被拒絕:', error.message);
+                        let errorMsg = '❌ GPS定位失敗: ' + error.message;
+                        if (error.code === error.TIMEOUT) {
+                            errorMsg = '❌ GPS定位超時，請重試';
+                        } else if (error.code === error.PERMISSION_DENIED) {
+                            errorMsg = '❌ GPS權限被拒絕，請允許位置權限';
+                        } else if (error.code === error.POSITION_UNAVAILABLE) {
+                            errorMsg = '❌ GPS位置不可用，請檢查GPS設定';
+                        }
+                        document.getElementById('locationStatusText').textContent = '📍 GPS定位失敗 | 請檢查權限設定';
+                        document.getElementById('gpsStatus').textContent = errorMsg;
+                        statusMessage.textContent = '❌ GPS權限被拒絕，請重新點擊按鈕並允許權限';
+                        
+                        // 恢復按鈕
+                        button.innerHTML = '🚀 重新啟用GPS和感應器功能';
+                        button.disabled = false;
+                    },
+                    { enableHighAccuracy: true, timeout: 60000, maximumAge: 0 }
+                );
+            } else {
+                document.getElementById('gpsStatus').textContent = '❌ 瀏覽器不支援GPS';
+                statusMessage.textContent = '❌ 瀏覽器不支援GPS功能';
+                button.innerHTML = '🚀 重新啟用GPS和感應器功能';
+                button.disabled = false;
+            }
         }
 
         // Chrome專用GPS權限請求
