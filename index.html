@@ -163,6 +163,8 @@
                 'gps_success_accuracy': '✅ GPS定位成功 (精度: {accuracy}米)',
                 'auto_tracking_enabled': '✅ 自動追蹤功能已啟用',
                 'gps_sensor_monitoring': '✅ GPS和感應器已啟用，正在監測您的碳足跡',
+                'gps_waiting_sensor': '⚠️ GPS已啟用，等待感應器就緒',
+                'gps_waiting_permission': '✅ GPS已啟用，等待感應器權限',
                 'sensor_label_short': '感應器',
                 'auto_tracking_label_short': '自動追蹤',
                 'settings_saved': '設定已儲存！',
@@ -328,6 +330,8 @@
                 'gps_success_accuracy': '✅ GPS定位成功 (精度: {accuracy}米)',
                 'auto_tracking_enabled': '✅ 自动追踪功能已启用',
                 'gps_sensor_monitoring': '✅ GPS和感应器已启用，正在监测您的碳足迹',
+                'gps_waiting_sensor': '⚠️ GPS已启用，等待感应器就绪',
+                'gps_waiting_permission': '✅ GPS已启用，等待感应器权限',
                 'sensor_label_short': '感应器',
                 'auto_tracking_label_short': '自动追踪',
                 'settings_saved': '设定已储存！',
@@ -490,6 +494,8 @@
                 'gps_success_accuracy': '✅ GPS positioning successful (accuracy: {accuracy}m)',
                 'auto_tracking_enabled': '✅ Automatic tracking function enabled',
                 'gps_sensor_monitoring': '✅ GPS and sensors enabled, monitoring your carbon footprint',
+                'gps_waiting_sensor': '⚠️ GPS enabled, waiting for sensors to be ready',
+                'gps_waiting_permission': '✅ GPS enabled, waiting for sensor permissions',
                 'sensor_label_short': 'Sensors',
                 'auto_tracking_label_short': 'Auto Tracking',
                 'settings_saved': 'Settings saved!',
@@ -3689,21 +3695,21 @@
                         // 檢查感應器狀態並更新按鈕
                         setTimeout(() => {
                             const sensorStatus = document.getElementById('sensorStatus').textContent;
-                            // 检查感应器是否正常（包含"正常"或"✅"都表示成功）
-                            if (sensorStatus.includes('✅') || sensorStatus.includes('正常') || sensorStatus.includes('已啟用')) {
+                            // 检查感应器是否正常（包含"正常"、"📊"或"✅"都表示成功）
+                            if (sensorStatus.includes('✅') || sensorStatus.includes('正常') || sensorStatus.includes('已啟用') || sensorStatus.includes('📊')) {
                                 document.getElementById('autoTracking').textContent = t('auto_tracking_enabled');
                                 statusMessage.textContent = t('gps_sensor_monitoring');
                                 button.style.display = 'none'; // 隱藏按鈕
                             } else {
-                                document.getElementById('autoTracking').textContent = '⚠️ GPS已啟用，等待感應器就緒';
-                                statusMessage.textContent = '✅ GPS已啟用，等待感應器權限';
+                                document.getElementById('autoTracking').textContent = t('gps_waiting_sensor');
+                                statusMessage.textContent = t('gps_waiting_permission');
                                 
                                 // 恢復按鈕為可用狀態，但保持隱藏（因為GPS已成功）
                                 button.innerHTML = '🚀 重新啟用GPS和感應器功能';
                                 button.disabled = false;
                                 button.style.display = 'none';
                             }
-                        }, 2000);
+                        }, 3000); // 增加等待时间到3秒
                     },
                     function(error) {
                         console.log('❌ GPS權限被拒絕:', error.message);
