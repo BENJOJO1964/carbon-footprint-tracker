@@ -1177,7 +1177,7 @@
                 </div>
                 <button class="btn camera-btn" onclick="scanInvoice()" data-lang="scan_invoice">📷 開啟相機掃描</button>
                 <button class="btn" onclick="testCameraPermission()" style="background: #FF9800; color: white; margin-left: 10px;">🧪 測試相機權限</button>
-                <button class="btn" onclick="testScanWithMockData()" style="background: #9C27B0; color: white; margin-left: 10px;">📷 開啟相機掃描</button>
+                <button class="btn" onclick="quickTestInput()" style="background: #FF5722; color: white; margin-left: 10px;">⚡ 快速測試</button>
             </div>
             
             <!-- 最近發票記錄 -->
@@ -1498,12 +1498,41 @@
             alert('🧪 相機權限測試結果：\n\n' + results.join('\n') + '\n\n📱 當前網址：\n' + location.href);
         }
         
-        // 測試真實掃描功能
-        async function testScanWithMockData() {
-            console.log('📋 測試真實掃描功能...');
+        // 快速測試功能
+        function quickTestInput() {
+            console.log('⚡ 快速測試開始...');
             
-            // 直接開啟真實的相機掃描
-            await scanInvoice();
+            try {
+                // 直接填入測試數據到表單
+                const storeNameInput = document.getElementById('storeName');
+                const amountInput = document.getElementById('amount');
+                const carbonInput = document.getElementById('carbonFootprint');
+                
+                if (storeNameInput) {
+                    storeNameInput.value = '測試商店';
+                    console.log('✅ 商店名稱已填入');
+                }
+                
+                if (amountInput) {
+                    amountInput.value = '100.00';
+                    console.log('✅ 金額已填入');
+                }
+                
+                if (carbonInput) {
+                    carbonInput.value = '1.20 kg CO₂';
+                    console.log('✅ 碳足跡已填入');
+                }
+                
+                // 更新實時數據
+                realTimeData.shopping += 1.20;
+                updateRealTimeDisplay();
+                
+                alert('⚡ 快速測試成功！\n\n✅ 表單已填入\n✅ 實時數據已更新\n✅ 功能正常運作\n\n請檢查表單和碳足跡顯示是否正確');
+                
+            } catch (error) {
+                console.error('❌ 快速測試失敗:', error);
+                alert('❌ 快速測試失敗：' + error.message);
+            }
         }
         
         // 掃描發票
@@ -1881,22 +1910,10 @@
             } catch (error) {
                 console.error('❌ OCR識別失敗:', error);
                 
-                // 顯示手動輸入選項
-                const shouldManualInput = confirm(
-                    '❌ 無法自動識別發票內容\n\n' +
-                    '可能原因：\n' +
-                    '• OCR服務未配置\n' +
-                    '• 網路連接問題\n' +
-                    '• 發票圖片不清楚\n\n' +
-                    '是否要手動輸入發票信息？'
-                );
-                
-                if (shouldManualInput) {
-                    showManualInputForm();
-                    throw new Error('已切換到手動輸入模式');
-                } else {
-                    throw new Error('OCR識別失敗');
-                }
+                // 直接顯示手動輸入表單
+                console.log('🔄 切換到手動輸入模式');
+                showManualInputForm();
+                return;
             }
         }
         
