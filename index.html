@@ -79,7 +79,24 @@
                 'gps_desc': '定位您的位置，用於記錄移動軌跡',
                 'sensor_desc': '檢測手機動作，判斷交通工具類型',
                 'auto_tracking_desc': '自動記錄移動和發票，計算碳足跡',
-                'auto_enabled_status': '✅ GPS和感應器已自動啟用，正在監測您的碳足跡'
+                'auto_enabled_status': '✅ GPS和感應器已自動啟用，正在監測您的碳足跡',
+                'breakdown_title': '今日碳足跡分解（實時偵測）',
+                'transport_label': '🚗 交通運輸',
+                'shopping_label': '🛒 購物消費',
+                'activity_label': '🏃 活動偵測',
+                'location_label': '📍 位置變化',
+                'sensor_label': '📱 感應器數據',
+                'daily_stats_title': '今日碳足跡統計',
+                'daily_shopping': '🛒 購物消費:',
+                'daily_transport': '🚗 交通移動:',
+                'daily_activity': '🏃 活動感應:',
+                'daily_other': '📱 其他來源:',
+                'daily_invoice_count': '📋 發票數量:',
+                'common_ranges': '常用時間範圍',
+                'days_60_alt': '近2個月',
+                'days_90': '近3個月',
+                'days_120': '近4個月',
+                'days_150': '近5個月'
             },
             'zh-CN': {
                 // 主要界面
@@ -148,7 +165,24 @@
                 'gps_desc': '定位您的位置，用于记录移动轨迹',
                 'sensor_desc': '检测手机动作，判断交通工具类型',
                 'auto_tracking_desc': '自动记录移动和发票，计算碳足迹',
-                'auto_enabled_status': '✅ GPS和感应器已自动启用，正在监测您的碳足迹'
+                'auto_enabled_status': '✅ GPS和感应器已自动启用，正在监测您的碳足迹',
+                'breakdown_title': '今日碳足迹分解（实时侦测）',
+                'transport_label': '🚗 交通运输',
+                'shopping_label': '🛒 购物消费',
+                'activity_label': '🏃 活动侦测',
+                'location_label': '📍 位置变化',
+                'sensor_label': '📱 感应器数据',
+                'daily_stats_title': '今日碳足迹统计',
+                'daily_shopping': '🛒 购物消费:',
+                'daily_transport': '🚗 交通移动:',
+                'daily_activity': '🏃 活动感应:',
+                'daily_other': '📱 其他来源:',
+                'daily_invoice_count': '📋 发票数量:',
+                'common_ranges': '常用时间范围',
+                'days_60_alt': '近2个月',
+                'days_90': '近3个月',
+                'days_120': '近4个月',
+                'days_150': '近5个月'
             },
             'en': {
                 // 主要界面
@@ -217,7 +251,24 @@
                 'gps_desc': 'Locate your position, used to record movement trajectories',
                 'sensor_desc': 'Detect phone movements, determine transportation type',
                 'auto_tracking_desc': 'Automatically record movements and invoices, calculate carbon footprint',
-                'auto_enabled_status': '✅ GPS and sensors are automatically enabled, monitoring your carbon footprint'
+                'auto_enabled_status': '✅ GPS and sensors are automatically enabled, monitoring your carbon footprint',
+                'breakdown_title': 'Today\'s Carbon Footprint Breakdown (Real-time Detection)',
+                'transport_label': '🚗 Transportation',
+                'shopping_label': '🛒 Shopping',
+                'activity_label': '🏃 Activity Detection',
+                'location_label': '📍 Location Change',
+                'sensor_label': '📱 Sensor Data',
+                'daily_stats_title': 'Today\'s Carbon Footprint Statistics',
+                'daily_shopping': '🛒 Shopping:',
+                'daily_transport': '🚗 Transportation:',
+                'daily_activity': '🏃 Activity Detection:',
+                'daily_other': '📱 Other Sources:',
+                'daily_invoice_count': '📋 Invoice Count:',
+                'common_ranges': 'Common Time Ranges',
+                'days_60_alt': 'Last 2 Months',
+                'days_90': 'Last 3 Months',
+                'days_120': 'Last 4 Months',
+                'days_150': 'Last 5 Months'
             }
         };
         
@@ -740,25 +791,25 @@
         </div>
         
         <div class="breakdown">
-            <div class="breakdown-title">今日碳足跡分解（實時偵測）</div>
+            <div class="breakdown-title" data-lang="breakdown_title">今日碳足跡分解（實時偵測）</div>
             <div class="breakdown-item">
-                <span class="breakdown-label">🚗 交通運輸</span>
+                <span class="breakdown-label" data-lang="transport_label">🚗 交通運輸</span>
                 <span class="breakdown-value" id="transportCarbon">0.0 kg</span>
             </div>
             <div class="breakdown-item">
-                <span class="breakdown-label">🛒 購物消費</span>
+                <span class="breakdown-label" data-lang="shopping_label">🛒 購物消費</span>
                 <span class="breakdown-value" id="shoppingCarbon">0.0 kg</span>
             </div>
             <div class="breakdown-item">
-                <span class="breakdown-label">🏃 活動偵測</span>
+                <span class="breakdown-label" data-lang="activity_label">🏃 活動偵測</span>
                 <span class="breakdown-value" id="activityCarbon">0.0 kg</span>
             </div>
             <div class="breakdown-item">
-                <span class="breakdown-label">📍 位置變化</span>
+                <span class="breakdown-label" data-lang="location_label">📍 位置變化</span>
                 <span class="breakdown-value" id="locationCarbon">0.0 kg</span>
             </div>
             <div class="breakdown-item">
-                <span class="breakdown-label">📱 感應器數據</span>
+                <span class="breakdown-label" data-lang="sensor_label">📱 感應器數據</span>
                 <span class="breakdown-value" id="sensorCarbon">0.0 kg</span>
             </div>
         </div>
@@ -1625,29 +1676,29 @@
                     <div style="padding: 20px;">
                         <div style="text-align: center; margin-bottom: 20px;">
                             <div style="font-size: 48px; margin-bottom: 10px;">📊</div>
-                            <h4 style="color: #4CAF50; margin: 0;">今日碳足跡統計</h4>
+                            <h4 style="color: #4CAF50; margin: 0;" data-lang="daily_stats_title">今日碳足跡統計</h4>
                         </div>
                         
                         <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                <span>🛒 購物消費:</span>
+                                <span data-lang="daily_shopping">🛒 購物消費:</span>
                                 <strong>${todayRecord.shopping.toFixed(2)} kg</strong>
                             </div>
                             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                <span>🚗 交通移動:</span>
+                                <span data-lang="daily_transport">🚗 交通移動:</span>
                                 <strong>${todayRecord.transport.toFixed(2)} kg</strong>
                             </div>
                             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                <span>🏃 活動感應:</span>
+                                <span data-lang="daily_activity">🏃 活動感應:</span>
                                 <strong>${todayRecord.activity.toFixed(2)} kg</strong>
                             </div>
                             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                <span>📱 其他來源:</span>
+                                <span data-lang="daily_other">📱 其他來源:</span>
                                 <strong>${todayRecord.other.toFixed(2)} kg</strong>
                             </div>
                             <hr style="margin: 10px 0;">
                             <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; color: #4CAF50;">
-                                <span>📋 發票數量:</span>
+                                <span data-lang="daily_invoice_count">📋 發票數量:</span>
                                 <strong>${todayRecord.invoiceCount} 張</strong>
                             </div>
                         </div>
@@ -3339,19 +3390,19 @@
                         
                         <!-- 時間範圍選擇 -->
                         <div style="background: rgba(255,255,255,0.15); border-radius: 10px; padding: 15px; margin-bottom: 15px;">
-                            <div style="font-size: 16px; font-weight: bold; margin-bottom: 15px; text-align: center;">⏰ 選擇統計時間範圍</div>
+                            <div style="font-size: 16px; font-weight: bold; margin-bottom: 15px; text-align: center;" data-lang="select_range">⏰ 選擇統計時間範圍</div>
                             
                             <!-- 快速選項 -->
                             <div style="margin-bottom: 15px;">
-                                <div style="font-size: 14px; margin-bottom: 8px; text-align: center;">常用時間範圍</div>
+                                <div style="font-size: 14px; margin-bottom: 8px; text-align: center;" data-lang="common_ranges">常用時間範圍</div>
                                 <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;">
                                     <button onclick="quickSelectDays(3)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;">${t('days_3')}</button>
                                     <button onclick="quickSelectDays(7)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;">${t('days_7')}</button>
                                     <button onclick="quickSelectDays(30)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;">${t('days_30')}</button>
-                                    <button onclick="quickSelectDays(60)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;">近2個月</button>
-                                    <button onclick="quickSelectDays(90)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;">近3個月</button>
-                                    <button onclick="quickSelectDays(120)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;">近4個月</button>
-                                    <button onclick="quickSelectDays(150)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;">近5個月</button>
+                                    <button onclick="quickSelectDays(60)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;" data-lang="days_60_alt">近2個月</button>
+                                    <button onclick="quickSelectDays(90)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;" data-lang="days_90">近3個月</button>
+                                    <button onclick="quickSelectDays(120)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;" data-lang="days_120">近4個月</button>
+                                    <button onclick="quickSelectDays(150)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;" data-lang="days_150">近5個月</button>
                                     <button onclick="quickSelectDays(180)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;">${t('days_180')}</button>
                                 </div>
                             </div>
