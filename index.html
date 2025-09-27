@@ -226,12 +226,10 @@
             document.title = lang['app_title'];
             
             // 更新語言選擇器狀態
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.getAttribute('data-lang') === currentLanguage) {
-                    btn.classList.add('active');
-                }
-            });
+            const languageSelect = document.getElementById('languageSelect');
+            if (languageSelect) {
+                languageSelect.value = currentLanguage;
+            }
         }
         
         // 獲取翻譯文本
@@ -445,40 +443,42 @@
             top: 20px;
             right: 20px;
             z-index: 1000;
-            display: flex;
-            gap: 5px;
             background: rgba(255, 255, 255, 0.9);
-            padding: 5px;
             border-radius: 25px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             backdrop-filter: blur(10px);
+            overflow: hidden;
         }
         
-        .lang-btn {
-            padding: 8px 12px;
+        .lang-select {
             border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: bold;
-            transition: all 0.3s ease;
             background: transparent;
-            color: #666;
+            padding: 8px 15px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #4CAF50;
+            cursor: pointer;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234CAF50' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 12px;
+            padding-right: 30px;
+            min-width: 60px;
         }
         
-        .lang-btn.active {
-            background: #4CAF50;
-            color: white;
-            box-shadow: 0 2px 5px rgba(76, 175, 80, 0.3);
+        .lang-select:focus {
+            background-color: rgba(76, 175, 80, 0.1);
         }
         
-        .lang-btn:hover {
-            background: #f0f0f0;
+        .lang-select option {
+            background: white;
             color: #333;
-        }
-        
-        .lang-btn.active:hover {
-            background: #45a049;
+            padding: 8px;
+            font-weight: bold;
         }
 
         .btn {
@@ -581,9 +581,11 @@
 <body>
     <!-- 語言切換器 -->
     <div class="language-switcher">
-        <button class="lang-btn active" data-lang="zh-TW" onclick="switchLanguage('zh-TW')">繁</button>
-        <button class="lang-btn" data-lang="zh-CN" onclick="switchLanguage('zh-CN')">简</button>
-        <button class="lang-btn" data-lang="en" onclick="switchLanguage('en')">EN</button>
+        <select class="lang-select" id="languageSelect" onchange="switchLanguage(this.value)">
+            <option value="zh-TW">繁體中文</option>
+            <option value="zh-CN">简体中文</option>
+            <option value="en">English</option>
+        </select>
     </div>
     
     <div class="container">
