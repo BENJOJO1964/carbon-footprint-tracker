@@ -3687,8 +3687,12 @@
                     userEmail: userEmail,
                     feedbackContent: feedbackContent
                 })
-            }).then(response => response.json())
+            }).then(response => {
+                console.log('API回應狀態:', response.status);
+                return response.json();
+            })
             .then(data => {
+                console.log('API回應數據:', data);
                 if (data.success) {
                     alert('感謝您的反饋！我們會盡快回覆您。');
                     closeModal(document.querySelector('.modal'));
@@ -3697,6 +3701,10 @@
                 }
             }).catch(error => {
                 console.error('發送反饋失敗:', error);
+                console.error('錯誤詳情:', {
+                    message: error.message,
+                    stack: error.stack
+                });
                 
                 // 備用方案：直接複製到剪貼板並顯示詳細信息
                 const feedbackText = `發送給: rbben521@gmail.com\n主題: 減碳日記 - 用戶意見反饋\n\n用戶Email: ${userEmail}\n\n意見內容:\n${feedbackContent}`;
@@ -3716,10 +3724,11 @@
                 
                 closeModal(document.querySelector('.modal'));
             });
-            
-            // 顯示備用方案的詳細說明
-            function showFallbackInstructions(userEmail, feedbackContent) {
-                const instructions = `📧 請手動發送郵件至：rbben521@gmail.com
+        }
+        
+        // 顯示備用方案的詳細說明
+        function showFallbackInstructions(userEmail, feedbackContent) {
+            const instructions = `📧 請手動發送郵件至：rbben521@gmail.com
 
 📝 郵件內容：
 ────────────────────────
@@ -3733,9 +3742,8 @@ ${feedbackContent}
 ────────────────────────
 
 請複製以上內容到您的郵件應用程式並發送。`;
-                
-                alert(instructions);
-            }
+            
+            alert(instructions);
         }
         
     </script>
