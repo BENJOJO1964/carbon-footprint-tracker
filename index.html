@@ -3411,11 +3411,11 @@
         function initializeStatusDisplay() {
             console.log('初始化狀態顯示 - 自動啟動');
             
-            // 設置初始狀態
-            document.getElementById('locationStatusText').textContent = '📍 GPS定位中...';
-            document.getElementById('gpsStatus').textContent = '🔄 GPS定位中...';
-            document.getElementById('sensorStatus').textContent = '🔄 感應器啟動中...';
-            document.getElementById('autoTracking').textContent = '✅ 自動追蹤功能已啟用';
+            // 設置初始狀態 - 清空状态，让GPS和感应器函数自己设置
+            document.getElementById('locationStatusText').textContent = '';
+            document.getElementById('gpsStatus').textContent = '';
+            document.getElementById('sensorStatus').textContent = '';
+            document.getElementById('autoTracking').textContent = '';
         }
         
         // 強制請求權限（最簡化版本）
