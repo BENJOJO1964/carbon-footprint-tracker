@@ -153,7 +153,10 @@
                 'sensor_permission_failed': '❌ 感應器權限請求失敗，請點擊「測試感應器」按鈕',
                 'sensor_label_short': '感應器',
                 'auto_tracking_label_short': '自動追蹤',
-                'settings_saved': '設定已儲存！'
+                'settings_saved': '設定已儲存！',
+                'email_placeholder': '請輸入您的email',
+                'feedback_placeholder': '請告訴我們您的想法、建議或體驗的趣事...(150字內)',
+                'confirm': '確定'
             },
             'zh-CN': {
                 // 主要界面
@@ -439,7 +442,10 @@
                 'sensor_permission_failed': '❌ Sensor permission request failed, please click "Test Sensor" button',
                 'sensor_label_short': 'Sensors',
                 'auto_tracking_label_short': 'Auto Tracking',
-                'settings_saved': 'Settings saved!'
+                'settings_saved': 'Settings saved!',
+                'email_placeholder': 'Please enter your email',
+                'feedback_placeholder': 'Tell us your thoughts, suggestions or interesting experiences... (within 150 characters)',
+                'confirm': 'OK'
             }
         };
         
@@ -4174,6 +4180,27 @@
             return '';
         }
         
+        // 友善的成功提示模態框
+        function showSuccessModal(message) {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 400px; background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); text-align: center;">
+                    <div style="padding: 30px 20px;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">✅</div>
+                        <h3 style="margin: 0 0 20px 0; font-size: 18px; line-height: 1.5;">${message}</h3>
+                        <button onclick="closeModal(this)" data-lang="confirm" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid white; padding: 12px 30px; border-radius: 25px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px;">
+                            確定
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+
         // 意見反饋系統
         function showFeedbackForm() {
             const modal = document.createElement('div');
@@ -4192,7 +4219,7 @@
                         <form id="feedbackForm" style="background: rgba(255,255,255,0.15); border-radius: 10px; padding: 15px;">
                             <div style="margin-bottom: 15px;">
                                 <label style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;" data-lang="your_email">您的Email：</label>
-                                <input type="email" id="userEmail" placeholder="請輸入您的email" required 
+                                <input type="email" id="userEmail" data-lang="email_placeholder" placeholder="請輸入您的email" required 
                                        style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; background: rgba(255,255,255,0.2); color: white; font-size: 14px;">
                                 <style>
                                     #userEmail::placeholder { color: black; }
@@ -4201,7 +4228,7 @@
                             
                             <div style="margin-bottom: 15px;">
                                 <label style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;" data-lang="feedback_content">意見內容：</label>
-                                <textarea id="feedbackContent" placeholder="請告訴我們您的想法、建議或體驗的趣事...(150字內)" required rows="4"
+                                <textarea id="feedbackContent" data-lang="feedback_placeholder" placeholder="請告訴我們您的想法、建議或體驗的趣事...(150字內)" required rows="4"
                                           style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; background: rgba(255,255,255,0.2); color: white; font-size: 14px; resize: vertical;"></textarea>
                                 <style>
                                     #feedbackContent::placeholder { color: black; }
@@ -4250,7 +4277,7 @@
             .then(data => {
                 console.log('API回應數據:', data);
                 if (data.success) {
-                    alert(t('feedback_success'));
+                    showSuccessModal(t('feedback_success'));
                     closeModal(document.querySelector('.modal'));
                 } else {
                     throw new Error(data.error || '發送失敗');
