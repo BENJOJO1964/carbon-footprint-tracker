@@ -7,6 +7,239 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="format-detection" content="telephone=no">
     <title>碳足跡追蹤器</title>
+    
+    <!-- 多語言系統 -->
+    <script>
+        // 多語言配置
+        const languages = {
+            'zh-TW': {
+                // 主要界面
+                'app_title': '碳足跡追蹤器',
+                'daily_record': '每日記錄',
+                'feedback': '意見反饋',
+                'scan_invoice': '📷 開啟相機掃描',
+                'bind_carrier': '🔗 綁定電子發票載具',
+                'today_carbon': '今日碳足跡',
+                'total_carbon': '總碳足跡',
+                'store_name': '商店名稱',
+                'amount': '消費金額',
+                'carbon_footprint': '碳足跡',
+                'submit': '提交記錄',
+                'reset': '重置',
+                
+                // 每日記錄模態框
+                'daily_stats': '每日碳足跡統計',
+                'today_total': '今日總計',
+                'select_range': '選擇統計時間範圍：',
+                'days_3': '近3天',
+                'days_7': '近7天',
+                'days_15': '近15天',
+                'days_30': '近30天',
+                'days_60': '近60天',
+                'days_180': '近6個月',
+                'custom_days': '自定義天數',
+                'enter_days': '請輸入天數',
+                'cumulative_stats': '累計統計',
+                'average_daily': '平均每日',
+                'close': '關閉',
+                
+                // 反饋模態框
+                'feedback_title': '您的意見讓我們變得更好',
+                'your_email': '您的Email',
+                'feedback_content': '請告訴我們您的想法，建議或體驗的趣事...(150字內)',
+                'send_feedback': '發送反饋',
+                'cancel': '取消',
+                'feedback_success': '感謝你的聲音，減碳日記因你而更好。',
+                
+                // 掃描相關
+                'scanning': '掃描中...',
+                'scan_success': '掃描成功！',
+                'scan_failed': '掃描失敗',
+                'auto_detected': '🤖 自動偵測到發票！',
+                'continue_scanning': '繼續掃描',
+                
+                // 載具綁定
+                'carrier_binding': '電子發票載具綁定',
+                'carrier_code': '載具編號',
+                'bind_success': '載具綁定成功',
+                'bind_failed': '載具綁定失敗',
+                
+                // 通用
+                'loading': '載入中...',
+                'error': '錯誤',
+                'success': '成功',
+                'confirm': '確定',
+                'kg_co2': 'kg CO₂',
+                'ntd': 'NT$'
+            },
+            'zh-CN': {
+                // 主要界面
+                'app_title': '碳足迹追踪器',
+                'daily_record': '每日记录',
+                'feedback': '意见反馈',
+                'scan_invoice': '📷 开启相机扫描',
+                'bind_carrier': '🔗 绑定电子发票载具',
+                'today_carbon': '今日碳足迹',
+                'total_carbon': '总碳足迹',
+                'store_name': '商店名称',
+                'amount': '消费金额',
+                'carbon_footprint': '碳足迹',
+                'submit': '提交记录',
+                'reset': '重置',
+                
+                // 每日记录模态框
+                'daily_stats': '每日碳足迹统计',
+                'today_total': '今日总计',
+                'select_range': '选择统计时间范围：',
+                'days_3': '近3天',
+                'days_7': '近7天',
+                'days_15': '近15天',
+                'days_30': '近30天',
+                'days_60': '近60天',
+                'days_180': '近6个月',
+                'custom_days': '自定义天数',
+                'enter_days': '请输入天数',
+                'cumulative_stats': '累计统计',
+                'average_daily': '平均每日',
+                'close': '关闭',
+                
+                // 反馈模态框
+                'feedback_title': '您的意见让我们变得更好',
+                'your_email': '您的Email',
+                'feedback_content': '请告诉我们您的想法，建议或体验的趣事...(150字内)',
+                'send_feedback': '发送反馈',
+                'cancel': '取消',
+                'feedback_success': '感谢你的声音，减碳日记因你而更好。',
+                
+                // 扫描相关
+                'scanning': '扫描中...',
+                'scan_success': '扫描成功！',
+                'scan_failed': '扫描失败',
+                'auto_detected': '🤖 自动侦测到发票！',
+                'continue_scanning': '继续扫描',
+                
+                // 载具绑定
+                'carrier_binding': '电子发票载具绑定',
+                'carrier_code': '载具编号',
+                'bind_success': '载具绑定成功',
+                'bind_failed': '载具绑定失败',
+                
+                // 通用
+                'loading': '加载中...',
+                'error': '错误',
+                'success': '成功',
+                'confirm': '确定',
+                'kg_co2': 'kg CO₂',
+                'ntd': '¥'
+            },
+            'en': {
+                // 主要界面
+                'app_title': 'Carbon Footprint Tracker',
+                'daily_record': 'Daily Record',
+                'feedback': 'Feedback',
+                'scan_invoice': '📷 Open Camera Scan',
+                'bind_carrier': '🔗 Bind E-Invoice Carrier',
+                'today_carbon': 'Today\'s Carbon',
+                'total_carbon': 'Total Carbon',
+                'store_name': 'Store Name',
+                'amount': 'Amount',
+                'carbon_footprint': 'Carbon Footprint',
+                'submit': 'Submit',
+                'reset': 'Reset',
+                
+                // 每日记录模态框
+                'daily_stats': 'Daily Carbon Statistics',
+                'today_total': 'Today\'s Total',
+                'select_range': 'Select time range:',
+                'days_3': 'Last 3 days',
+                'days_7': 'Last 7 days',
+                'days_15': 'Last 15 days',
+                'days_30': 'Last 30 days',
+                'days_60': 'Last 60 days',
+                'days_180': 'Last 6 months',
+                'custom_days': 'Custom days',
+                'enter_days': 'Enter days',
+                'cumulative_stats': 'Cumulative Stats',
+                'average_daily': 'Daily Average',
+                'close': 'Close',
+                
+                // 反馈模态框
+                'feedback_title': 'Your feedback makes us better',
+                'your_email': 'Your Email',
+                'feedback_content': 'Tell us your thoughts, suggestions or interesting experiences... (within 150 characters)',
+                'send_feedback': 'Send Feedback',
+                'cancel': 'Cancel',
+                'feedback_success': 'Thank you for your voice, Carbon Diary is better because of you.',
+                
+                // 扫描相关
+                'scanning': 'Scanning...',
+                'scan_success': 'Scan successful!',
+                'scan_failed': 'Scan failed',
+                'auto_detected': '🤖 Invoice auto-detected!',
+                'continue_scanning': 'Continue Scanning',
+                
+                // 载具绑定
+                'carrier_binding': 'E-Invoice Carrier Binding',
+                'carrier_code': 'Carrier Code',
+                'bind_success': 'Carrier bound successfully',
+                'bind_failed': 'Carrier binding failed',
+                
+                // 通用
+                'loading': 'Loading...',
+                'error': 'Error',
+                'success': 'Success',
+                'confirm': 'Confirm',
+                'kg_co2': 'kg CO₂',
+                'ntd': '$'
+            }
+        };
+        
+        // 當前語言
+        let currentLanguage = localStorage.getItem('selectedLanguage') || 'zh-TW';
+        
+        // 語言切換函數
+        function switchLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('selectedLanguage', lang);
+            updateLanguage();
+        }
+        
+        // 更新界面語言
+        function updateLanguage() {
+            const lang = languages[currentLanguage];
+            
+            // 更新所有帶有 data-lang 屬性的元素
+            document.querySelectorAll('[data-lang]').forEach(element => {
+                const key = element.getAttribute('data-lang');
+                if (lang[key]) {
+                    if (element.tagName === 'INPUT' && element.type === 'text') {
+                        element.placeholder = lang[key];
+                    } else if (element.tagName === 'TEXTAREA') {
+                        element.placeholder = lang[key];
+                    } else {
+                        element.textContent = lang[key];
+                    }
+                }
+            });
+            
+            // 更新標題
+            document.title = lang['app_title'];
+            
+            // 更新語言選擇器狀態
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-lang') === currentLanguage) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+        
+        // 獲取翻譯文本
+        function t(key) {
+            return languages[currentLanguage][key] || key;
+        }
+    </script>
+    
     <style>
         * {
             margin: 0;
@@ -206,6 +439,48 @@
             touch-action: manipulation;
         }
         
+        /* 語言切換器樣式 */
+        .language-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 5px;
+            border-radius: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .lang-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            background: transparent;
+            color: #666;
+        }
+        
+        .lang-btn.active {
+            background: #4CAF50;
+            color: white;
+            box-shadow: 0 2px 5px rgba(76, 175, 80, 0.3);
+        }
+        
+        .lang-btn:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .lang-btn.active:hover {
+            background: #45a049;
+        }
+
         .btn {
             width: 100%;
             padding: 12px;
@@ -304,6 +579,13 @@
     </style>
 </head>
 <body>
+    <!-- 語言切換器 -->
+    <div class="language-switcher">
+        <button class="lang-btn active" data-lang="zh-TW" onclick="switchLanguage('zh-TW')">繁</button>
+        <button class="lang-btn" data-lang="zh-CN" onclick="switchLanguage('zh-CN')">简</button>
+        <button class="lang-btn" data-lang="en" onclick="switchLanguage('en')">EN</button>
+    </div>
+    
     <div class="container">
         <!-- 綠色標題卡片，貼著頁面上緣 -->
         <div style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; padding: 20px; margin: 0; border-radius: 0 0 15px 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: relative;">
@@ -373,13 +655,13 @@
             </div>
             
             <div style="margin-top: 10px;">
-                <button class="btn" onclick="triggerDailyRecord()" id="dailyRecordBtn" style="background: #FF9800; color: white; font-size: 12px; padding: 8px; min-height: 36px; width: 100%; border: none; border-radius: 6px; cursor: pointer;">
+                <button class="btn" onclick="triggerDailyRecord()" id="dailyRecordBtn" data-lang="daily_record" style="background: #FF9800; color: white; font-size: 12px; padding: 8px; min-height: 36px; width: 100%; border: none; border-radius: 6px; cursor: pointer;">
                     🕛 每日記錄
                 </button>
             </div>
             
             <div style="margin-top: 10px;">
-                <button class="btn" onclick="showFeedbackForm()" style="background: #9C27B0; color: white; font-size: 12px; padding: 8px; min-height: 36px; width: 100%; border: none; border-radius: 6px; cursor: pointer;">
+                <button class="btn" onclick="showFeedbackForm()" data-lang="feedback" style="background: #9C27B0; color: white; font-size: 12px; padding: 8px; min-height: 36px; width: 100%; border: none; border-radius: 6px; cursor: pointer;">
                     📝 意見反饋
                 </button>
             </div>
@@ -480,7 +762,7 @@
                 <div id="carrierStatus" style="margin-bottom: 10px;">
                     <span id="carrierInfo">未綁定載具</span>
                 </div>
-                <button class="btn" onclick="bindCarrier()" style="background: #4CAF50; margin-bottom: 10px;">
+                <button class="btn" onclick="bindCarrier()" data-lang="bind_carrier" style="background: #4CAF50; margin-bottom: 10px;">
                     🔗 綁定電子發票載具
                 </button>
                 <button class="btn" onclick="checkCarrierInvoices()" style="background: #2196F3; margin-bottom: 10px;">
@@ -495,18 +777,18 @@
             <div style="margin-bottom: 20px; padding: 15px; background: #fff3e0; border-radius: 8px; border-left: 4px solid #FF9800;">
                 <h4 style="margin-bottom: 10px; color: #e65100;">📷 傳統發票掃描</h4>
                 <div class="form-group">
-                    <label>商店名稱</label>
+                    <label data-lang="store_name">商店名稱</label>
                     <input type="text" id="storeName" placeholder="例如: 全聯福利中心">
                 </div>
                 <div class="form-group">
-                    <label>消費金額</label>
+                    <label data-lang="amount">消費金額</label>
                     <input type="number" id="amount" placeholder="例如: 150" step="0.01">
                 </div>
                 <div class="form-group">
-                    <label>碳足跡</label>
+                    <label data-lang="carbon_footprint">碳足跡</label>
                     <input type="text" id="carbonFootprint" placeholder="掃描後自動計算" readonly style="background-color: #f8f9fa; color: #4CAF50; font-weight: bold;">
                 </div>
-                <button class="btn camera-btn" onclick="scanInvoice()">📷 開啟相機掃描</button>
+                <button class="btn camera-btn" onclick="scanInvoice()" data-lang="scan_invoice">📷 開啟相機掃描</button>
             </div>
             
             <!-- 最近發票記錄 -->
@@ -2219,6 +2501,9 @@
         
         // 頁面載入時更新數據
         window.onload = function() {
+            // 初始化多語言系統
+            updateLanguage();
+            
             // 初始化載具信息
             const savedCarrierInfo = localStorage.getItem('carrierInfo');
             if (savedCarrierInfo) {
@@ -2972,8 +3257,8 @@
                     <div style="padding: 20px;">
                         <div style="text-align: center; margin-bottom: 20px;">
                             <div style="font-size: 24px; margin-bottom: 10px;">📅</div>
-                            <h3 style="margin: 0 0 10px 0; font-size: 18px;">碳足跡記錄</h3>
-                            <div style="font-size: 14px; opacity: 0.9;">今日記錄 + 自選時間範圍統計</div>
+                            <h3 style="margin: 0 0 10px 0; font-size: 18px;">${t('daily_stats')}</h3>
+                            <div style="font-size: 14px; opacity: 0.9;">${t('today_total')} + ${t('select_range')}</div>
                         </div>
                         
                         <!-- 今日記錄 -->
@@ -3013,20 +3298,20 @@
                             <div style="margin-bottom: 15px;">
                                 <div style="font-size: 14px; margin-bottom: 8px; text-align: center;">常用時間範圍</div>
                                 <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;">
-                                    <button onclick="quickSelectDays(3)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;">近3天</button>
-                                    <button onclick="quickSelectDays(7)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;">近7天</button>
-                                    <button onclick="quickSelectDays(30)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;">近30天</button>
+                                    <button onclick="quickSelectDays(3)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;">${t('days_3')}</button>
+                                    <button onclick="quickSelectDays(7)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;">${t('days_7')}</button>
+                                    <button onclick="quickSelectDays(30)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;">${t('days_30')}</button>
                                     <button onclick="quickSelectDays(60)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;">近2個月</button>
                                     <button onclick="quickSelectDays(90)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;">近3個月</button>
                                     <button onclick="quickSelectDays(120)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;">近4個月</button>
                                     <button onclick="quickSelectDays(150)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;">近5個月</button>
-                                    <button onclick="quickSelectDays(180)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;">近6個月</button>
+                                    <button onclick="quickSelectDays(180)" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px;">${t('days_180')}</button>
                                 </div>
                             </div>
                             
                             <!-- 自定義輸入 -->
                             <div style="display: flex; align-items: center; gap: 8px; justify-content: center;">
-                                <span style="font-size: 13px;">自定義：</span>
+                                <span style="font-size: 13px;">${t('custom_days')}：</span>
                                 <input type="number" id="daysInput" value="7" min="1" max="180" style="width: 50px; padding: 4px; border: 1px solid white; border-radius: 4px; background: rgba(255,255,255,0.2); color: white; text-align: center; font-size: 12px;">
                                 <span style="font-size: 13px;">天</span>
                                 <button onclick="showCustomPeriodStats()" style="background: rgba(255,255,255,0.3); color: white; border: 1px solid white; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">查看</button>
@@ -3041,7 +3326,7 @@
                         </div>
                         
                         <div style="text-align: center;">
-                            <button onclick="closeModal(this)" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid white; padding: 10px 30px; border-radius: 25px; cursor: pointer; font-size: 14px; font-weight: bold;">關閉</button>
+                            <button onclick="closeModal(this)" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid white; padding: 10px 30px; border-radius: 25px; cursor: pointer; font-size: 14px; font-weight: bold;">${t('close')}</button>
                         </div>
                     </div>
                 </div>
@@ -3629,13 +3914,13 @@
                     <div style="padding: 20px;">
                         <div style="text-align: center; margin-bottom: 20px;">
                             <div style="font-size: 24px; margin-bottom: 10px;">📝</div>
-                            <h3 style="margin: 0 0 10px 0; font-size: 18px;">意見反饋</h3>
-                            <div style="font-size: 14px; opacity: 0.9;">您的意見讓我們變得更好</div>
+                            <h3 style="margin: 0 0 10px 0; font-size: 18px;" data-lang="feedback">意見反饋</h3>
+                            <div style="font-size: 14px; opacity: 0.9;" data-lang="feedback_title">您的意見讓我們變得更好</div>
                         </div>
                         
                         <form id="feedbackForm" style="background: rgba(255,255,255,0.15); border-radius: 10px; padding: 15px;">
                             <div style="margin-bottom: 15px;">
-                                <label style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">您的Email：</label>
+                                <label style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;" data-lang="your_email">您的Email：</label>
                                 <input type="email" id="userEmail" placeholder="請輸入您的email" required 
                                        style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; background: rgba(255,255,255,0.2); color: white; font-size: 14px;">
                                 <style>
@@ -3644,7 +3929,7 @@
                             </div>
                             
                             <div style="margin-bottom: 15px;">
-                                <label style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">意見內容：</label>
+                                <label style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;" data-lang="feedback_content">意見內容：</label>
                                 <textarea id="feedbackContent" placeholder="請告訴我們您的想法、建議或體驗的趣事...(150字內)" required rows="4"
                                           style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; background: rgba(255,255,255,0.2); color: white; font-size: 14px; resize: vertical;"></textarea>
                                 <style>
@@ -3653,10 +3938,10 @@
                             </div>
                             
                             <div style="display: flex; gap: 10px; justify-content: center;">
-                                <button type="button" onclick="submitFeedback()" style="background: rgba(255,255,255,0.3); color: white; border: 2px solid white; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-size: 14px; font-weight: bold;">
+                                <button type="button" onclick="submitFeedback()" data-lang="send_feedback" style="background: rgba(255,255,255,0.3); color: white; border: 2px solid white; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-size: 14px; font-weight: bold;">
                                     發送反饋
                                 </button>
-                                <button type="button" onclick="closeModal(this)" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid white; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-size: 14px; font-weight: bold;">
+                                <button type="button" onclick="closeModal(this)" data-lang="cancel" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid white; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-size: 14px; font-weight: bold;">
                                     取消
                                 </button>
                             </div>
@@ -3694,7 +3979,7 @@
             .then(data => {
                 console.log('API回應數據:', data);
                 if (data.success) {
-                    alert('感謝你的聲音，減碳日記因你而更好。');
+                    alert(t('feedback_success'));
                     closeModal(document.querySelector('.modal'));
                 } else {
                     throw new Error(data.error || '發送失敗');

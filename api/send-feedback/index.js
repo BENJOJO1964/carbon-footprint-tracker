@@ -27,12 +27,38 @@ export default async function handler(req, res) {
         
         console.log('使用 Resend API 發送郵件...');
         
-        // 發送郵件
-        const { data, error } = await resend.emails.send({
-            from: 'onboarding@resend.dev', // 使用 Resend 的預設驗證地址
-            to: 'rbben521@gmail.com',
-            subject: '減碳日記 - 用戶意見反饋',
-            html: `
+        // 根據用戶語言設定郵件主題和內容
+        const userAgent = req.headers['user-agent'] || '';
+        const isEnglish = userAgent.includes('en') || userEmail.includes('@') && userEmail.split('@')[1].includes('com');
+        const isSimplified = userAgent.includes('zh-CN') || userAgent.includes('zh_CN');
+        
+        let subject, html;
+        
+        if (isEnglish) {
+            subject = 'Carbon Diary - User Feedback';
+            html = `
+                <h2>Carbon Diary - User Feedback</h2>
+                <p><strong>User Email:</strong> ${userEmail}</p>
+                <p><strong>Feedback Content:</strong></p>
+                <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                    ${feedbackContent.replace(/\n/g, '<br>')}
+                </div>
+                <p><em>Sent time: ${new Date().toLocaleString('en-US')}</em></p>
+            `;
+        } else if (isSimplified) {
+            subject = '减碳日记 - 用户意见反馈';
+            html = `
+                <h2>减碳日记 - 用户意见反馈</h2>
+                <p><strong>用户Email:</strong> ${userEmail}</p>
+                <p><strong>反馈内容:</strong></p>
+                <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                    ${feedbackContent.replace(/\n/g, '<br>')}
+                </div>
+                <p><em>发送时间: ${new Date().toLocaleString('zh-CN')}</em></p>
+            `;
+        } else {
+            subject = '減碳日記 - 用戶意見反饋';
+            html = `
                 <h2>減碳日記 - 用戶意見反饋</h2>
                 <p><strong>用戶Email:</strong> ${userEmail}</p>
                 <p><strong>反饋內容:</strong></p>
@@ -40,7 +66,15 @@ export default async function handler(req, res) {
                     ${feedbackContent.replace(/\n/g, '<br>')}
                 </div>
                 <p><em>發送時間: ${new Date().toLocaleString('zh-TW')}</em></p>
-            `
+            `;
+        }
+        
+        // 發送郵件
+        const { data, error } = await resend.emails.send({
+            from: 'onboarding@resend.dev', // 使用 Resend 的預設驗證地址
+            to: 'rbben521@gmail.com',
+            subject: subject,
+            html: html
         });
         
         if (error) {
