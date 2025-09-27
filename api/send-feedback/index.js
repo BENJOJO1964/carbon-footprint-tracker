@@ -1,6 +1,6 @@
 // Vercel Serverless Function for sending feedback emails
-// 使用SendGrid郵件服務
-const sgMail = require('@sendgrid/mail');
+// 使用 Gmail SMTP 郵件服務
+const nodemailer = require('nodemailer');
 
 export default async function handler(req, res) {
     // 只允許POST請求
@@ -14,37 +14,33 @@ export default async function handler(req, res) {
         console.log('收到反饋郵件請求:', { userEmail, feedbackContent });
         console.log('環境變數檢查:', {
             EMAIL_USER: process.env.EMAIL_USER ? '已設定' : '未設定',
-            EMAIL_PASS: process.env.EMAIL_PASS ? '已設定' : '未設定',
-            SENDGRID_API_KEY: process.env.SENDGRID_API_KEY ? '已設定' : '未設定',
-            SENDGRID_API_KEY_PREFIX: process.env.SENDGRID_API_KEY ? process.env.SENDGRID_API_KEY.substring(0, 10) + '...' : '未設定'
+            EMAIL_PASS: process.env.EMAIL_PASS ? '已設定' : '未設定'
         });
         
-        // 檢查SendGrid API Key
-        if (!process.env.SENDGRID_API_KEY) {
-            console.error('SENDGRID_API_KEY未設定');
+        // 檢查 Gmail 憑證
+        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+            console.error('EMAIL_USER 或 EMAIL_PASS 未設定');
             return res.status(500).json({
                 success: false,
                 error: '郵件服務配置錯誤'
             });
         }
         
-        console.log('SendGrid API Key檢查:', {
-            SENDGRID_API_KEY: process.env.SENDGRID_API_KEY ? '已設定' : '未設定',
-            SENDGRID_API_KEY_LENGTH: process.env.SENDGRID_API_KEY ? process.env.SENDGRID_API_KEY.length : 0,
-            SENDGRID_API_KEY_PREFIX: process.env.SENDGRID_API_KEY ? process.env.SENDGRID_API_KEY.substring(0, 15) + '...' : '未設定',
-            NODE_ENV: process.env.NODE_ENV,
-            VERCEL: process.env.VERCEL
+        console.log('使用 Gmail SMTP 發送郵件...');
+        
+        // 創建 Gmail SMTP 傳輸器
+        const transporter = nodemailer.createTransporter({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            }
         });
         
-        // 設定SendGrid API Key
-        sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-        
-        console.log('使用SendGrid API發送郵件...');
-        
         // 發送郵件
-        const msg = {
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
             to: 'rbben521@gmail.com',
-            from: 'noreply@sendgrid.net', // 使用SendGrid的預設驗證地址
             subject: '減碳日記 - 用戶意見反饋',
             html: `
                 <h2>減碳日記 - 用戶意見反饋</h2>
@@ -57,7 +53,7 @@ export default async function handler(req, res) {
             `
         };
         
-        const result = await sgMail.send(msg);
+        const result = await transporter.sendMail(mailOptions);
         
         console.log('反饋郵件發送成功:', result.messageId);
         
@@ -76,17 +72,17 @@ export default async function handler(req, res) {
             stack: error.stack
         });
         
-        // 檢查SendGrid API錯誤
-        if (error.message.includes('Invalid API key') || error.message.includes('Unauthorized')) {
-            console.error('SendGrid API Key無效或過期');
+        // 檢查 Gmail SMTP 錯誤
+        if (error.message.includes('Invalid login') || error.message.includes('authentication')) {
+            console.error('Gmail 認證失敗');
             return res.status(500).json({
                 success: false,
-                error: 'SendGrid API Key無效或過期，請檢查設定'
+                error: 'Gmail 認證失敗，請檢查 EMAIL_USER 和 EMAIL_PASS 設定'
             });
         }
         
         if (error.message.includes('Rate limit')) {
-            console.error('SendGrid API 速率限制');
+            console.error('Gmail SMTP 速率限制');
             return res.status(500).json({
                 success: false,
                 error: '郵件發送頻率過高，請稍後再試'
