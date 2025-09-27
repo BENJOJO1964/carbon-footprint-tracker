@@ -96,7 +96,16 @@
                 'days_60_alt': '近2個月',
                 'days_90': '近3個月',
                 'days_120': '近4個月',
-                'days_150': '近5個月'
+                'days_150': '近5個月',
+                'movement_record': '移動記錄',
+                'record_transport': '記錄交通方式',
+                'invoice_management': '發票管理',
+                'bind_scan_detect': '綁定載具 & 掃描發票',
+                'auto_detect_carbon': '自動偵測碳足跡',
+                'data_analysis': '數據分析',
+                'view_detailed_stats': '查看詳細統計',
+                'settings': '設定',
+                'personalized_settings': '個人化設定'
             },
             'zh-CN': {
                 // 主要界面
@@ -182,7 +191,16 @@
                 'days_60_alt': '近2个月',
                 'days_90': '近3个月',
                 'days_120': '近4个月',
-                'days_150': '近5个月'
+                'days_150': '近5个月',
+                'movement_record': '移动记录',
+                'record_transport': '记录交通方式',
+                'invoice_management': '发票管理',
+                'bind_scan_detect': '绑定载具 & 扫描发票',
+                'auto_detect_carbon': '自动侦测碳足迹',
+                'data_analysis': '数据分析',
+                'view_detailed_stats': '查看详细统计',
+                'settings': '设定',
+                'personalized_settings': '个性化设定'
             },
             'en': {
                 // 主要界面
@@ -268,7 +286,16 @@
                 'days_60_alt': 'Last 2 Months',
                 'days_90': 'Last 3 Months',
                 'days_120': 'Last 4 Months',
-                'days_150': 'Last 5 Months'
+                'days_150': 'Last 5 Months',
+                'movement_record': 'Movement Record',
+                'record_transport': 'Record Transportation',
+                'invoice_management': 'Invoice Management',
+                'bind_scan_detect': 'Bind Carrier & Scan Invoice',
+                'auto_detect_carbon': 'Auto-detect Carbon Footprint',
+                'data_analysis': 'Data Analysis',
+                'view_detailed_stats': 'View Detailed Statistics',
+                'settings': 'Settings',
+                'personalized_settings': 'Personalized Settings'
             }
         };
         
@@ -766,27 +793,27 @@
         <div class="menu-grid">
             <div class="menu-item" onclick="openModal('movement')" style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white;">
                 <div class="menu-icon">🚗</div>
-                <div class="menu-title">移動記錄</div>
-                <div class="menu-desc" style="color: black;">記錄交通方式</div>
+                <div class="menu-title" data-lang="movement_record">移動記錄</div>
+                <div class="menu-desc" style="color: black;" data-lang="record_transport">記錄交通方式</div>
             </div>
             
             <div class="menu-item" onclick="openModal('invoice')" style="background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); color: white;">
                 <div class="menu-icon">🧾</div>
-                <div class="menu-title">發票管理</div>
-                <div class="menu-desc" style="color: black;">綁定載具 & 掃描發票</div>
-                <div class="menu-desc" style="color: black; font-size: 12px; margin-top: 2px;">自動偵測碳足跡</div>
+                <div class="menu-title" data-lang="invoice_management">發票管理</div>
+                <div class="menu-desc" style="color: black;" data-lang="bind_scan_detect">綁定載具 & 掃描發票</div>
+                <div class="menu-desc" style="color: black; font-size: 12px; margin-top: 2px;" data-lang="auto_detect_carbon">自動偵測碳足跡</div>
             </div>
             
             <div class="menu-item" onclick="showAnalytics()" style="background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%); color: white;">
                 <div class="menu-icon">📊</div>
-                <div class="menu-title">數據分析</div>
-                <div class="menu-desc" style="color: black;">查看詳細統計</div>
+                <div class="menu-title" data-lang="data_analysis">數據分析</div>
+                <div class="menu-desc" style="color: black;" data-lang="view_detailed_stats">查看詳細統計</div>
             </div>
             
             <div class="menu-item" onclick="openModal('settings')" style="background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%); color: white;">
                 <div class="menu-icon">⚙️</div>
-                <div class="menu-title">設定</div>
-                <div class="menu-desc" style="color: black;">個人化設定</div>
+                <div class="menu-title" data-lang="settings">設定</div>
+                <div class="menu-desc" style="color: black;" data-lang="personalized_settings">個人化設定</div>
             </div>
         </div>
         
